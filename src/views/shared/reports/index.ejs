@@ -1,0 +1,105 @@
+<%
+  pageTitle = 'گزارشات';
+  extraCss = [];
+  const base = (typeof basePath === 'string') ? basePath : '';
+  headerTitle = pageTitle;
+%>
+
+<div class="container">
+  <div class="tabs-container">
+    <button class="tab-btn active" data-tab="MY">گزارشات خودم</button>
+    <button class="tab-btn" data-tab="TEAM">گزارشات تیم من</button>
+    <button class="tab-btn" data-tab="RIVALS">گزارشات رقبا</button>
+  </div>
+  
+  <% if (emptyMessage) { %>
+    <div class="alert alert-warning">
+      <p><%= emptyMessage %></p>
+    </div>
+  <% } %>
+
+  <div class="tab-panel" data-panel="MY">
+    <% if ((reportsByGroup.MY || []).length === 0) { %>
+      <p class="text-muted">هیچ گزارش فعالی برای شما فعال نیست.</p>
+    <% } else { %>
+      <div class="reports-grid">
+        <% reportsByGroup.MY.forEach(function(r){ %>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title"><%= r.title %></h3>
+            </div>
+            <div class="card-body">
+              <p class="text-muted"><%= r.description || 'گزارش شخصی' %></p>
+            </div>
+            <div class="card-footer">
+              <a href="<%= base %>/reports/<%= r.key %>" class="btn btn-primary">مشاهده</a>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="tab-panel" data-panel="TEAM" style="display:none;">
+    <% if ((reportsByGroup.TEAM || []).length === 0) { %>
+      <p class="text-muted">هیچ گزارش تیمی فعال نیست.</p>
+    <% } else { %>
+      <div class="reports-grid">
+        <% reportsByGroup.TEAM.forEach(function(r){ %>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title"><%= r.title %></h3>
+            </div>
+            <div class="card-body">
+              <p class="text-muted"><%= r.description || 'گزارش تیمی' %></p>
+            </div>
+            <div class="card-footer">
+            <a href="<%= base %>/reports/<%= r.key %>" class="btn btn-primary">مشاهده</a>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="tab-panel" data-panel="RIVALS" style="display:none;">
+    <div class="alert alert-warning">
+      <strong>پیام ثابت:</strong>
+      <p class="mt-1"><%= rivalsMessage %></p>
+    </div>
+    <% if ((reportsByGroup.RIVALS || []).length === 0) { %>
+      <p class="text-muted">هیچ گزارش رقبا فعال نیست.</p>
+    <% } else { %>
+      <div class="reports-grid">
+        <% reportsByGroup.RIVALS.forEach(function(r){ %>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title"><%= r.title %></h3>
+            </div>
+            <div class="card-body">
+              <p class="text-muted"><%= r.description || 'گزارش مقایسه با رقبا' %></p>
+            </div>
+            <div class="card-footer">
+            <a href="<%= base %>/reports/<%= r.key %>" class="btn btn-primary">مشاهده</a>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.tab;
+        tabs.forEach(b => b.classList.toggle('active', b === btn));
+        panels.forEach(p => p.style.display = p.dataset.panel === key ? 'block' : 'none');
+      });
+    });
+  })();
+</script>
+

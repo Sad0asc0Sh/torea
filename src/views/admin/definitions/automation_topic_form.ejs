@@ -1,0 +1,70 @@
+<%
+const activeKey = 'def_automation_topics';
+  const pageTitle = mode === 'edit' ? 'ویرایش سرفصل اتوماسیون' : 'افزودن سرفصل اتوماسیون';
+  const extraCss = ['/css/admin/definitions/automation-topics.css'];
+  const pageClass = 'page--automation-topics';
+%>
+<%
+  var __formAction = (typeof formAction !== 'undefined') ? formAction : '';
+  var __topic = (typeof topic !== 'undefined') ? topic : {};
+%>      <div class="stack">
+        <section class="card">
+          <div class="top">
+            <div>
+              <h2 class="title"><%= mode === 'edit' ? 'ویرایش سرفصل' : 'افزودن سرفصل جدید' %></h2>
+              <p class="sub">عنوان، انتخاب نوع(ها)، پیشنویس و وضعیت فعال/ترتیب</p>
+            </div>
+            <div class="btn-row">
+              <a class="btn btn-secondary" href="/admin/definitions/automation-topics">بازگشت</a>
+            </div>
+          </div>
+
+          <form method="post" action="<%= __formAction %>" class="form-grid">
+            <div class="field">
+              <label for="title">عنوان سرفصل<span class="req">*</span></label>
+              <input type="text" id="title" name="title" value="<%= __topic.title || '' %>" required>
+            </div>
+
+            <div class="field">
+              <label>نوع کاربرد</label>
+              <div class="checks">
+                <label class="check">
+                  <input type="checkbox" name="is_for_request" <%= __topic.is_for_request ? 'checked' : '' %> >
+                  <span>درخواست</span>
+                </label>
+                <label class="check">
+                  <input type="checkbox" name="is_for_referral" <%= __topic.is_for_referral ? 'checked' : '' %> >
+                  <span>ارجاع</span>
+                </label>
+                <label class="check">
+                  <input type="checkbox" name="is_for_announcement" <%= __topic.is_for_announcement ? 'checked' : '' %> >
+                  <span>ابلاغ</span>
+                </label>
+              </div>
+              <p class="hint">انتخاب یک یا چند مورد برای استفاده در ماژول‌ها.</p>
+            </div>
+
+            <div class="field">
+              <label for="draft_template">پیشنویس متن</label>
+              <textarea id="draft_template" name="draft_template" rows="4" placeholder="مثال: {recipient_name} عزیز، موضوع {topic} ..."><%= __topic.draft_template || '' %></textarea>
+              <p class="hint">می‌توانید از متغیرها مثل {recipient_name} ، {request_no} یا {date} استفاده کنید.</p>
+            </div>
+
+            <div class="field split">
+              <div>
+                <label for="sort_order">ترتیب نمایش</label>
+                <input type="number" id="sort_order" name="sort_order" value="<%= typeof __topic.sort_order === 'number' ? __topic.sort_order : (__topic.sort_order || 0) %>" inputmode="numeric">
+              </div>
+              <div class="check-inline">
+                <label for="is_active">فعال باشد؟</label>
+                <input type="checkbox" id="is_active" name="is_active" <%= __topic.is_active !== false ? 'checked' : '' %> >
+              </div>
+            </div>
+
+            <div class="actions-row">
+              <button type="submit" class="btn btn-primary"><%= mode === 'edit' ? 'ذخیره تغییرات' : 'ثبت سرفصل' %></button>
+              <a class="btn btn-secondary" href="/admin/definitions/automation-topics">انصراف</a>
+            </div>
+          </form>
+        </section>
+      </div>

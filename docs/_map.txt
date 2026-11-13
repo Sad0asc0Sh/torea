@@ -1,0 +1,316 @@
+==== ROUTES ====
+total 44K
+drwxr-xr-x 2 root root 4.0K Dec  9 01:49 .
+drwxr-xr-x 9 root root 4.0K Dec 12 17:51 ..
+-rw-r--r-- 1 root root  14K Dec  9 01:49 admin_backup_step1_20251209_014931.js
+-rw-r--r-- 1 root root  15K Dec  9 02:57 admin.js
+-rw-r--r-- 1 root root  605 Dec  7 16:44 telegram.js
+
+==== VIEWS ====
+total 324K
+drwxr-xr-x 2 root root 4.0K Dec  9 22:31 .
+drwxr-xr-x 9 root root 4.0K Dec 12 17:51 ..
+-rw-r--r-- 1 root root 3.0K Dec  8 21:25 admin_approvals.ejs
+-rw-r--r-- 1 root root 9.5K Dec  8 21:19 admin_dashboard.ejs
+-rw-r--r-- 1 root root 3.8K Dec  8 21:25 admin_def_baskets.ejs
+-rw-r--r-- 1 root root 3.8K Dec  8 21:25 admin_def_brands.ejs
+-rw-r--r-- 1 root root 5.1K Dec  8 21:25 admin_definitions.ejs
+-rw-r--r-- 1 root root 3.8K Dec  8 21:25 admin_def_products.ejs
+-rw-r--r-- 1 root root 9.1K Dec  8 21:25 admin_hierarchy.ejs
+-rw-r--r-- 1 root root 2.8K Dec  8 21:25 admin_reports.ejs
+-rw-r--r-- 1 root root  638 Dec  9 14:55 admin_setup_telegram_token.ejs
+-rw-r--r-- 1 root root 7.4K Dec  9 01:49 admin_user_edit_backup_step1_20251209_014931.ejs
+-rw-r--r-- 1 root root 4.4K Dec  9 22:31 admin_user_edit.ejs
+-rw-r--r-- 1 root root 3.5K Dec  9 20:31 admin_user_edit.ejs.stage5bak_1765299679584
+-rw-r--r-- 1 root root 4.0K Dec  9 20:46 admin_user_edit.ejs.stage5finalbak_1765300606169
+-rw-r--r-- 1 root root 8.0K Dec  8 22:47 admin_users.ejs
+-rw-r--r-- 1 root root 5.6K Dec  9 16:30 login.ejs
+-rw-r--r-- 1 root root 1.7K Dec  9 15:24 login.ejs.bad_version
+-rw-r--r-- 1 root root 5.5K Dec  9 16:21 login.ejs.condbak_20251209125153
+-rw-r--r-- 1 root root 5.2K Dec  9 16:18 login.ejs.footerbak_20251209124802
+-rw-r--r-- 1 root root 5.5K Dec  9 16:28 login.ejs.hintbak_20251209125800
+-rw-r--r-- 1 root root 5.6K Dec  9 16:30 login.ejs.hintfixbak_1765285216723
+-rw-r--r-- 1 root root 4.7K Dec  9 15:36 login.ejs.patchbak_20251209120604
+-rw-r--r-- 1 root root 2.2K Dec  8 21:25 pending.ejs
+-rw-r--r-- 1 root root 1.2K Dec  9 14:55 pre_register_info.ejs
+-rw-r--r-- 1 root root 7.9K Dec  9 01:49 register_backup_step1_20251209_014931.ejs
+-rw-r--r-- 1 root root  15K Dec  9 20:10 register.ejs
+-rw-r--r-- 1 root root  15K Dec  9 17:13 register.ejs.bak_1765287803952
+-rw-r--r-- 1 root root 4.3K Dec  7 20:38 register.ejs.bak_2025-12-07_221601
+-rw-r--r-- 1 root root  16K Dec  9 17:28 register.ejs.fixuserbak_20251209135819
+-rw-r--r-- 1 root root  15K Dec  9 19:20 register.ejs.stage3bak_1765295452461
+-rw-r--r-- 1 root root  15K Dec  9 20:10 register.ejs.stage3_fixextradiv_1765298402252
+-rw-r--r-- 1 root root  15K Dec  9 20:10 register.ejs.stage3_fixextradiv_1765298407259
+-rw-r--r-- 1 root root  15K Dec  9 19:32 register.ejs.stage3_telegrambak_1765296179939
+-rw-r--r-- 1 root root  15K Dec  9 19:49 register.ejs.stage3_telegramblock_1765297174865
+-rw-r--r-- 1 root root  10K Dec  8 21:25 telegram_auth.ejs
+
+==== PUBLIC ====
+total 132K
+drwxr-xr-x 5 root root 4.0K Dec  7 15:45 .
+drwxr-xr-x 9 root root 4.0K Dec 12 17:51 ..
+-rw-r--r-- 1 root root  93K Dec  7 15:57 apple-touch-icon.png
+drwxr-xr-x 2 root root 4.0K Dec  7 03:01 css
+-rw-r--r-- 1 root root 2.2K Dec  7 15:57 favicon-32x32.png
+-rw-r--r-- 1 root root 2.2K Dec  7 15:57 favicon.ico
+-rw-r--r-- 1 root root 2.2K Dec  7 15:57 favicon.png
+drwxr-xr-x 2 root root 4.0K Dec  7 14:26 icons
+drwxr-xr-x 2 root root 4.0K Dec  7 03:01 js
+-rw-r--r-- 1 root root  354 Dec  7 15:57 manifest.json
+
+==== ENDPOINTS (server.js) ====
+182:app.get('/', (req, res) => res.redirect('/login'));
+185:app.get('/login', async (req, res) => {
+201:app.post('/login', async (req, res) => {
+249:app.get('/admin/setup-telegram-token', async (req, res) => {
+262:app.post('/admin/setup-telegram-token', async (req, res) => {
+281:app.get('/pre-register-info', (req, res) => {
+289:app.post('/pre-register-info', (req, res) => {
+311:app.get('/register', async (req, res) => {
+328:app.post('/register', async (req, res) => {
+468:app.get('/register/edit', async (req, res) => {
+507:app.post('/register/edit', async (req, res) => {
+646:app.get('/auth/telegram', (req, res) => {
+656:app.post('/auth/telegram/send-code', async (req, res) => {
+705:app.post('/auth/telegram/verify-code', async (req, res) => {
+800:app.get('/logout', (req, res) => {
+812:app.get('/admin/users', requireAdmin, async (req, res) => {
+844:app.post('/admin/users/:id/delete', requireAdmin, async (req, res) => {
+919:app.get('/admin/users/:id/edit', requireAdmin, async (req, res) => {
+937:app.post('/admin/users/:id/edit', requireAdmin, async (req, res) => {
+
+==== VIEWS USED (res.render) ====
+197:  res.render('login', { error: null, initialSetup, showAdminHint });
+204:    return res.render('login', { error: 'نام کاربری و رمز را وارد کنید.' });
+210:      return res.render('login', { error: 'نام کاربری یا رمز عبور اشتباه است.' });
+216:      return res.render('login', { error: 'نام کاربری یا رمز عبور اشتباه است.' });
+230:        return res.render('login', {
+243:    return res.render('login', { error: 'خطای داخلی سیستم.' });
+256:  res.render('admin_setup_telegram_token', {
+269:    return res.render('admin_setup_telegram_token', {
+283:  res.render('pre_register_info', {
+294:    return res.render('pre_register_info', {
+319:  res.render('register', {
+359:    return res.render('register', {
+369:    return res.render('register', {
+382:    return res.render('register', {
+394:    return res.render('register', {
+408:      return res.render('register', {
+456:    return res.render('register', {
+494:    return res.render('register', {
+541:    return res.render('register', {
+551:    return res.render('register', {
+563:    return res.render('register', {
+579:      return res.render('register', {
+603:        return res.render('register', {
+634:    return res.render('register', {
+648:  res.render('telegram_auth', {
+663:    return res.render('telegram_auth', { error, info, username, telegram_id });
+670:      return res.render('telegram_auth', { error, info, username, telegram_id });
+697:    return res.render('telegram_auth', { error, info, username, telegram_id });
+701:    return res.render('telegram_auth', { error, info, username, telegram_id });
+712:    return res.render('telegram_auth', { error, info, username, telegram_id: '' });
+719:      return res.render('telegram_auth', { error, info, username, telegram_id: '' });
+726:      return res.render('telegram_auth', {
+763:      return res.render('telegram_auth', {
+785:    return res.render('telegram_auth', {
+794:    return res.render('telegram_auth', { error, info, username, telegram_id: '' });
+832:    res.render('admin_users', { users: q.rows, error: null, message: null });
+835:    res.render('admin_users', {
+875:      return res.render('admin_users', {
+903:      return res.render('admin_users', {
+929:    res.render('admin_user_edit', { user, error: null, orgNodes, allUsers });
+959:    return res.render('admin_user_edit', {
+978:    return res.render('admin_user_edit', {
+999:    return res.render('admin_user_edit', {
+1025:        return res.render('admin_user_edit', {
+1081:      res.render('admin_user_edit', {
+src/routes/admin_backup_step1_20251209_014931.js:11:  res.render('admin_dashboard', { user: req.session.user });
+src/routes/admin_backup_step1_20251209_014931.js:18:  res.render('admin_definitions', { user: req.session.user });
+src/routes/admin_backup_step1_20251209_014931.js:31:  res.render('admin_approvals', {
+src/routes/admin_backup_step1_20251209_014931.js:59:  res.render('admin_reports', {
+src/routes/admin_backup_step1_20251209_014931.js:128:    return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:155:      return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:173:        return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:193:      return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:207:    return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:216:    return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:244:      return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:254:      return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:273:        return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:292:      return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:306:    return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:315:    return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:351:      return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:366:      return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:377:    return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:386:    return res.render('admin_hierarchy', {
+src/routes/admin_backup_step1_20251209_014931.js:414:  return res.render('admin_def_baskets', {
+src/routes/admin_backup_step1_20251209_014931.js:436:  return res.render('admin_def_brands', {
+src/routes/admin_backup_step1_20251209_014931.js:458:  return res.render('admin_def_products', {
+src/routes/admin.js:11:  res.render('admin_dashboard', { user: req.session.user });
+src/routes/admin.js:18:  res.render('admin_definitions', { user: req.session.user });
+src/routes/admin.js:44:    res.render('admin_approvals', {
+src/routes/admin.js:52:    res.render('admin_approvals', {
+src/routes/admin.js:103:    res.render('admin_reports', {
+src/routes/admin.js:111:    res.render('admin_reports', {
+src/routes/admin.js:181:    return res.render('admin_hierarchy', {
+src/routes/admin.js:208:      return res.render('admin_hierarchy', {
+src/routes/admin.js:226:        return res.render('admin_hierarchy', {
+src/routes/admin.js:246:      return res.render('admin_hierarchy', {
+src/routes/admin.js:260:    return res.render('admin_hierarchy', {
+src/routes/admin.js:269:    return res.render('admin_hierarchy', {
+src/routes/admin.js:297:      return res.render('admin_hierarchy', {
+src/routes/admin.js:307:      return res.render('admin_hierarchy', {
+src/routes/admin.js:326:        return res.render('admin_hierarchy', {
+src/routes/admin.js:345:      return res.render('admin_hierarchy', {
+src/routes/admin.js:359:    return res.render('admin_hierarchy', {
+src/routes/admin.js:368:    return res.render('admin_hierarchy', {
+src/routes/admin.js:404:      return res.render('admin_hierarchy', {
+src/routes/admin.js:419:      return res.render('admin_hierarchy', {
+src/routes/admin.js:430:    return res.render('admin_hierarchy', {
+src/routes/admin.js:439:    return res.render('admin_hierarchy', {
+src/routes/admin.js:467:  return res.render('admin_def_baskets', {
+src/routes/admin.js:489:  return res.render('admin_def_brands', {
+src/routes/admin.js:511:  return res.render('admin_def_products', {
+
+==== server.js HEAD (1-140) ====
+require('dotenv').config();
+const express = require('express');
+const session = require('express-session');
+const path = require('path');
+const { Pool } = require('pg');
+const bcrypt = require('bcryptjs');
+const fetch = require('node-fetch');
+
+const app = express();
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+app.locals.pool = pool;
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'secret',
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+// ------------------ Helpers ------------------
+
+function getUser(req) {
+  return req.session.user || null;
+}
+
+function requireAdmin(req, res, next) {
+  const u = getUser(req);
+  if (!u) return res.redirect('/login');
+  if (u.role !== 'ADMIN') return res.status(403).send('Forbidden');
+  next();
+}
+
+// ارسال کد به تلگرام
+
+    
+// ------------------ System Settings Helpers ------------------
+
+async function getSetting(key) {
+  try {
+    const res = await pool.query('SELECT value FROM system_settings WHERE key = $1', [key]);
+    if (!res.rows.length) return null;
+    return res.rows[0].value;
+  } catch (err) {
+    console.error('getSetting error:', err);
+    return null;
+  }
+}
+
+async function setSetting(key, value) {
+  try {
+    await pool.query(
+      `
+      INSERT INTO system_settings (key, value)
+      VALUES ($1, $2)
+      ON CONFLICT (key)
+      DO UPDATE SET value = EXCLUDED.value
+      `,
+      [key, value]
+    );
+  } catch (err) {
+    console.error('setSetting error:', err);
+  }
+}
+
+async function isInitialSetup() {
+  try {
+    const res = await pool.query(
+      "SELECT id, phone FROM users WHERE role = 'ADMIN' ORDER BY created_at ASC LIMIT 1"
+    );
+    if (!res.rows.length) return false;
+    const admin = res.rows[0];
+    return !admin.phone; // اگر phone تهی باشد یعنی هنوز پروفایل تکمیل نشده
+  } catch (err) {
+    console.error('isInitialSetup error:', err);
+    return false;
+  }
+}
+
+async function sendTelegramCode(chatIdOrUsername, code) {
+  try {
+    let token = await getSetting('telegram_bot_token');
+    if (!token) {
+      token = process.env.TELEGRAM_BOT_TOKEN;
+    }
+    if (!token || !chatIdOrUsername) return;
+
+    const text = `کد احراز هویت شما در سامانه To infinity:\n${code}`;
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatIdOrUsername, text }),
+    });
+  } catch (err) {
+    console.error('Telegram send error:', err.message || err);
+  }
+}
+
+// گرفتن لیست سمت‌ها از جدول سلسله‌مراتب
+async function getOrgNodes() {
+  try {
+    const res = await pool.query(
+      'SELECT id, title, parent_id, COALESCE(level,1) AS level FROM org_nodes ORDER BY COALESCE(level,1), id'
+    );
+    return res.rows || [];
+  } catch (err) {
+    console.error('getOrgNodes error:', err);
+    return [];
+  }
+}
+
+// گرفتن لیست ساده کاربران (برای کشویی مدیر تیم)
+async function getAllUsersSimple() {
+  try {
+    const res = await pool.query(
+      'SELECT id, full_name, org_node_id FROM users ORDER BY full_name'
+    );
+    return res.rows || [];
+  } catch (err) {
+    console.error('getAllUsersSimple error:', err);
+    return [];
+  }
+}
+
+// بررسی اینکه manager_id واقعاً در لایه بالادست org_node_id است
+// خروجی: { ok: true/false, value: managerIdOrNull }
+async function normalizeManagerId(orgNodeId, managerId) {
+  if (!orgNodeId) {
+    // اگر سمت مشخص نشده، مدیر هم معتبر نیست
+    return { ok: !managerId, value: null };
+  }

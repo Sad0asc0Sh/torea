@@ -1,0 +1,423 @@
+<%
+  const __activeKey = 'def_users';
+  const __definitionsKeys = [
+    'definitions',
+    'def_teams',
+    'def_brands',
+    'def_products',
+    'def_users',
+    'credit_policy',
+    'hierarchy',
+    'hierarchy_arrange',
+    'users'
+  ];
+
+  const __menuItems = [
+    { title: 'داشبورد', href: '/admin/dashboard', active: __activeKey === 'dashboard' },
+    {
+      title: 'تعاریف',
+      type: 'group',
+      open: __definitionsKeys.includes(__activeKey),
+      active: __definitionsKeys.includes(__activeKey),
+      children: [
+        { title: 'مرکز تعاریف', href: '/admin/definitions', active: __activeKey === 'definitions' },
+        { title: 'تعریف برندها', href: '/admin/definitions/brands', active: __activeKey === 'def_brands' },
+        { title: 'تعریف کالاها', href: '/admin/definitions/products', active: __activeKey === 'def_products' },
+        { title: 'سمت‌ها', href: '/admin/definitions/hierarchy', active: __activeKey === 'hierarchy' },
+        { title: 'چیدمان سلسله مراتب', href: '/admin/definitions/hierarchy/arrange', active: __activeKey === 'hierarchy_arrange' },
+        { title: 'کاربران', href: '/admin/definitions/users', active: __activeKey === 'def_users' },
+      ],
+    },
+    {
+      title: 'گزارشات',
+      type: 'group',
+      open: __activeKey === 'reports',
+      active: __activeKey === 'reports',
+      children: [
+        { title: 'KPI و آمار', href: '/admin/reports', active: __activeKey === 'reports' },
+      ],
+    },
+    {
+      title: 'تأییدها',
+      type: 'group',
+      open: __activeKey === 'approvals',
+      active: __activeKey === 'approvals',
+      children: [
+        { title: 'در انتظار تأیید', href: '/admin/approvals', active: __activeKey === 'approvals' },
+      ],
+    },
+    { title: 'خروج', href: '/admin/logout', active: __activeKey === 'logout' },
+  
+  ,
+  {
+    group: 'ابزارها',
+    items: [
+      { label: 'دستیار من', href: '/admin/tools', icon: '🧰' }
+    ]
+  }
+
+];
+%>
+<%
+  const pageTitle = 'ویرایش کاربر (تعاریف)';
+  const theme = 'admin';
+  const themeDisabled = false;
+  const menuItems = __menuItems;
+  const userVal = (typeof user !== 'undefined' ? user : null);
+  const errorMsg = (typeof error !== 'undefined' ? error : null);
+  const warnMsg = (typeof warn !== 'undefined' ? warn : null);
+  const infoMsg = (typeof info !== 'undefined' ? info : null);
+  const extraCss = [];
+  const pageClass = '';
+  const __pageTitle = (typeof pageTitle !== 'undefined' && pageTitle) ? pageTitle : 'ToInfinity';
+  const __theme = (typeof theme !== 'undefined' && theme) ? theme : 'user';
+  const __themeDisabled = !!(typeof themeDisabled !== 'undefined' && themeDisabled);
+  const __isAdminTheme = __theme === 'admin';
+  const __user = (typeof userVal !== 'undefined') ? userVal : null;
+  const __basketsHref = '/admin/definitions/baskets';
+  const __menu = (typeof menuItems !== 'undefined' && Array.isArray(menuItems)) ? menuItems : [];
+  const __menuFiltered = __menu.map(function(item){
+    if (item && Array.isArray(item.children)) {
+      return {
+        ...item,
+        children: item.children.filter(function(child){ return child.href !== __basketsHref; })
+      };
+    }
+    return item;
+  }).filter(function(item){
+    if (item && Array.isArray(item.children)) {
+      return item.children.length > 0 || item.href !== __basketsHref;
+    }
+    return item && item.href !== __basketsHref;
+  });
+  const __showDrawer = __menuFiltered.length > 0;
+  const __error = (typeof errorMsg !== 'undefined' && errorMsg) ? errorMsg : null;
+  const __warn = (typeof warnMsg !== 'undefined' && warnMsg) ? warnMsg : null;
+  const __info = (typeof infoMsg !== 'undefined' && infoMsg) ? infoMsg : null;
+  const __extraCss = (typeof extraCss !== 'undefined' && extraCss) ? extraCss : [];
+  const __userName = (__user && ([__user.first_name, __user.last_name].filter(Boolean).join(' ').trim() || __user.username || __user.name)) || null;
+  const __pageClass = (typeof pageClass !== 'undefined' && pageClass) ? pageClass : '';
+%>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title><%= __pageTitle %> | ToInfinity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/logo.png" type="image/png">
+  <% if (__isAdminTheme) { %>
+    <link rel="preload" href="/fonts/vazir/Vazirmatn-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <% } %>
+  
+  <!-- Mobile-First CSS -->
+  <% if (!__themeDisabled) { %>
+    <link rel="stylesheet" href="/css/app-mobile.css?v=1">
+    <% if (__isAdminTheme) { %>
+      <link rel="stylesheet" href="/css/admin-ui.css">
+    <% } %>
+  <% } else { %>
+  <% } %>
+  <% __extraCss.forEach(function(href){ %>
+    <link rel="stylesheet" href="<%= href %>">
+  <% }) %>
+</head>
+<body data-skin="admin" class="theme-<%= __theme %> <%= __themeDisabled ? 'theme-disabled' : '' %> <%= __isAdminTheme ? 'admin-ui' : '' %> <%= __pageClass %>">
+  <div class="mobile-app">
+    <!-- App Bar -->
+    <header class="app-bar">
+      <div class="app-bar-left">
+        <% if (__showDrawer) { %>
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="منو">
+          <span>☰</span>
+        </button>
+        <% } %>
+      </div>
+      
+      <div class="app-bar-center <%= __isAdminTheme ? 'admin-brand' : '' %>">
+        <a class="app-bar-logo-link" href="<%= __isAdminTheme ? '/admin/definitions' : '/' %>" aria-label="خانه">
+          <img src="/icons/icon_1024.png" alt="ToInfinity" class="app-bar-logo">
+        </a>
+        <span class="app-bar-title">تا بینهایت</span>
+      </div>
+      
+      <div class="app-bar-right"></div>
+    </header>
+
+    <% if (__showDrawer) { %>
+    <div id="drawer-overlay" class="drawer-overlay"></div>
+    
+    <nav id="drawer" class="drawer">
+      <div class="drawer-header">
+        <h2 class="drawer-title">منو</h2>
+        <button id="drawer-close" class="drawer-close" aria-label="بستن">×</button>
+      </div>
+      
+      <div class="drawer-content">
+         <ul class="drawer-menu">
+           <% __menuFiltered.forEach(function(item) { %>
+            <li class="drawer-menu-item">
+              <% if (item && item.children && item.children.length) { %>
+                <details class="drawer-details" <%= item.open ? 'open="open"' : '' %>>
+                  <summary class="drawer-menu-link drawer-menu-summary <%= item.active ? 'active' : '' %>">
+                    <span><%= item.title %></span>
+                    <span class="drawer-menu-chevron" aria-hidden="true"></span>
+                  </summary>
+                  <ul class="drawer-submenu">
+                    <% item.children.forEach(function(child) { %>
+                      <li>
+                        <a href="<%= child.href %>" class="drawer-menu-link <%= child.active ? 'active' : '' %>">
+                          <span><%= child.title %></span>
+                        </a>
+                      </li>
+                    <% }); %>
+                  </ul>
+                </details>
+              <% } else if (item) { %>
+                <a href="<%= item.href %>" class="drawer-menu-link <%= item.active ? 'active' : '' %>">
+                  <span><%= item.title %></span>
+                </a>
+              <% } %>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+      
+      <% if (__user) { %>
+      <div class="drawer-footer">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          <span><%= __userName || 'کاربر' %></span>
+        </div>
+      </div>
+      <% } %>
+    </nav>
+    <% } %>
+
+    <!-- Main Content -->
+    <main class="app-content <%= __isAdminTheme ? 'admin-main stack' : '' %>">
+      <% if (__error) { %>
+        <div class="alert alert-error"><%= __error %></div>
+      <% } %>
+
+      <% if (__warn) { %>
+        <div class="alert alert-warn"><%= __warn %></div>
+      <% } %>
+      
+      <% if (__info) { %>
+        <div class="alert alert-info"><%= __info %></div>
+      <% } %>
+      
+      <%
+      const __editUser = user || {};
+      const __roles = Array.isArray(roles) ? roles : [];
+      const __derivedStatus = __editUser.status || 'pending_manager';
+      const __managerApproved = String(__derivedStatus || '').toLowerCase() === 'active';
+      const __isActive = !!__editUser.active;
+      const __orgNodes = Array.isArray(orgNodes) ? orgNodes : [];
+      const __managers = Array.isArray(managers) ? managers : [];
+      const __userRoleUpper = String(__editUser.role || '').toUpperCase();
+      const __userUsernameLower = String(__editUser.username || '').toLowerCase();
+      const __hideOrgFields = (
+        __userRoleUpper === 'SUPER_ADMIN' ||
+        __userRoleUpper === 'SYSTEM' ||
+        __userUsernameLower === 'admin' ||
+        __userUsernameLower === 'general_manager'
+      );
+      %>
+      
+      <div class="stack">
+        <% if (error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+      
+        <section class="card">
+          <h2 style="margin:0 0 8px 0;font-size:15px;font-weight:900;">ویرایش کاربر (ID: <%= __editUser.id %>)</h2>
+          <p class="muted" style="margin-top:0;">نام کاربری: <strong><%= __editUser.username %></strong> — نام کاربری قابل ویرایش نیست.</p>
+          <div class="alert alert-warn" style="margin-bottom:12px;">در صورت تغییر رمز عبور یا آیدی تلگرام، کاربر باید مجدداً در تلگرام احراز شود</div>
+      
+          <form class="form" method="post" action="/admin/definitions/users/<%= __editUser.id %>">
+            <div class="grid-2">
+              <div class="field">
+                <label for="username">نام کاربری</label>
+                <input id="username" value="<%= __editUser.username || '' %>" readonly />
+              </div>
+              <div class="field">
+                <label for="role">نقش</label>
+                <select id="role" name="role">
+                  <% __roles.forEach(function(r){ %>
+                    <option value="<%= r %>" <%= String(__editUser.role || '') === String(r) ? 'selected' : '' %>><%= r %></option>
+                  <% }); %>
+                </select>
+              </div>
+            </div>
+      
+            <div class="grid-2">
+              <div class="field">
+                <label for="org_node_id">سمت / واحد سازمانی</label>
+                <% if (__hideOrgFields) { %>
+                  <input id="org_node_id_display" value="<%= __editUser.org_node_title || '' %>" readonly />
+                  <input type="hidden" name="org_node_id" value="<%= __editUser.org_node_id || '' %>" />
+                <% } else { %>
+                  <select id="org_node_id" name="org_node_id" required>
+                    <option value="">انتخاب کنید...</option>
+                    <% (__orgNodes || []).forEach(function(n){ %>
+                      <option value="<%= n.id %>" <%= String(__editUser.org_node_id || '') === String(n.id) ? 'selected' : '' %>><%= n.title %></option>
+                    <% }); %>
+                  </select>
+                  <div class="hint">سطح سازمانی کاربر.</div>
+                <% } %>
+              </div>
+      
+              <div class="field">
+                <label for="manager_id">مدیر بالاسری</label>
+                <% if (__hideOrgFields) { %>
+                  <input id="manager_id_display" value="<%= __editUser.manager_id ? (__editUser.manager_name || __editUser.manager_username || __editUser.manager_id) : '—' %>" readonly />
+                  <input type="hidden" name="manager_id" value="<%= __editUser.manager_id || '' %>" />
+                <% } else { %>
+                  <select id="manager_id" name="manager_id" disabled>
+                    <option value="">ابتدا سمت را انتخاب کنید...</option>
+                  </select>
+                  <div class="hint">مدیر باید از لایه بالادست سمت انتخاب شود.</div>
+                <% } %>
+              </div>
+            </div>
+      
+            <div class="grid-2">
+              <div class="field">
+                <label for="first_name">نام</label>
+                <input id="first_name" name="first_name" value="<%= __editUser.first_name || '' %>" required />
+              </div>
+      
+              <div class="field">
+                <label for="last_name">نام خانوادگی</label>
+                <input id="last_name" name="last_name" value="<%= __editUser.last_name || '' %>" required />
+              </div>
+            </div>
+      
+            <div class="grid-2">
+              <div class="field">
+                <label for="phone">شماره همراه</label>
+                <input id="phone" name="phone" value="<%= __editUser.phone || '' %>" />
+              </div>
+      
+              <div class="field">
+                <label for="telegram_id">آیدی تلگرام</label>
+                <input id="telegram_id" name="telegram_id" value="<%= __editUser.telegram_id || '' %>" />
+              </div>
+            </div>
+      
+            <div class="field">
+              <label for="password">رمز عبور جدید (در صورت نیاز)</label>
+              <input id="password" name="password" type="password" autocomplete="new-password" />
+              <div class="hint">در صورت تغییر رمز عبور یا آیدی تلگرام، کاربر باید مجدداً در تلگرام احراز شود</div>
+            </div>
+      
+            <div class="grid-2">
+              <div class="field">
+                <label>
+                  <input type="checkbox" name="is_active" <%= __isActive ? 'checked' : '' %> />
+                  فعال باشد
+                </label>
+              </div>
+              <div class="field">
+                <label>
+                  <input type="checkbox" name="manager_approved" <%= __managerApproved ? 'checked' : '' %> />
+                  تایید مدیر
+                </label>
+              </div>
+            </div>
+      
+            <div class="field">
+              <label>وضعیت فعلی</label>
+              <div class="muted"><%= __derivedStatus %></div>
+            </div>
+      
+            <div class="btn-row">
+              <button type="submit" class="btn btn-primary">ذخیره</button>
+              <a class="btn btn-secondary" href="/admin/definitions/users">بازگشت</a>
+            </div>
+          </form>
+      
+          <% if (!__hideOrgFields) { %>
+          <script>
+            (function(){
+              var orgNodeSelect = document.getElementById('org_node_id');
+              var managerSelect = document.getElementById('manager_id');
+              if (!orgNodeSelect || !managerSelect) return;
+      
+              var ORG_NODES = <%- JSON.stringify(__orgNodes || []) %>;
+              var MANAGERS = <%- JSON.stringify(__managers || []) %>;
+              var CURRENT_MANAGER = "<%= __editUser.manager_id ? String(__editUser.manager_id) : '' %>";
+              var CURRENT_ORG = "<%= __editUser.org_node_id ? String(__editUser.org_node_id) : '' %>";
+      
+              var parentMap = {};
+              ORG_NODES.forEach(function(n){
+                if (!n) return;
+                parentMap[String(n.id)] = n.parent_id != null ? String(n.parent_id) : null;
+              });
+      
+              function rebuildManagerOptions(){
+                var orgId = orgNodeSelect.value || "";
+                var parentId = orgId && parentMap[orgId] ? parentMap[orgId] : null;
+      
+                managerSelect.innerHTML = "";
+                var placeholder = document.createElement('option');
+                placeholder.value = "";
+      
+                if (!parentId){
+                  placeholder.textContent = 'برای این سمت نیاز به تعیین مدیر بالادست نیست.';
+                  managerSelect.appendChild(placeholder);
+                  managerSelect.disabled = true;
+                  managerSelect.value = "";
+                  return;
+                }
+      
+                placeholder.textContent = 'مدیر بالاسری را انتخاب کنید...';
+                managerSelect.appendChild(placeholder);
+      
+                MANAGERS.forEach(function(u){
+                  if (!u || !u.id) return;
+                  if (String(u.org_node_id || '') !== String(parentId)) return;
+                  var opt = document.createElement('option');
+                  opt.value = String(u.id);
+                  opt.textContent = u.display_name || u.username || ('کاربر ' + u.id);
+                  managerSelect.appendChild(opt);
+                });
+      
+                managerSelect.disabled = false;
+      
+                if (CURRENT_MANAGER){
+                  managerSelect.value = CURRENT_MANAGER;
+                }
+              }
+      
+              orgNodeSelect.addEventListener('change', function(){
+                CURRENT_MANAGER = "";
+                rebuildManagerOptions();
+              });
+      
+              if (CURRENT_ORG){
+                orgNodeSelect.value = CURRENT_ORG;
+              }
+      
+              rebuildManagerOptions();
+            })();
+          </script>
+          <% } %>
+        </section>
+      </div>
+      
+    </main>
+  </div>
+
+  <% if (!__themeDisabled && __showDrawer) { %>
+  <script src="/js/mobile-ui.js"></script>
+  <% } %>
+  <% if (!__themeDisabled && __isAdminTheme) { %>
+  <script defer src="/js/admin-ui.js"></script>
+  <% } %>
+  <script src="/js/ti-enhance.js"></script>
+</body>
+</html>

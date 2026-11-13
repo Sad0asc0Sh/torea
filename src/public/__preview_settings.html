@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>تنظیمات | ToInfinity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/logo.png" type="image/png">
+  
+    <link rel="preload" href="/fonts/vazir/Vazirmatn-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  
+  
+  <!-- Mobile-First CSS -->
+  
+    <link rel="stylesheet" href="/css/shared/app-mobile.css?v=1">
+    
+      <link rel="stylesheet" href="/css/shared/admin-ui.css">
+    
+  
+  
+    <link rel="stylesheet" href="/css/admin/settings/settings.css">
+  
+</head>
+<body class="theme-admin  admin-ui page--settings">
+  <div class="mobile-app">
+    <!-- App Bar -->
+    <header class="app-bar">
+      <div class="app-bar-left">
+        
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="منو">
+          <span>☰</span>
+        </button>
+        
+      </div>
+      
+      <div class="app-bar-center admin-brand">
+        <a class="app-bar-logo-link" href="/admin/settings" aria-label="خانه">
+          <img src="/icons/icon_1024.png" alt="ToInfinity" class="app-bar-logo">
+        </a>
+        <span class="app-bar-title">تا بینهایت</span>
+      </div>
+      
+      <div class="app-bar-right"></div>
+    </header>
+
+    
+    <div id="drawer-overlay" class="drawer-overlay"></div>
+    
+    <nav id="drawer" class="drawer">
+      <div class="drawer-header">
+        <h2 class="drawer-title">منو</h2>
+        <button id="drawer-close" class="drawer-close" aria-label="بستن">×</button>
+      </div>
+      
+      <div class="drawer-content">
+         <ul class="drawer-menu">
+           
+            <li class="drawer-menu-item">
+              
+                <a href="/admin/dashboard" class="drawer-menu-link ">
+                  <span>داشبورد</span>
+                </a>
+              
+            </li>
+          
+            <li class="drawer-menu-item">
+              
+                <details class="drawer-details" >
+                  <summary class="drawer-menu-link drawer-menu-summary ">
+                    <span>تعاریف</span>
+                    <span class="drawer-menu-chevron" aria-hidden="true"></span>
+                  </summary>
+                  <ul class="drawer-submenu">
+                    
+                      <li>
+                        <a href="/admin/definitions" class="drawer-menu-link ">
+                          <span>مرکز تعاریف</span>
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/admin/definitions/teams" class="drawer-menu-link ">
+                          <span>تعریف تیم‌ها</span>
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/admin/definitions/brands" class="drawer-menu-link ">
+                          <span>تعریف برندها</span>
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/admin/definitions/products" class="drawer-menu-link ">
+                          <span>تعریف کالاها</span>
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/admin/definitions/hierarchy" class="drawer-menu-link ">
+                          <span>سمت‌ها</span>
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/admin/definitions/hierarchy/arrange" class="drawer-menu-link ">
+                          <span>چیدمان سلسله مراتب</span>
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/admin/definitions/users" class="drawer-menu-link ">
+                          <span>کاربران</span>
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/admin/definitions/credit-policy" class="drawer-menu-link ">
+                          <span>سیاست اعتباری</span>
+                        </a>
+                      </li>
+                    
+                  </ul>
+                </details>
+              
+            </li>
+          
+            <li class="drawer-menu-item">
+              
+                <details class="drawer-details" open=&#34;open&#34;>
+                  <summary class="drawer-menu-link drawer-menu-summary active">
+                    <span>تنظیمات</span>
+                    <span class="drawer-menu-chevron" aria-hidden="true"></span>
+                  </summary>
+                  <ul class="drawer-submenu">
+                    
+                      <li>
+                        <a href="/admin/settings" class="drawer-menu-link active">
+                          <span>تنظیمات</span>
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/admin/settings/training-config" class="drawer-menu-link ">
+                          <span>تنظیمات آموزش</span>
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/admin/settings/training-topics" class="drawer-menu-link ">
+                          <span>موضوعات آموزش</span>
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/admin/settings/apis" class="drawer-menu-link ">
+                          <span>اتصال API ها</span>
+                        </a>
+                      </li>
+                    
+                  </ul>
+                </details>
+              
+            </li>
+          
+            <li class="drawer-menu-item">
+              
+                <details class="drawer-details" >
+                  <summary class="drawer-menu-link drawer-menu-summary ">
+                    <span>گزارشات</span>
+                    <span class="drawer-menu-chevron" aria-hidden="true"></span>
+                  </summary>
+                  <ul class="drawer-submenu">
+                    
+                      <li>
+                        <a href="/admin/reports" class="drawer-menu-link ">
+                          <span>KPI و آمار</span>
+                        </a>
+                      </li>
+                    
+                  </ul>
+                </details>
+              
+            </li>
+          
+            <li class="drawer-menu-item">
+              
+                <details class="drawer-details" >
+                  <summary class="drawer-menu-link drawer-menu-summary ">
+                    <span>تأییدها</span>
+                    <span class="drawer-menu-chevron" aria-hidden="true"></span>
+                  </summary>
+                  <ul class="drawer-submenu">
+                    
+                      <li>
+                        <a href="/admin/approvals" class="drawer-menu-link ">
+                          <span>در انتظار تأیید</span>
+                        </a>
+                      </li>
+                    
+                  </ul>
+                </details>
+              
+            </li>
+          
+            <li class="drawer-menu-item">
+              
+                <a href="/admin/logout" class="drawer-menu-link ">
+                  <span>خروج</span>
+                </a>
+              
+            </li>
+          
+            <li class="drawer-menu-item">
+              
+                <a href="" class="drawer-menu-link ">
+                  <span></span>
+                </a>
+              
+            </li>
+          
+        </ul>
+      </div>
+      
+      
+    </nav>
+    
+
+    <!-- Main Content -->
+    <main class="app-content admin-main stack">
+      
+
+      
+      
+      
+      
+      <div class="stack">
+        <section class="card stack">
+          <div>
+            <h1 class="card-title">تنظیمات</h1>
+            <p class="card-subtitle">مدیریت تنظیمات آموزش و سرویسها</p>
+          </div>
+
+          <div class="action-grid">
+            <a class="action-tile" href="/admin/settings/training-topics">
+              <strong>موضوعات آموزش</strong>
+              <span>لیست موضوعات و دستهبندی</span>
+            </a>
+            <a class="action-tile" href="/admin/settings/training-config">
+              <strong>تنظیمات آموزش</strong>
+              <span>حد آستانه و تنظیمات پایه</span>
+            </a>
+            <a class="action-tile" href="/admin/settings/apis">
+              <strong>اتصال API ها</strong>
+              <span>به زودی / درحال راه‌اندازی</span>
+            </a>
+          </div>
+
+          <div class="btn-row defs-actions" style="margin-top:12px;">
+            <a class="btn btn-secondary" href="/admin/dashboard">بازگشت به داشبورد</a>
+          </div>
+        </section>
+      </div>
+      
+    </main>
+  </div>
+
+  
+  <script src="/js/mobile-ui.js"></script>
+  
+  
+  <script defer src="/js/admin-ui.js"></script>
+  
+  <script src="/js/ti-enhance.js"></script>
+</body>
+</html>

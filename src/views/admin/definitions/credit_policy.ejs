@@ -1,0 +1,54 @@
+<%
+const activeKey = 'credit_policy';
+  const pageTitle = 'سیاست‌های اعتباری';
+  const extraCss = [];
+  const pageClass = '';
+%>      <div class="stack">
+        <section class="card">
+          <h2 style="margin:0 0 8px 0;font-size:15px;font-weight:900;">سیاست‌های اعتباری</h2>
+          <p class="muted" style="margin:0 0 12px 0;line-height:1.7;">
+            برای هر نود سازمانی می‌توانید تاییدکننده‌های اعتباری و سقف‌ها را تعریف کنید.
+            تاییدکننده اول الزامی است. اگر تاییدکننده اول همان نود باشد، فقط ذخیره می‌شود و در ابزار تایید باید نادیده گرفته شود.
+          </p>
+      
+          <% if (!policies || !policies.length) { %>
+            <div class="alert alert-info">هنوز سیاستی ثبت نشده است.</div>
+          <% } else { %>
+            <div class="table-shell table-wrapper">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>نود</th>
+                    <th>تاییدکننده اول</th>
+                    <th>تاییدکننده دوم</th>
+                    <th>تأیید مالی</th>
+                    <th>کاربر مالی</th>
+                    <th>سقف مبلغ فاکتور</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% policies.forEach(function(p){ %>
+                    <tr>
+                      <td>
+                        <a class="link" href="/admin/definitions/credit-policy/<%= p.org_node_id %>">
+                          <%= p.org_node_title || ('نود #' + p.org_node_id) %>
+                        </a>
+                      </td>
+                      <td><%= p.approver1_title || (p.approver1_node_id || '—') %></td>
+                      <td><%= p.approver2_title || (p.approver2_node_id || '—') %></td>
+                      <td><%= p.finance_required ? 'بله' : 'خیر' %></td>
+                      <td><%= p.finance_required ? (p.finance_user_name || p.finance_username || p.finance_user_id || '—') : '—' %></td>
+                      <% const __maxInvoiceFormatted = (p.max_invoice_amount === null || p.max_invoice_amount === undefined) ? null : formatMoney(p.max_invoice_amount); %>
+                      <td><%= __maxInvoiceFormatted ? (__maxInvoiceFormatted + ' ریال') : '—' %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+      
+          <div class="btn-row" style="margin-top:12px;">
+            <a class="btn btn-secondary" href="/admin/definitions">بازگشت به تعاریف</a>
+          </div>
+        </section>
+      </div>

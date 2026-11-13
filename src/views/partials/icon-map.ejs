@@ -1,0 +1,55 @@
+<%
+// Icon mapping for all admin sections
+const iconMap = {
+  // Definitions
+  'teams': 'customers',
+  'brands': 'definitions',
+  'hierarchy': 'definitions',
+  'hierarchy-arrange': 'definitions',
+  'products': 'definitions',
+  'customer-industries': 'customers',
+  'automation-topics': 'tools',
+  'credit-policy': 'balance',
+  'users': 'profile',
+  
+  // Tools
+  'practice': 'tools',
+  'negotiation-analysis': 'reports',
+  'office-automation': 'approvals',
+  'training': 'tools',
+  
+  // Balance
+  'credit-requests': 'balance',
+  'credit-requests-new': 'balance',
+  'debts': 'balance',
+  'settlement-requests': 'approvals',
+  'settlement-requests-new': 'balance',
+  
+  // Approvals
+  'credit-approvals': 'balance',
+  'settlement-approvals': 'approvals',
+  'automation-approvals': 'approvals',
+  'user-approvals': 'profile',
+  
+  // Settings
+  'training-topics': 'tools',
+  'catalog': 'definitions',
+  'training-config': 'settings',
+  'apis': 'settings',
+  
+  // Reports
+  'sync': 'reports',
+  
+  // Default
+  'default': 'home'
+};
+
+function getIconForKey(key) {
+  return iconMap[key] || iconMap['default'];
+}
+
+// Make available globally for this render context
+if (typeof global !== 'undefined') {
+  global.getIconForKey = getIconForKey;
+}
+%>

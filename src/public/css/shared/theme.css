@@ -1,0 +1,224 @@
+/**
+ * Admin Theme Tokens
+ * - Three themes (maroon/black, navy/black, and light)
+ * - Provides shared CSS custom properties used across admin UI
+ */
+
+:root {
+  /* Default (maroon/black) */
+  --bg-0: #0f070c;
+  --bg-1: #160a12;
+  --panel-0: #1f0f18;
+  --panel-1: #29111c;
+  --border-0: rgba(244, 114, 182, 0.26);
+  --border-1: rgba(244, 114, 182, 0.38);
+  --text-0: #f3e8ef;
+  --text-1: #ffffff;
+  --muted-0: #c4b5c5;
+  --primary-0: #be185d;
+  --primary-1: #e11d74;
+  --primary-soft: rgba(225, 29, 117, 0.18);
+  --focus: rgba(225, 29, 117, 0.5);
+  --shadow: 0 18px 48px rgba(0, 0, 0, 0.55);
+  --success-0: #22c55e;
+  --success-soft: rgba(34, 197, 94, 0.18);
+  --warn-0: #f59e0b;
+  --warn-soft: rgba(245, 158, 11, 0.16);
+  --error-0: #f43f5e;
+  --error-soft: rgba(244, 63, 94, 0.18);
+  
+  /* Bottom navigation */
+  --bottom-nav-height: 56px;
+}
+
+html.theme--navy {
+  --bg-0: #020617;
+  --bg-1: #0b1224;
+  --panel-0: #0f172a;
+  --panel-1: #1e293b;
+  --border-0: rgba(148, 163, 184, 0.35);
+  --border-1: rgba(99, 102, 241, 0.35);
+  --text-0: #e5e7eb;
+  --text-1: #f8fafc;
+  --muted-0: #9ca3af;
+  --primary-0: #6366f1;
+  --primary-1: #818cf8;
+  --primary-soft: rgba(99, 102, 241, 0.18);
+  --focus: rgba(99, 102, 241, 0.45);
+  --shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+  --success-0: #22c55e;
+  --success-soft: rgba(34, 197, 94, 0.18);
+  --warn-0: #fbbf24;
+  --warn-soft: rgba(251, 191, 36, 0.16);
+  --error-0: #f87171;
+  --error-soft: rgba(248, 113, 113, 0.18);
+}
+
+html.theme--maroon {
+  /* Default maroon theme uses :root values; class retained for explicit toggling */
+}
+
+/* ============ Light Theme (روشن) ============ */
+html.theme--light {
+  /* Background colors */
+  --bg-0: #ffffff;
+  --bg-1: #f8f9fa;
+  --bg-2: #e9ecef;
+  
+  /* Panel/Surface colors */
+  --panel-0: #ffffff;
+  --panel-1: #f8f9fa;
+  --panel-2: #e9ecef;
+  
+  /* Text colors */
+  --text-0: #212529;
+  --text-1: #495057;
+  --muted-0: #6c757d;
+  --muted-1: #868e96;
+  
+  /* Primary color - Blue (matching user theme) */
+  --primary-0: #0d6efd;
+  --primary-1: #0b5ed7;
+  --primary-soft: rgba(13, 110, 253, 0.1);
+  
+  /* Secondary colors */
+  --secondary-0: #6c757d;
+  --secondary-1: #5c636a;
+  
+  /* Success */
+  --success-0: #198754;
+  --success-1: #157347;
+  --success-soft: rgba(25, 135, 84, 0.1);
+  
+  /* Danger */
+  --danger-0: #dc3545;
+  --danger-1: #bb2d3b;
+  --danger-soft: rgba(220, 53, 69, 0.1);
+  
+  /* Warning */
+  --warning-0: #ffc107;
+  --warning-1: #e0a800;
+  --warning-soft: rgba(255, 193, 7, 0.1);
+  
+  /* Info */
+  --info-0: #0dcaf0;
+  --info-1: #0aa2c0;
+  --info-soft: rgba(13, 202, 240, 0.1);
+  
+  /* Border colors */
+  --border-0: #dee2e6;
+  --border-1: #ced4da;
+  --border-2: #adb5bd;
+  
+  /* Focus */
+  --focus: rgba(13, 110, 253, 0.5);
+  
+  /* Shadows (lighter for light theme) */
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.12);
+  --shadow-soft: var(--shadow);
+  
+  /* Error alias for consistency */
+  --error-0: #dc3545;
+  --error-soft: rgba(220, 53, 69, 0.1);
+  
+  /* Warning alias for consistency */
+  --warn-0: #ffc107;
+  --warn-soft: rgba(255, 193, 7, 0.1);
+}
+
+html.theme--navy,
+html.theme--maroon {
+  /* Legacy variable bridge for dark themes */
+  --bg: var(--bg-0);
+  --bg-soft: var(--bg-1);
+  --card-bg: var(--panel-0);
+  --card-border: var(--border-0);
+  --card: var(--panel-0);
+  --border: var(--border-0);
+  --accent: var(--primary-0);
+  --accent-soft: var(--primary-soft);
+  --accent-hover: var(--primary-1);
+  --text: var(--text-0);
+  --text-strong: var(--text-1);
+  --muted: var(--muted-0);
+  --input-bg: var(--panel-0);
+  --input-border: var(--border-0);
+  --input-border-focus: var(--focus);
+
+  --color-primary: var(--primary-0);
+  --color-primary-hover: var(--primary-1);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--muted-0);
+  --color-secondary-hover: var(--text-1);
+  --color-danger: var(--error-0);
+  --color-danger-hover: #fb7185;
+  --color-danger-soft: var(--error-soft);
+  --color-success: var(--success-0);
+  --color-success-hover: #16a34a;
+  --color-success-soft: var(--success-soft);
+  --color-warn: var(--warn-0);
+  --color-warn-hover: #d97706;
+  --color-warn-soft: var(--warn-soft);
+  --color-bg: var(--bg-0);
+  --color-surface: var(--panel-0);
+  --color-surface-hover: var(--panel-1);
+  --color-text: var(--text-0);
+  --color-text-muted: var(--muted-0);
+  --color-text-light: rgba(255, 255, 255, 0.7);
+  --color-border: var(--border-0);
+  --color-border-light: var(--border-0);
+  --color-border-dark: var(--border-1);
+
+  --shadow-sm: 0 6px 12px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 20px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 30px rgba(0, 0, 0, 0.55);
+  --shadow-xl: 0 20px 35px rgba(0, 0, 0, 0.6);
+  --shadow-soft: var(--shadow);
+}
+
+html.theme--light {
+  /* Legacy variable bridge for light theme */
+  --bg: var(--bg-0);
+  --bg-soft: var(--bg-1);
+  --card-bg: var(--panel-0);
+  --card-border: var(--border-0);
+  --card: var(--panel-0);
+  --border: var(--border-0);
+  --accent: var(--primary-0);
+  --accent-soft: var(--primary-soft);
+  --accent-hover: var(--primary-1);
+  --text: var(--text-0);
+  --text-strong: var(--text-1);
+  --muted: var(--muted-0);
+  --input-bg: var(--panel-0);
+  --input-border: var(--border-0);
+  --input-border-focus: var(--focus);
+
+  --color-primary: var(--primary-0);
+  --color-primary-hover: var(--primary-1);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--muted-0);
+  --color-secondary-hover: var(--text-1);
+  --color-danger: var(--error-0);
+  --color-danger-hover: #bb2d3b;
+  --color-danger-soft: var(--error-soft);
+  --color-success: var(--success-0);
+  --color-success-hover: #16a34a;
+  --color-success-soft: var(--success-soft);
+  --color-warn: var(--warn-0);
+  --color-warn-hover: #d97706;
+  --color-warn-soft: var(--warn-soft);
+  --color-bg: var(--bg-0);
+  --color-surface: var(--panel-0);
+  --color-surface-hover: var(--panel-1);
+  --color-text: var(--text-0);
+  --color-text-muted: var(--muted-0);
+  --color-text-light: rgba(0, 0, 0, 0.6);
+  --color-border: var(--border-0);
+  --color-border-light: var(--border-0);
+  --color-border-dark: var(--border-1);
+}

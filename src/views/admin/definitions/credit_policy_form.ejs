@@ -1,0 +1,146 @@
+<%
+const activeKey = 'credit_policy';
+  const pageTitle = 'ویرایش سیاست اعتباری';
+  const extraCss = [];
+  const pageClass = '';
+%>      <%
+        const p = policy || {};
+        const checkedFinance = !!p.finance_required;
+      %>
+      <div class="stack">
+        <section class="card">
+          <h2 style="margin:0 0 8px 0;font-size:15px;font-weight:900;">سیاست اعتباری برای <%= node.title || ('نود #' + node.id) %></h2>
+          <p class="muted" style="margin:0 0 12px 0;line-height:1.7;">
+            تاییدکننده اول الزامی است. تاییدکننده دوم اختیاری است ولی نباید با تاییدکننده اول یکسان باشد.
+            در صورت نیاز به تایید مالی، کاربر مالی را مشخص کنید. سقف‌ها می‌توانند خالی بمانند.
+          </p>
+      
+          <% if (error) { %>
+            <div class="alert alert-error"><%= error %></div>
+          <% } %>
+      
+          <form class="form" method="post" action="/admin/definitions/credit-policy/<%= node.id %>">
+            <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:4px;">
+              <label class="field" for="org_node_display">
+                <span>نود</span>
+                <input id="org_node_display" type="text" value="<%= node.title || ('نود #' + node.id) %>" disabled>
+              </label>
+              <label class="field" for="org_node_id">
+                <span>شناسه نود</span>
+                <input id="org_node_id" type="text" value="<%= node.id %>" disabled>
+              </label>
+              <% if (p.created_at) { %>
+                <label class="field" for="created_at">
+                  <span>ایجاد</span>
+                  <input id="created_at" type="text" value="<%= p.created_at %>" disabled>
+                </label>
+              <% } %>
+              <% if (p.updated_at) { %>
+                <label class="field" for="updated_at">
+                  <span>آخرین بروزرسانی</span>
+                  <input id="updated_at" type="text" value="<%= p.updated_at %>" disabled>
+                </label>
+              <% } %>
+            </div>
+      
+            <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;">
+              <div class="field">
+                <label for="approver1_node_id">تاییدکننده اول (الزامی)</label>
+                <select id="approver1_node_id" name="approver1_node_id" required>
+                  <option value="">انتخاب کنید</option>
+                  <% if (orgNodes && orgNodes.length) { %>
+                    <% orgNodes.forEach(function(n){ %>
+                      <option value="<%= n.id %>" <%= (p.approver1_node_id && Number(p.approver1_node_id) === Number(n.id)) ? 'selected' : '' %>><%= n.title || n.id %></option>
+                    <% }); %>
+                  <% } %>
+                </select>
+              </div>
+              <div class="field">
+                <label for="approver2_node_id">تاییدکننده دوم (اختیاری)</label>
+                <select id="approver2_node_id" name="approver2_node_id">
+                  <option value="">بدون تاییدکننده دوم</option>
+                  <% if (orgNodes && orgNodes.length) { %>
+                    <% orgNodes.forEach(function(n){ %>
+                      <option value="<%= n.id %>" <%= (p.approver2_node_id && Number(p.approver2_node_id) === Number(n.id)) ? 'selected' : '' %>><%= n.title || n.id %></option>
+                    <% }); %>
+                  <% } %>
+                </select>
+              </div>
+            </div>
+      
+            <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:8px;">
+              <div class="field checkbox-field" style="align-self:end;">
+                <label class="checkbox">
+                  <input type="checkbox" name="finance_required" id="finance_required" <%= checkedFinance ? 'checked' : '' %>>
+                  <span>تأیید مالی لازم است</span>
+                </label>
+              </div>
+      
+              <div class="field" id="finance-user-field" style="<%= checkedFinance ? '' : 'display:none;' %>">
+                <label for="finance_user_id">کاربر مالی</label>
+                <select id="finance_user_id" name="finance_user_id" <%= checkedFinance ? 'required' : '' %>>
+                  <option value="">انتخاب کاربر</option>
+                  <% if (users && users.length) { %>
+                    <% users.forEach(function(u){ %>
+                      <option value="<%= u.id %>" <%= (p.finance_user_id && String(p.finance_user_id) === String(u.id)) ? 'selected' : '' %>><%= u.display_name || u.id %></option>
+                    <% }); %>
+                  <% } %>
+                </select>
+              </div>
+            </div>
+      
+            <div class="field" style="border:1px dashed var(--border-muted,#ccc);padding:10px;border-radius:8px;margin-top:8px;">
+              <strong style="display:block;margin-bottom:8px;">سقف‌های اعتباری (اختیاری)</strong>
+              <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:2px;">
+                <label class="field" for="max_open_invoices_per_user">
+                  <span>حداکثر فاکتور باز برای کاربر</span>
+                  <input id="max_open_invoices_per_user" name="max_open_invoices_per_user" type="number" inputmode="numeric" value="<%= (p.max_open_invoices_per_user ?? '') %>">
+                </label>
+      
+                <label class="field" for="max_open_amount_per_user">
+                  <span>حداکثر مبلغ باز برای کاربر</span>
+                  <input id="max_open_amount_per_user" name="max_open_amount_per_user" type="text" inputmode="numeric" autocomplete="off" class="js-money" value="<%= formatMoney(p.max_open_amount_per_user ?? '') %>">
+                </label>
+      
+                <label class="field" for="max_open_invoices_per_customer">
+                  <span>حداکثر فاکتور باز برای مشتری</span>
+                  <input id="max_open_invoices_per_customer" name="max_open_invoices_per_customer" type="number" inputmode="numeric" value="<%= (p.max_open_invoices_per_customer ?? '') %>">
+                </label>
+      
+                <label class="field" for="max_open_amount_per_customer">
+                  <span>حداکثر مبلغ باز برای مشتری</span>
+                  <input id="max_open_amount_per_customer" name="max_open_amount_per_customer" type="text" inputmode="numeric" autocomplete="off" class="js-money" value="<%= formatMoney(p.max_open_amount_per_customer ?? '') %>">
+                </label>
+      
+                <label class="field" for="max_invoice_amount">
+                  <span>حداکثر مبلغ هر فاکتور</span>
+                  <input id="max_invoice_amount" name="max_invoice_amount" type="text" inputmode="numeric" autocomplete="off" class="js-money" value="<%= formatMoney(p.max_invoice_amount ?? '') %>">
+                </label>
+              </div>
+            </div>
+      
+            <div class="btn-row">
+              <button type="submit" class="btn btn-primary">ثبت</button>
+              <a href="/admin/definitions/credit-policy" class="btn btn-secondary">بازگشت</a>
+            </div>
+          </form>
+        </section>
+      </div>
+      
+      <script>
+        (function() {
+          var financeCheckbox = document.getElementById('finance_required');
+          var financeField = document.getElementById('finance-user-field');
+          var financeSelect = document.getElementById('finance_user_id');
+          if (!financeCheckbox || !financeField) return;
+          financeCheckbox.addEventListener('change', function() {
+            financeField.style.display = financeCheckbox.checked ? '' : 'none';
+            if (financeSelect) {
+              financeSelect.required = !!financeCheckbox.checked;
+            }
+            if (!financeCheckbox.checked) {
+              if (financeSelect) financeSelect.value = '';
+            }
+          });
+        })();
+      </script>

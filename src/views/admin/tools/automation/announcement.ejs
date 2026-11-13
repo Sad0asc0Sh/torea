@@ -1,0 +1,178 @@
+<%
+  const activeKey = 'tools_office_announcements';
+  const pageTitle = 'ابلاغ | اتوماسیون اداری';
+  const extraCss = ['/css/admin/tools/tools.css', '/css/admin/tools/automation.css'];
+  const pageClass = '';
+%>
+
+<%
+var error = (typeof error !== 'undefined') ? error : '';
+var message = (typeof message !== 'undefined') ? message : '';
+var topics = (typeof topics !== 'undefined' && Array.isArray(topics)) ? topics : [];
+var selectedTopicId = (typeof selectedTopicId !== 'undefined') ? selectedTopicId : null;
+var users = (typeof users !== 'undefined' && Array.isArray(users)) ? users : [];
+var targetUserId = (typeof targetUserId !== 'undefined') ? targetUserId : null;
+var orgNodes = (typeof orgNodes !== 'undefined' && Array.isArray(orgNodes)) ? orgNodes : [];
+var targetOrgNodeId = (typeof targetOrgNodeId !== 'undefined') ? targetOrgNodeId : null;
+var sttModelKey = (typeof sttModelKey !== 'undefined') ? sttModelKey : '';
+var draftTemplate = (typeof draftTemplate !== 'undefined') ? draftTemplate : '';
+var voice_path = (typeof voice_path !== 'undefined') ? voice_path : '';
+var transcript_text = (typeof transcript_text !== 'undefined') ? transcript_text : '';
+%>
+
+<div class="tools-page">
+    <div class="page-container">
+      <div class="actions automation-header">
+        <div>
+          <h1>ابلاغ</h1>
+          <p class="text-muted">ابلاغ برای یک کاربر و همه زیرمجموعه‌های او یا یک سمت سازمانی ارسال می‌شود.</p>
+        </div>
+        <div class="automation-header-actions">
+          <a href="/admin/tools" class="pill">بازگشت به ابزارها</a>
+        </div>
+      </div>
+
+      <form method="POST" action="/admin/tools/office-automation/announcements" class="card automation-card" id="announcement-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="topic_id">موضوع</label>
+            <select id="topic_id" name="topic_id" required>
+              <% topics.forEach(function(t){ %>
+                <option value="<%= t.id %>" data-template="<%= (t.draft_template || '').replace(/"/g, '&quot;') %>" <%= t.id === selectedTopicId ? 'selected' : '' %>>
+                  <%= t.title %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="target_user_id">کاربر ریشه (اختیاری)</label>
+            <select id="target_user_id" name="target_user_id">
+              <option value="">انتخاب کاربر</option>
+              <% users.forEach(function(u){ %>
+                <option value="<%= u.id %>" <%= u.id === targetUserId ? 'selected' : '' %>><%= (((u.first_name||'') + ' ' + (u.last_name||'')).trim()) || u.username %></option>
+              <% }) %>
+            </select>
+            <p class="helper">در صورت انتخاب کاربر، سمت او به عنوان ریشه در نظر گرفته می‌شود.</p>
+          </div>
+          <div class="form-group">
+            <label for="target_org_node_id">سمت سازمانی (اختیاری)</label>
+            <select id="target_org_node_id" name="target_org_node_id">
+              <option value="">انتخاب سمت</option>
+              <% orgNodes.forEach(function(n){ %>
+                <option value="<%= n.id %>" <%= n.id === targetOrgNodeId ? 'selected' : '' %>><%= n.title %></option>
+              <% }) %>
+            </select>
+            <p class="helper">اگر هر دو انتخاب شوند، سمت سازمانی اولویت دارد.</p>
+          </div>
+          <div class="form-group">
+            <label for="stt_model_key">مدل STT (اختیاری)</label>
+            <input id="stt_model_key" name="stt_model_key" type="text" value="<%= sttModelKey || '' %>" placeholder="مثلاً whisper-1" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="body_text">متن ابلاغ</label>
+          <textarea id="body_text" name="body_text" data-initial-template="<%= draftTemplate || '' %>" required placeholder="متن ابلاغ را وارد کنید"><%= draftTemplate || '' %></textarea>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="voice_file">فایل ویس (اختیاری)</label>
+            <input type="file" id="voice_file" accept="audio/*">
+            <input type="hidden" name="voice_path" id="voice_path" value="<%= voice_path || '' %>">
+            <button type="button" class="btn-secondary centered-btn" id="upload-voice-btn">آپلود ویس</button>
+            <p class="helper" id="voice-status">پس از آپلود، دکمه «تبدیل به متن» را بزنید.</p>
+          </div>
+          <div class="form-group">
+            <label for="transcript_text">متن استخراج‌شده (اختیاری)</label>
+            <textarea id="transcript_text" name="transcript_text" placeholder="پس از تبدیل به متن اینجا قرار می‌گیرد"><%= transcript_text || '' %></textarea>
+            <button type="button" class="btn-secondary centered-btn" id="transcribe-btn">تبدیل به متن</button>
+          </div>
+        </div>
+
+        <div class="automation-actions">
+          <button type="submit" class="btn-primary centered-btn">ثبت ابلاغ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const topicSelect = document.getElementById('topic_id');
+      const bodyInput = document.getElementById('body_text');
+      const voiceFile = document.getElementById('voice_file');
+      const voicePathInput = document.getElementById('voice_path');
+      const voiceStatus = document.getElementById('voice-status');
+      const uploadBtn = document.getElementById('upload-voice-btn');
+      const transcribeBtn = document.getElementById('transcribe-btn');
+      const transcriptInput = document.getElementById('transcript_text');
+      const sttModelInput = document.getElementById('stt_model_key');
+
+      if (topicSelect) {
+        topicSelect.addEventListener('change', function(){
+          const opt = topicSelect.selectedOptions[0];
+          if (opt && opt.dataset.template !== undefined && bodyInput && !bodyInput.value.trim()) {
+            bodyInput.value = opt.dataset.template || bodyInput.dataset.initialTemplate || '';
+          }
+        });
+      }
+
+      async function uploadVoice() {
+        if (!voiceFile.files || !voiceFile.files.length) {
+          voiceStatus.textContent = 'فایل انتخاب نشده است.';
+          return;
+        }
+        const formData = new FormData();
+        formData.append('voice', voiceFile.files[0]);
+        uploadBtn.disabled = true;
+        voiceStatus.textContent = 'در حال آپلود...';
+        try {
+          const res = await fetch('/admin/tools/media/voice-upload', { method: 'POST', body: formData });
+          const data = await res.json();
+          if (data && data.ok) {
+            voicePathInput.value = data.voice_path;
+            voiceStatus.textContent = 'آپلود شد: ' + data.voice_path;
+          } else {
+            voiceStatus.textContent = data.message || 'آپلود ناموفق بود.';
+          }
+        } catch (e) {
+          voiceStatus.textContent = 'آپلود ناموفق بود.';
+        } finally {
+          uploadBtn.disabled = false;
+        }
+      }
+
+      async function transcribeVoice() {
+        const path = voicePathInput.value;
+        if (!path) {
+          voiceStatus.textContent = 'ابتدا ویس را آپلود کنید.';
+          return;
+        }
+        transcribeBtn.disabled = true;
+        voiceStatus.textContent = 'در حال تبدیل به متن...';
+        try {
+          const res = await fetch('/admin/ai/transcribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ voice_path: path, model_key: sttModelInput.value || null })
+          });
+          const data = await res.json();
+          if (data && data.ok) {
+            transcriptInput.value = data.text || '';
+            if (!bodyInput.value) bodyInput.value = data.text || '';
+            voiceStatus.textContent = 'تبدیل به متن انجام شد.';
+          } else {
+            voiceStatus.textContent = data.message || 'تبدیل متن انجام نشد.';
+          }
+        } catch (e) {
+          voiceStatus.textContent = 'تبدیل متن انجام نشد.';
+        } finally {
+          transcribeBtn.disabled = false;
+        }
+      }
+
+      uploadBtn && uploadBtn.addEventListener('click', uploadVoice);
+      transcribeBtn && transcribeBtn.addEventListener('click', transcribeVoice);
+    })();
+  </script>

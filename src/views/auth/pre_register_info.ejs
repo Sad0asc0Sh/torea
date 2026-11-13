@@ -1,0 +1,65 @@
+<%
+  pageTitle = 'آماده‌سازی ثبت‌نام';
+  extraCss = [];
+  headerTitle = pageTitle;
+%>
+
+<%
+  const __bot = (typeof botUsername !== 'undefined' && botUsername) ? botUsername : (process.env.TELEGRAM_BOT_USERNAME || '');
+  const __isAdmin = (typeof isAdmin !== 'undefined' && isAdmin);
+%>
+<div class="card">
+  <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:1.1rem;">
+    <img src="/icons/logo.png" alt="ToInfinity" style="height:34px;max-width:140px;display:block;">
+    <span style="font-size:.95rem;font-weight:600;letter-spacing:.03em;">ToInfinity</span>
+  </div>
+
+  <div class="badge">
+    <span class="badge-dot"></span>
+    آماده‌سازی ثبت‌نام
+  </div>
+
+  <h1 class="card-title">مرحله آماده‌سازی ثبت‌نام</h1>
+  <p class="card-subtitle">قبل از ادامه، دو کار زیر را انجام دهید</p>
+
+  <% if (__isAdmin) { %>
+    <div class="alert alert-info">
+      شما با نقش <b>سوپرادمین</b> وارد شده‌اید. لطفاً ربات تلگرام شرکت را استارت کنید و آیدی تلگرام خود را آماده داشته باشید.
+    </div>
+  <% } else { %>
+    <div class="alert alert-info">
+      قبل از ادامه ثبت‌نام، لطفاً ربات تلگرام شرکت را استارت کنید و آیدی تلگرام خود را از ربات <code>@userinfobot</code> یادداشت کنید.
+    </div>
+  <% } %>
+
+  <div class="btn-group mt-2">
+    <a class="btn btn-secondary btn-block" href="https://t.me/userinfobot" target="_blank" rel="noopener">
+      دریافت آیدی تلگرام از @userinfobot
+    </a>
+
+    <% if (__bot) { %>
+      <a class="btn btn-secondary btn-block" href="https://t.me/<%= __bot %>?start=1" target="_blank" rel="noopener">
+        استارت ربات شرکت (@<%= __bot %>)
+      </a>
+    <% } else { %>
+      <a class="btn btn-secondary btn-block" href="https://t.me/" target="_blank" rel="noopener">
+        استارت ربات شرکت
+      </a>
+    <% } %>
+  </div>
+
+  <form method="POST" action="/pre-register-info<% if (__isAdmin) { %>?admin=1<% } %>" class="form mt-3">
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+        <input type="checkbox" name="confirm_telegram_started" value="1" required style="width:auto;">
+        <span>ربات را استارت کرده‌ام و آیدی تلگرام خود را آماده دارم.</span>
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">ادامه</button>
+  </form>
+
+  <div class="text-center mt-3">
+    <a href="/login" class="text-muted" style="font-size: 0.85rem;">بازگشت به صفحه ورود</a>
+  </div>
+</div>

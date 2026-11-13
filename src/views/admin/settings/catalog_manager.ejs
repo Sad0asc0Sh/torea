@@ -1,0 +1,433 @@
+<%
+const activeKey = 'settings_catalog';
+const pageTitle = 'مدیریت هوشمند کاتالوگ';
+const extraCss = ['/css/admin/catalog-manager.css'];
+const settingsRoot = '/admin/settings';
+/**
+ * Build the trimmed payload we submit to the server.
+ * @param {Object} item
+ * @returns {Object}
+ */
+const toMinimalItem = (item) => ({
+  key: item.key,
+  type: item.type || 'page',
+  // Prefer explicit title, then display_title fallback, finally the key.
+  title: item.title || item.display_title || item.key,
+  description: item.description || null,
+  parent_key: item.parent_key || item.suggested_parent_key || null,
+  route_admin: item.route_admin || null,
+  route_user: item.route_user || item.route_admin || null,
+  order_index: item.order_index || item.db_order_index || 0,
+  icon: item.icon || item.display_icon || null,
+  is_active: true,
+});
+const minimalItems = (data?.flat && Array.isArray(data.flat) ? data.flat.map(toMinimalItem) : []);
+%>
+
+<!-- Messages -->
+<% if (success) { %>
+  <div class="alert alert-success"><%= success %></div>
+<% } %>
+<% if (error) { %>
+  <div class="alert alert-danger"><%= error %></div>
+<% } %>
+
+<!-- Theme Toggle & Actions in Header -->
+<div class="catalog-header">
+  <div class="header-left">
+    <h1>🌳 مدیریت هوشمند کاتالوگ</h1>
+    <p class="page-subtitle">کشف خودکار، انتخاب هوشمند و ساختار درختی</p>
+  </div>
+  <div class="header-right">
+    <button type="button" class="btn-icon btn-theme" onclick="toggleTheme()" title="تغییر تم">
+      <span class="theme-icon">🌙</span>
+    </button>
+    <button type="button" class="btn-icon" onclick="clearCacheAndRefresh()" title="پاک کردن کش و تازهسازی">
+      🔄
+    </button>
+    <button type="button" class="btn-icon" onclick="showKeyboardShortcuts()" title="میانبرهای کیبورد">
+      ⌨️
+    </button>
+    <a class="btn btn-secondary" href="/admin/settings/org-permissions" title="مدیریت دسترسی‌های سازمانی">🔐 دسترسی‌های سازمانی</a>
+    <a class="btn btn-secondary" href="<%= settingsRoot %>">بازگشت</a>
+  </div>
+</div>
+
+<!-- Stats Cards -->
+<% if (data && data.stats) { %>
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-value"><%= data.stats.total || 0 %></div>
+    <div class="stat-label">کل</div>
+  </div>
+  <div class="stat-card stat-new">
+    <div class="stat-value"><%= data.stats.new || 0 %></div>
+    <div class="stat-label">جدید</div>
+  </div>
+  <div class="stat-card stat-active">
+    <div class="stat-value"><%= data.stats.active || 0 %></div>
+    <div class="stat-label">فعال</div>
+  </div>
+  <div class="stat-card stat-hidden">
+    <div class="stat-value"><%= data.stats.hidden || 0 %></div>
+    <div class="stat-label">مخفی</div>
+  </div>
+</div>
+<% } %>
+
+<!-- Mobile-specific help text -->
+<% if (data && data.flat && data.flat.length > 0) { %>
+<div class="alert alert-info mobile-only" style="display: none; margin-top: 16px;">
+  <strong>📱 نکته موبایل:</strong>
+  <p class="text-sm mb-0" style="margin: 4px 0 0 0;">برای تجربه بهتر، از نمای لیستی استفاده کنید. برای انتخاب آیتمها، روی چکباکسها ضربه بزنید.</p>
+</div>
+
+<style>
+  @media (max-width: 768px) {
+    .mobile-only {
+      display: block !important;
+    }
+  }
+  .text-sm {
+    font-size: 14px;
+  }
+  .mb-0 {
+    margin-bottom: 0 !important;
+  }
+</style>
+<% } %>
+
+<!-- View Controls & Filters -->
+<% if (data && data.flat) { %>
+
+<!-- Loading Skeleton (hidden by default) -->
+<div id="loading-skeleton" style="display: none;">
+  <div class="skeleton-stats">
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+  </div>
+  <div class="skeleton-table">
+    <div class="skeleton-row"></div>
+    <div class="skeleton-row"></div>
+    <div class="skeleton-row"></div>
+    <div class="skeleton-row"></div>
+    <div class="skeleton-row"></div>
+  </div>
+</div>
+
+<div class="controls-container">
+  
+  <!-- Left: Filters Panel -->
+  <div class="filters-panel">
+    <h3 class="filters-title">🔍 فیلترها</h3>
+    
+    <!-- Search -->
+    <div class="filter-group">
+      <label>جستجو</label>
+      <input type="text" id="search-input" class="search-input" 
+             placeholder="جستجو در عنوان یا کلید...">
+    </div>
+    
+    <!-- Status Filter -->
+    <div class="filter-group">
+      <label>وضعیت</label>
+      <label class="checkbox-label">
+        <input type="checkbox" value="new" checked onchange="applyFilters()"> 
+        <span>🆕 جدید (<span id="count-new">0</span>)</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" value="active" checked onchange="applyFilters()">
+        <span>✅ فعال (<span id="count-active">0</span>)</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" value="hidden" onchange="applyFilters()">
+        <span>⭕ مخفی (<span id="count-hidden">0</span>)</span>
+      </label>
+    </div>
+    
+    <!-- Source Filter -->
+    <div class="filter-group">
+      <label>منبع</label>
+      <label class="checkbox-label">
+        <input type="checkbox" value="route" checked onchange="applyFilters()">
+        <span>🛤️ Route</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" value="ejs" checked onchange="applyFilters()">
+        <span>📄 EJS</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" value="database" checked onchange="applyFilters()">
+        <span>💾 Database</span>
+      </label>
+    </div>
+    
+    <!-- Type Filter -->
+    <div class="filter-group">
+      <label>نوع</label>
+      <label class="checkbox-label">
+        <input type="checkbox" value="page" checked onchange="applyFilters()">
+        <span>صفحه</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" value="group" checked onchange="applyFilters()">
+        <span>گروه</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" value="setting" checked onchange="applyFilters()">
+        <span>تنظیمات</span>
+      </label>
+    </div>
+    
+    <button type="button" class="btn-reset" onclick="resetFilters()">
+      🔄 بازنشانی فیلترها
+    </button>
+  </div>
+  
+  <!-- Right: Main Content -->
+  <div class="main-content">
+    
+    <!-- View Switcher -->
+    <div class="view-switcher">
+      <button type="button" class="view-btn active" data-view="tree" onclick="switchView('tree')">
+        🌳 درختی
+      </button>
+      <button type="button" class="view-btn" data-view="list" onclick="switchView('list')">
+        📋 لیست
+      </button>
+      <button type="button" class="view-btn" data-view="kanban" onclick="switchView('kanban')">
+        📊 کانبان
+      </button>
+    </div>
+
+<!-- Form -->
+<form id="catalog-form" method="post" action="/admin/settings/catalog-manager/apply">
+  
+  <input type="hidden" name="items_data" value="<%- JSON.stringify(minimalItems) %>">
+  <input type="hidden" id="items-data" value="<%- JSON.stringify(data.flat) %>">
+  <input type="hidden" name="edits" id="edits-data" value="{}">
+  
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button type="button" onclick="selectAll()">☑ انتخاب همه</button>
+    <button type="button" onclick="selectNone()">☐ لغو</button>
+    <button type="button" onclick="selectNew()">✨ جدیدها</button>
+    <button type="button" onclick="expandAll()">⊞ باز</button>
+    <button type="button" onclick="collapseAll()">⊟ بستن</button>
+    <span>انتخاب: <strong id="count">0</strong></span>
+    <button type="submit" class="btn-primary">💾 ذخیره</button>
+  </div>
+  
+  <!-- Tree Table -->
+  <table class="tree-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>وضعیت</th>
+        <th>کلید</th>
+        <th>عنوان فارسی</th>
+        <th>نوع</th>
+        <th>مسیر</th>
+        <th>عملیات</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% data.flat.forEach(item => { %>
+        <%
+          const indent = (item.depth || 0) * 24;
+          const checked = item.is_existing && item.is_active;
+        %>
+        <tr data-key="<%= item.key %>" data-depth="<%= item.depth %>">
+          <td>
+            <input type="checkbox" name="selected_keys[]" value="<%= item.key %>" 
+                   <%= checked ? 'checked' : '' %> onchange="updateCount()">
+          </td>
+          <td>
+            <% if (item.is_new) { %>🆕
+            <% } else if (item.is_active) { %>✅
+            <% } else { %>⭕<% } %>
+          </td>
+          <td style="padding-right: <%= indent %>px">
+            <% if (item.has_children) { %>
+              <button type="button" class="toggle" onclick="toggle(this)">▼</button>
+            <% } %>
+            <code><%= item.key %></code>
+          </td>
+          <td>
+            <input type="text" class="title-input" data-key="<%= item.key %>"
+                   value="<%= item.title || item.display_title || '' %>" 
+                   onchange="saveEdit(this)" dir="rtl">
+          </td>
+          <td><%= item.type %></td>
+          <td><code><%= item.route_admin || '—' %></code></td>
+          <td>
+            <button type="button" class="btn-icon" onclick="openProperties('<%= item.key %>')" title="ویرایش">
+              ✏️
+            </button>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  
+  <button type="submit" class="btn-primary btn-lg">💾 اعمال تغییرات</button>
+</form>
+
+<!-- Add List View (hidden by default) -->
+<div id="list-view" class="view-content" style="display: none;">
+  <table class="list-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>عنوان</th>
+        <th>کلید</th>
+        <th>نوع</th>
+        <th>وضعیت</th>
+        <th>عملیات</th>
+      </tr>
+    </thead>
+    <tbody id="list-tbody">
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Kanban View (hidden by default) -->
+<div id="kanban-view" class="view-content" style="display: none;">
+  <div class="kanban-board">
+    <div class="kanban-column" data-status="new">
+      <h3 class="column-header">🆕 جدید (<span id="kanban-new-count">0</span>)</h3>
+      <div class="column-items" id="kanban-new"></div>
+    </div>
+    <div class="kanban-column" data-status="active">
+      <h3 class="column-header">✅ فعال (<span id="kanban-active-count">0</span>)</h3>
+      <div class="column-items" id="kanban-active"></div>
+    </div>
+    <div class="kanban-column" data-status="hidden">
+      <h3 class="column-header">⭕ مخفی (<span id="kanban-hidden-count">0</span>)</h3>
+      <div class="column-items" id="kanban-hidden"></div>
+    </div>
+  </div>
+</div>
+
+  </div>
+</div>
+
+<!-- Empty State -->
+<div id="empty-state" style="display: none;">
+  <div class="empty-state-container">
+    <div class="empty-icon">🔍</div>
+    <h3>نتیجهای یافت نشد</h3>
+    <p>فیلترهای خود را تغییر دهید یا جستجوی دیگری امتحان کنید</p>
+    <button type="button" class="btn btn-primary" onclick="resetFilters()">
+      بازنشانی فیلترها
+    </button>
+  </div>
+</div>
+
+<% } else { %>
+  <p class="error">خطا در بارگذاری دادهها</p>
+<% } %>
+
+<!-- Properties Panel (Sidebar) -->
+<div id="properties-panel" class="properties-panel" style="display: none;">
+  <div class="panel-header">
+    <h3>ویرایش جزئیات</h3>
+    <button type="button" class="btn-close" onclick="closeProperties()">×</button>
+  </div>
+  <div class="panel-body">
+    <input type="hidden" id="prop-key">
+    
+    <div class="form-group">
+      <label>عنوان فارسی</label>
+      <input type="text" id="prop-title" class="form-control" dir="rtl">
+    </div>
+    
+    <div class="form-group">
+      <label>توضیحات</label>
+      <textarea id="prop-description" class="form-control" rows="3" dir="rtl"></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label>آیکون (emoji)</label>
+      <input type="text" id="prop-icon" class="form-control" placeholder="🏠">
+    </div>
+    
+    <div class="form-group">
+      <label>نوع</label>
+      <select id="prop-type" class="form-control">
+        <option value="page">صفحه</option>
+        <option value="group">گروه</option>
+        <option value="setting">تنظیمات</option>
+        <option value="report">گزارش</option>
+        <option value="tool">ابزار</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label>والد</label>
+      <select id="prop-parent" class="form-control">
+        <option value="">-- بدون والد --</option>
+        <!-- Populated by JS -->
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label>ترتیب</label>
+      <input type="number" id="prop-order" class="form-control" min="0">
+    </div>
+  </div>
+  <div class="panel-footer">
+    <button type="button" class="btn btn-primary" onclick="saveProperties()">
+      💾 ذخیره
+    </button>
+    <button type="button" class="btn btn-secondary" onclick="closeProperties()">
+      انصراف
+    </button>
+  </div>
+</div>
+
+<script src="/js/admin/catalog-manager.js"></script>
+
+<!-- Toast Notifications -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- Keyboard Shortcuts Modal -->
+<div id="shortcuts-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>⌨️ میانبرهای کیبورد</h3>
+      <button type="button" class="btn-close" onclick="closeShortcutsModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <table class="shortcuts-table">
+        <tr>
+          <td><kbd>Ctrl</kbd> + <kbd>A</kbd></td>
+          <td>انتخاب همه</td>
+        </tr>
+        <tr>
+          <td><kbd>Alt</kbd> + <kbd>D</kbd></td>
+          <td>لغو انتخاب همه</td>
+        </tr>
+        <tr>
+          <td><kbd>Ctrl</kbd> + <kbd>S</kbd></td>
+          <td>ذخیره تغییرات</td>
+        </tr>
+        <tr>
+          <td><kbd>Ctrl</kbd> + <kbd>F</kbd></td>
+          <td>فوکوس روی جستجو</td>
+        </tr>
+        <tr>
+          <td><kbd>Esc</kbd></td>
+          <td>بستن پنلها</td>
+        </tr>
+        <tr>
+          <td><kbd>?</kbd></td>
+          <td>نمایش راهنما</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

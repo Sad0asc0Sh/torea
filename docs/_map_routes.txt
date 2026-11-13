@@ -1,0 +1,105 @@
+==== ROUTE ENDPOINTS (server.js + routes/*.js) ====
+src/server.js:182:app.get('/', (req, res) => res.redirect('/login'));
+src/server.js:185:app.get('/login', async (req, res) => {
+src/server.js:201:app.post('/login', async (req, res) => {
+src/server.js:249:app.get('/admin/setup-telegram-token', async (req, res) => {
+src/server.js:262:app.post('/admin/setup-telegram-token', async (req, res) => {
+src/server.js:281:app.get('/pre-register-info', (req, res) => {
+src/server.js:289:app.post('/pre-register-info', (req, res) => {
+src/server.js:311:app.get('/register', async (req, res) => {
+src/server.js:328:app.post('/register', async (req, res) => {
+src/server.js:468:app.get('/register/edit', async (req, res) => {
+src/server.js:507:app.post('/register/edit', async (req, res) => {
+src/server.js:646:app.get('/auth/telegram', (req, res) => {
+src/server.js:656:app.post('/auth/telegram/send-code', async (req, res) => {
+src/server.js:705:app.post('/auth/telegram/verify-code', async (req, res) => {
+src/server.js:800:app.get('/logout', (req, res) => {
+src/server.js:812:app.get('/admin/users', requireAdmin, async (req, res) => {
+src/server.js:844:app.post('/admin/users/:id/delete', requireAdmin, async (req, res) => {
+src/server.js:919:app.get('/admin/users/:id/edit', requireAdmin, async (req, res) => {
+src/server.js:937:app.post('/admin/users/:id/edit', requireAdmin, async (req, res) => {
+src/routes/admin.js:10:router.get('/dashboard', (req, res) => {
+src/routes/admin.js:17:router.get('/definitions', (req, res) => {
+src/routes/admin.js:25:router.get('/approvals', async (req, res) => {
+src/routes/admin.js:61:router.post('/approvals/action', async (req, res) => {
+src/routes/admin.js:97:router.get('/reports', async (req, res) => {
+src/routes/admin.js:161:router.get('/definitions/hierarchy', async (req, res) => {
+src/routes/admin.js:198:router.post('/definitions/hierarchy', async (req, res) => {
+src/routes/admin.js:281:router.post('/definitions/hierarchy/update', async (req, res) => {
+src/routes/admin.js:382:router.post('/definitions/hierarchy/delete', async (req, res) => {
+src/routes/admin.js:452:router.get('/definitions/baskets', async (req, res) => {
+src/routes/admin.js:474:router.get('/definitions/brands', async (req, res) => {
+src/routes/admin.js:496:router.get('/definitions/products', async (req, res) => {
+src/routes/telegram.js:4:router.post("/webhook", async (req, res) => {
+
+==== VIEWS USED (render) ====
+src/server.js:197:  res.render('login', { error: null, initialSetup, showAdminHint });
+src/server.js:204:    return res.render('login', { error: 'نام کاربری و رمز را وارد کنید.' });
+src/server.js:210:      return res.render('login', { error: 'نام کاربری یا رمز عبور اشتباه است.' });
+src/server.js:216:      return res.render('login', { error: 'نام کاربری یا رمز عبور اشتباه است.' });
+src/server.js:230:        return res.render('login', {
+src/server.js:243:    return res.render('login', { error: 'خطای داخلی سیستم.' });
+src/server.js:256:  res.render('admin_setup_telegram_token', {
+src/server.js:269:    return res.render('admin_setup_telegram_token', {
+src/server.js:283:  res.render('pre_register_info', {
+src/server.js:294:    return res.render('pre_register_info', {
+src/server.js:319:  res.render('register', {
+src/server.js:359:    return res.render('register', {
+src/server.js:369:    return res.render('register', {
+src/server.js:382:    return res.render('register', {
+src/server.js:394:    return res.render('register', {
+src/server.js:408:      return res.render('register', {
+src/server.js:456:    return res.render('register', {
+src/server.js:494:    return res.render('register', {
+src/server.js:541:    return res.render('register', {
+src/server.js:551:    return res.render('register', {
+src/server.js:563:    return res.render('register', {
+src/server.js:579:      return res.render('register', {
+src/server.js:603:        return res.render('register', {
+src/server.js:634:    return res.render('register', {
+src/server.js:648:  res.render('telegram_auth', {
+src/server.js:663:    return res.render('telegram_auth', { error, info, username, telegram_id });
+src/server.js:670:      return res.render('telegram_auth', { error, info, username, telegram_id });
+src/server.js:697:    return res.render('telegram_auth', { error, info, username, telegram_id });
+src/server.js:701:    return res.render('telegram_auth', { error, info, username, telegram_id });
+src/server.js:712:    return res.render('telegram_auth', { error, info, username, telegram_id: '' });
+src/server.js:719:      return res.render('telegram_auth', { error, info, username, telegram_id: '' });
+src/server.js:726:      return res.render('telegram_auth', {
+src/server.js:763:      return res.render('telegram_auth', {
+src/server.js:785:    return res.render('telegram_auth', {
+src/server.js:794:    return res.render('telegram_auth', { error, info, username, telegram_id: '' });
+src/server.js:832:    res.render('admin_users', { users: q.rows, error: null, message: null });
+src/server.js:835:    res.render('admin_users', {
+src/server.js:875:      return res.render('admin_users', {
+src/server.js:903:      return res.render('admin_users', {
+src/server.js:929:    res.render('admin_user_edit', { user, error: null, orgNodes, allUsers });
+src/server.js:959:    return res.render('admin_user_edit', {
+src/server.js:978:    return res.render('admin_user_edit', {
+src/server.js:999:    return res.render('admin_user_edit', {
+src/server.js:1025:        return res.render('admin_user_edit', {
+src/server.js:1081:      res.render('admin_user_edit', {
+src/routes/admin.js:11:  res.render('admin_dashboard', { user: req.session.user });
+src/routes/admin.js:18:  res.render('admin_definitions', { user: req.session.user });
+src/routes/admin.js:44:    res.render('admin_approvals', {
+src/routes/admin.js:52:    res.render('admin_approvals', {
+src/routes/admin.js:103:    res.render('admin_reports', {
+src/routes/admin.js:111:    res.render('admin_reports', {
+src/routes/admin.js:181:    return res.render('admin_hierarchy', {
+src/routes/admin.js:208:      return res.render('admin_hierarchy', {
+src/routes/admin.js:226:        return res.render('admin_hierarchy', {
+src/routes/admin.js:246:      return res.render('admin_hierarchy', {
+src/routes/admin.js:260:    return res.render('admin_hierarchy', {
+src/routes/admin.js:269:    return res.render('admin_hierarchy', {
+src/routes/admin.js:297:      return res.render('admin_hierarchy', {
+src/routes/admin.js:307:      return res.render('admin_hierarchy', {
+src/routes/admin.js:326:        return res.render('admin_hierarchy', {
+src/routes/admin.js:345:      return res.render('admin_hierarchy', {
+src/routes/admin.js:359:    return res.render('admin_hierarchy', {
+src/routes/admin.js:368:    return res.render('admin_hierarchy', {
+src/routes/admin.js:404:      return res.render('admin_hierarchy', {
+src/routes/admin.js:419:      return res.render('admin_hierarchy', {
+src/routes/admin.js:430:    return res.render('admin_hierarchy', {
+src/routes/admin.js:439:    return res.render('admin_hierarchy', {
+src/routes/admin.js:467:  return res.render('admin_def_baskets', {
+src/routes/admin.js:489:  return res.render('admin_def_brands', {
+src/routes/admin.js:511:  return res.render('admin_def_products', {

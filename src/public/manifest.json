@@ -1,0 +1,41 @@
+{
+  "name": "ToInfinity",
+  "short_name": "ToInfinity",
+  "description": "Smart Sales Management",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#6366f1",
+  "background_color": "#020617",
+  "icons": [
+    { "src": "/icons/icon_32.png", "sizes": "32x32", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon_167.png", "sizes": "167x167", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon_180.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon_192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon_256.png", "sizes": "256x256", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon_512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon_1024.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" }
+  ],
+  "categories": ["business", "finance", "productivity"],
+  "prefer_related_applications": false,
+  "scope": "/",
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
+  "shortcuts": [
+    {
+      "name": "مانده فروشنده",
+      "short_name": "مانده",
+      "description": "مشاهده مانده فروشندگان",
+      "url": "/admin/balance",
+      "icons": [{ "src": "/icons/icon_192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "تعاریف",
+      "short_name": "تعاریف",
+      "description": "مرکز تعاریف سیستم",
+      "url": "/admin/definitions",
+      "icons": [{ "src": "/icons/icon_192.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+<%
+  pageTitle = 'جزئیات درخواست';
+  extraCss = [];
+  const base = (typeof basePath === 'string') ? basePath : '';
+  backHref = (base || '') + '/tools/credit-sale/my-open';
+  headerTitle = pageTitle;
+%>
+
+<div class="container container-md">
+  <!-- Request Details Card -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">اطلاعات درخواست</h2>
+      <span class="badge <%= item.final_status === 'approved' ? 'badge-success' : item.final_status === 'rejected' ? 'badge-danger' : 'badge-warning' %>">
+        <%= item.final_status %>
+      </span>
+    </div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">مشتری</span>
+          <span class="info-value"><%= item.customer_code %> - <%= item.customer_name %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">مبلغ فاکتور</span>
+          <span class="info-value"><%= formatMoney(item.invoice_amount) %> تومان</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">سررسید</span>
+          <span class="info-value"><%= (item.due_date || '').toString().slice(0,10) %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">مهلت</span>
+          <span class="info-value"><%= item.due_days %> روز</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3 class="section-subtitle">وضعیت تاییدها</h3>
+      <div class="approval-status">
+        <div class="approval-item">
+          <span class="approval-label">تایید ۱ (<%= item.approver1_title || 'نامشخص' %>)</span>
+          <span class="badge <%= item.approver1_status === 'approved' ? 'badge-success' : item.approver1_status === 'rejected' ? 'badge-danger' : 'badge-warning' %>">
+            <%= item.approver1_status %>
+          </span>
+        </div>
+        <div class="approval-item">
+          <span class="approval-label">تایید ۲ (<%= item.approver2_title || '-' %>)</span>
+          <span class="badge <%= item.approver2_status === 'approved' ? 'badge-success' : item.approver2_status === 'rejected' ? 'badge-danger' : 'badge-warning' %>">
+            <%= item.approver2_status %>
+          </span>
+        </div>
+        <div class="approval-item">
+          <span class="approval-label">تایید مالی</span>
+          <span class="badge <%= item.finance_status === 'approved' ? 'badge-success' : item.finance_status === 'rejected' ? 'badge-danger' : 'badge-warning' %>">
+            <%= item.finance_status %>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seller Statistics Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">وضعیت فروشنده</h3>
+    </div>
+    <div class="card-body">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-label">تعداد مانده باز</span>
+          <span class="stat-value"><%= stats.open_count_all %></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">مبلغ مانده باز</span>
+          <span class="stat-value"><%= formatMoney(stats.open_amount_all) %></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">تاخیر سررسید</span>
+          <span class="stat-value"><%= stats.overdue_days_sum %> روز</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions Based on Status -->
+  <% if (item.final_status === 'approved') { %>
+    <div class="card bg-info">
+      <div class="card-body">
+        <p class="text-center mb-3">این درخواست تایید شده است. می‌توانید تسویه ثبت کنید.</p>
+        <div class="form-actions">
+          <a href="<%= base %>/tools/credit-settlement/new?credit_request_id=<%= item.id %>" class="btn btn-primary">
+            ثبت تسویه
+          </a>
+        </div>
+      </div>
+    </div>
+  <% } else if (item.final_status === 'settled') { %>
+    <div class="card bg-success">
+      <div class="card-body text-center">
+        <p>✓ این درخواست تسویه شده است.</p>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Approval Actions -->
+  <% if (canApprove) { %>
+    <div class="card">
+      <div class="card-body">
+        <p class="mb-3"><%= approvalText %></p>
+        <div class="form-actions">
+          <form method="post" action="<%= base %>/tools/credit-sale/<%= item.id %>/approve" class="actions">
+            <input type="hidden" name="decision" value="approve" />
+            <button type="submit" class="btn btn-success">تایید</button>
+          </form>
+          <form method="post" action="<%= base %>/tools/credit-sale/<%= item.id %>/approve" class="actions">
+            <input type="hidden" name="decision" value="reject" />
+            <button type="submit" class="btn btn-danger">رد</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</div>
+

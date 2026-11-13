@@ -1,0 +1,171 @@
+<%
+const activeKey = 'settings_apis';
+  const pageTitle = 'اتصال API ها';
+  const extraCss = ['/css/admin/settings/apis.css'];
+  const pageClass = 'page-admin-settings page-admin-settings-apis';
+  const apiTopics = Array.isArray(topics) ? topics : [];
+%>
+
+      <div class="btn-row" style="margin-bottom:12px;">
+        <a class="btn btn-secondary" href="/admin/settings">بازگشت به تنظیمات</a>
+      </div>
+
+      <div class="card apis-hero">
+        <div class="card-header">
+          <div>
+            <div class="eyebrow">Admin · Settings</div>
+            <h1 class="card-title">اتصال API ها</h1>
+            <p class="card-subtitle">کلیدها و پرومپت‌ها را در فضای تیره و ایمن مدیریت کنید. ستون‌های جدول فقط اطلاعات ضروری را نشان می‌دهند.</p>
+          </div>
+          <div class="card-actions">
+            <button id="create-btn" class="btn btn-primary">افزودن اتصال جدید</button>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="pill">پس‌زمینه تیره</div>
+          <div class="pill">متن روشن</div>
+          <div class="pill">ورودی‌ها خوانا</div>
+          <div class="pill">کشف‌پذیر روی موبایل</div>
+        </div>
+      </div>
+
+      <div class="card apis-table-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">لیست API ها</h2>
+            <p class="card-subtitle">ستون‌ها: موضوع، کلید، سرویس، فعال، اولویت آموزشی، تست، ویرایش</p>
+          </div>
+          <div class="card-actions">
+            <button id="refresh-btn" class="btn btn-secondary btn-ghost">بازنشانی فرم</button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="table table-striped apis-table" id="apis-table">
+            <thead>
+              <tr>
+                <th>موضوع</th>
+                <th>کلید</th>
+                <th>سرویس</th>
+                <th>فعال</th>
+                <th>اولویت آموزشی</th>
+                <th data-action="true" scope="col" aria-label="تست اتصال">تست</th>
+                <th data-action="true" scope="col" aria-label="ویرایش تنظیمات">ویرایش</th>
+              </tr>
+            </thead>
+            <tbody id="apis-tbody">
+              <% if (apiTopics.length) { %>
+                <% apiTopics.forEach(function(t){ %>
+                  <tr data-topic-key="<%= t.topic_key %>">
+                    <td data-label="موضوع"><%= t.topic_title || t.topic_key %></td>
+                    <td data-label="کلید"><code class="mono"><%= t.topic_key %></code></td>
+                    <td data-label="سرویس"><span class="pill pill-outline"><%= t.provider_type %></span></td>
+                    <td data-label="فعال">
+                      <label class="toggle">
+                        <input type="checkbox" class="js-toggle" data-topic-key="<%= t.topic_key %>" <%= t.enabled ? 'checked' : '' %>>
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </td>
+                    <td data-label="اولویت آموزشی"><%= t.priority %></td>
+                    <td data-label="تست">
+                      <button class="btn btn-secondary btn-sm js-test" data-topic-key="<%= t.topic_key %>">تست</button>
+                    </td>
+                    <td data-label="ویرایش">
+                      <button class="btn btn-primary btn-sm js-edit" data-topic-key="<%= t.topic_key %>">ویرایش</button>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr><td colspan="7" class="empty">موردی ثبت نشده است.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+        <div id="table-note" class="muted small-text">برای جزئیات و پرومپت‌ها از پنل ویرایش استفاده کنید. ستون‌ها روی موبایل به صورت کارت نمایش داده می‌شوند.</div>
+      </div>
+
+      <div id="edit-panel" class="card edit-panel hidden">
+        <div class="card-header">
+          <div>
+            <div class="eyebrow">ویرایش/ایجاد</div>
+            <h2 class="card-title" id="edit-title">افزودن اتصال جدید</h2>
+            <p class="card-subtitle">کلید API هرگز در جدول نمایش داده نمی‌شود. فقط در این فرم وارد کنید.</p>
+          </div>
+          <div class="card-actions">
+            <button id="close-panel" class="btn btn-secondary btn-ghost">لغو</button>
+          </div>
+        </div>
+        <form id="apiForm" class="stack" autocomplete="off">
+          <div class="field-grid">
+            <div class="field">
+              <label for="topic_title">موضوع (فارسی)</label>
+              <input id="topic_title" name="topic_title" type="text" maxlength="120" placeholder="مثلاً دستیار مذاکره" required>
+            </div>
+            <div class="field">
+              <label for="topic_key">کلید (لاتین - فقط زمان ساخت)</label>
+              <input id="topic_key" name="topic_key" type="text" pattern="[A-Za-z0-9_-]{2,60}" aria-describedby="topic-key-desc" placeholder="negotiation_coach" required>
+              <div class="hint" id="topic-key-desc">فقط حروف، اعداد، خط تیره و زیرخط؛ حداقل ۲ و حداکثر ۶۰ کاراکتر. پس از ثبت، کلید فقط خواندنی خواهد بود.</div>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="provider_type">نوع سرویس</label>
+              <select id="provider_type" name="provider_type">
+                <option value="cloud">cloud</option>
+                <option value="local">local</option>
+                <option value="hybrid" selected>hybrid</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="priority">اولویت آموزشی (۱ تا ۹۹)</label>
+              <input id="priority" name="priority" type="number" min="1" max="99" value="10" inputmode="numeric">
+            </div>
+            <div class="field checkbox-field">
+              <label for="enabled">فعال</label>
+              <label class="toggle inline">
+                <input id="enabled" name="enabled" type="checkbox" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="base_url">Base URL</label>
+              <input id="base_url" name="base_url" type="url" placeholder="https://example.com/api">
+              <div class="hint">برای تست سرویس محلی/هیبرید الزامی است.</div>
+            </div>
+            <div class="field">
+              <label for="api_key">API Key</label>
+              <input id="api_key" name="api_key" type="password" class="sk-box" placeholder="sk-..." autocomplete="off">
+              <div class="hint">کلید ذخیره می‌شود اما هرگز در جدول نمایش داده نمی‌شود.</div>
+            </div>
+          </div>
+
+          <div class="prompts">
+            <div class="prompt-tabs" role="tablist">
+              <button type="button" class="prompt-tab active" data-target="simple" aria-selected="true">ساده</button>
+              <button type="button" class="prompt-tab" data-target="normal" aria-selected="false">منطقی</button>
+              <button type="button" class="prompt-tab" data-target="hard" aria-selected="false">سخت گیرانه</button>
+            </div>
+            <div class="prompt-pane active" data-pane="simple">
+              <label for="prompt_simple">پرومپت ساده</label>
+              <textarea id="prompt_simple" name="prompt_simple" rows="3" placeholder="متن ساده..."></textarea>
+            </div>
+            <div class="prompt-pane" data-pane="normal">
+              <label for="prompt_normal">پرومپت منطقی</label>
+              <textarea id="prompt_normal" name="prompt_normal" rows="3" placeholder="متن منطقی..."></textarea>
+            </div>
+            <div class="prompt-pane" data-pane="hard">
+              <label for="prompt_hard">پرومپت سخت گیرانه</label>
+              <textarea id="prompt_hard" name="prompt_hard" rows="3" placeholder="متن سخت گیرانه..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">ذخیره</button>
+            <button class="btn btn-secondary" type="button" id="cancel-btn">لغو</button>
+            <div id="formMessage" class="banner muted" role="status" aria-live="polite"></div>
+          </div>
+        </form>
+      </div>

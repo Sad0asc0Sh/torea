@@ -1,0 +1,164 @@
+<%
+  pageTitle = 'مشتری‌ها';
+  extraCss = [];
+  backHref = '/admin/dashboard';
+  headerTitle = pageTitle;
+  const base = (typeof basePath === 'string') ? basePath : '';
+%>
+
+<div class="container">
+  <!-- Add Customer Card -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">افزودن مشتری</h2>
+    </div>
+    <div class="card-body">
+      <form method="post" action="<%= base %>/customers" class="form-stack">
+        <div class="form-group">
+          <label class="form-label" for="code">کد مشتری</label>
+          <input 
+            type="text" 
+            id="code"
+            name="code" 
+            class="form-input" 
+            placeholder="کد یکتا" 
+            required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="name">نام مشتری</label>
+          <input 
+            type="text" 
+            id="name"
+            name="name" 
+            class="form-input" 
+            placeholder="نام" 
+            required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="type_id">نوع مشتری</label>
+          <select id="type_id" name="type_id" class="form-select">
+            <option value="">انتخاب کنید (اختیاری)</option>
+            <% (types||[]).forEach(t => { %>
+              <option value="<%= t.id %>"><%= t.name %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="address">آدرس</label>
+          <input 
+            type="text" 
+            id="address"
+            name="address_text" 
+            class="form-input" 
+            placeholder="آدرس (اختیاری)" />
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">ثبت مشتری</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Search and Filter -->
+  <% 
+    const pg = (typeof pagination !== 'undefined' && pagination) ? pagination : {page:1,limit:200,total:(items?items.length:0),pages:1,search:''};
+    const qsBase = (p) => {
+      const sp = [];
+      if (pg.limit) sp.push('limit=' + encodeURIComponent(pg.limit));
+      if (pg.search) sp.push('search=' + encodeURIComponent(pg.search));
+      sp.push('page=' + encodeURIComponent(p));
+      return (base || '') + '/customers?' + sp.join('&');
+    };
+  %>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="GET" action="<%= base %>/customers" class="form-inline">
+        <input type="hidden" name="limit" value="<%= pg.limit %>">
+        <div class="form-group flex-1">
+          <input 
+            name="search" 
+            value="<%= pg.search %>" 
+            placeholder="جستجو: کد / نام / آدرس" 
+            class="form-input">
+        </div>
+        <div class="form-actions-inline">
+          <button type="submit" class="btn btn-primary">جستجو</button>
+           <a href="<%= base %>/customers" class="btn btn-secondary">پاک کردن</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Customers List -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">لیست مشتری‌ها</h2>
+      <span class="badge">
+        <span>صفحه <%= pg.page %> از <%= pg.pages %></span>
+      </span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>کد</th>
+              <th>نام</th>
+              <th>نوع</th>
+              <th class="hide-mobile">آدرس</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (items && items.length > 0) { %>
+              <% items.forEach(x => { %>
+                <tr>
+                  <td><%= x.code %></td>
+                  <td><%= x.name %></td>
+                  <td><%= x.type_name || '-' %></td>
+                  <td class="hide-mobile"><%= x.address_text || '-' %></td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="4" class="text-center text-muted">موردی یافت نشد</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="card-footer">
+      <div class="pagination">
+        <div class="pagination-info">
+          تعداد کل: <strong><%= pg.total %></strong> مورد
+        </div>
+        <div class="pagination-controls">
+          <% if (pg.page > 1) { %>
+            <a href="<%= qsBase(1) %>" class="btn btn-sm">اول</a>
+            <a href="<%= qsBase(pg.page - 1) %>" class="btn btn-sm">قبلی</a>
+          <% } else { %>
+            <span class="btn btn-sm" disabled>اول</span>
+            <span class="btn btn-sm" disabled>قبلی</span>
+          <% } %>
+
+          <span class="pagination-separator">|</span>
+
+          <% if (pg.page < pg.pages) { %>
+            <a href="<%= qsBase(pg.page + 1) %>" class="btn btn-sm">بعدی</a>
+            <a href="<%= qsBase(pg.pages) %>" class="btn btn-sm">آخر</a>
+          <% } else { %>
+            <span class="btn btn-sm" disabled>بعدی</span>
+            <span class="btn btn-sm" disabled>آخر</span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

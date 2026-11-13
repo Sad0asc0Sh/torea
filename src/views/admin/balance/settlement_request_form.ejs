@@ -1,0 +1,51 @@
+<%
+const activeKey = 'balance_settlement_new';
+  const pageTitle = 'ثبت درخواست تسویه';
+  const extraCss = ['/css/admin/balance/balance.css'];
+  const pageClass = '';
+%>
+
+      <div class="btn-row" style="margin-bottom:12px;">
+        <a class="btn btn-secondary" href="/admin/balance">بازگشت به مانده فروشنده</a>
+      </div>
+
+      <div class="balance-container">
+        <div class="balance-card">
+          <h1 style="margin:0 0 6px;font-size:18px;font-weight:800;">ثبت درخواست تسویه</h1>
+          <p class="muted" style="margin:0 0 12px;">انتخاب بدهی تایید شده و درج توضیح</p>
+          <form method="POST" action="/admin/balance/settlement-requests" class="form-grid">
+            <div>
+              <label>درخواست فروش اعتباری تایید شده *</label>
+              <select name="credit_request_id" required>
+                <option value="">انتخاب کنید</option>
+                <% (sales || []).forEach(function(s){ %>
+                  <option value="<%= s.id %>" <%= String(form?.credit_request_id || '') === String(s.id) ? 'selected' : '' %>>
+                    <%= s.customer_name || s.customer_code || 'مشتری' %> - مبلغ <%= formatMoney(s.invoice_amount) %>
+                  </option>
+                <% }) %>
+              </select>
+            </div>
+            <div>
+              <label>نوع تسویه *</label>
+              <select name="settlement_type" required>
+                <option value="cash" <%= form?.settlement_type === 'cash' ? 'selected' : '' %>>نقدی/واریز</option>
+                <option value="cheque" <%= form?.settlement_type === 'cheque' ? 'selected' : '' %>>چک</option>
+                <option value="transfer" <%= form?.settlement_type === 'transfer' ? 'selected' : '' %>>کارت به کارت</option>
+                <option value="other" <%= form?.settlement_type === 'other' ? 'selected' : '' %>>سایر</option>
+              </select>
+            </div>
+            <div>
+              <label>شماره مرجع / رسید</label>
+              <input name="settlement_ref_no" value="<%= form?.settlement_ref_no || '' %>">
+            </div>
+            <div style="grid-column:1/-1;">
+              <label>توضیح درخواست‌کننده</label>
+              <textarea name="requester_note" rows="3"><%= form?.requester_note || '' %></textarea>
+            </div>
+            <div class="form-actions" style="grid-column:1/-1;">
+              <button type="submit" class="btn-primary">ثبت درخواست تسویه</button>
+              <a class="btn-secondary" href="/admin/balance/settlement-requests">بازگشت به لیست</a>
+            </div>
+          </form>
+        </div>
+      </div>

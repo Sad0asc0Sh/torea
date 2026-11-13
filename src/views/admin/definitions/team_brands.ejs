@@ -1,0 +1,70 @@
+<%
+const activeKey = 'def_teams';
+  const pageTitle = 'مدیریت اعضای تیم';
+  const extraCss = [];
+  const pageClass = '';
+%>      <% const __team = team || {}; %>
+      <% const __teamBrands = Array.isArray(teamBrands) ? teamBrands : []; %>
+      <% const __allBrands = Array.isArray(allBrands) ? allBrands : []; %>
+      <% const __selectedIds = new Set(__teamBrands.map(x => String(x.brand_id))); %>
+      
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+        <div>
+          <a class="btn btn-secondary" href="/admin/definitions/teams">بازگشت به لیست تیم‌ها</a>
+        </div>
+        <div style="font-weight:700;">
+          برندهای تیم: <span style="opacity:.85;"><%= __team.name %></span>
+        </div>
+      </div>
+      
+      <form method="post" action="/admin/definitions/teams/<%= __team.id %>/brands/add" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+        <select name="brand_id" class="form-control" style="min-width:260px;" required>
+          <option value="">انتخاب برند…</option>
+          <% __allBrands.forEach(function(b){ %>
+            <% const disabled = __selectedIds.has(String(b.id)); %>
+            <option value="<%= b.id %>" <%= disabled ? 'disabled' : '' %>>
+              <%= (b.brand_code ? ('['+b.brand_code+'] ') : '') + (b.brand_name || '—') + (disabled ? ' (اضافه شده)' : '') %>
+            </option>
+          <% }); %>
+        </select>
+      
+        <input name="priority" class="form-control" placeholder="اولویت (اختیاری)" style="width:160px;" />
+      
+        <button class="btn btn-primary" type="submit">افزودن برند</button>
+      </form>
+      
+        <div class="card">
+          <div class="card-body">
+            <% if (!__teamBrands.length) { %>
+              <div style="opacity:.75;">هنوز برندی به این تیم متصل نشده است.</div>
+            <% } else { %>
+              <div class="table-shell">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>برند</th>
+                      <th style="width:120px;">اولویت</th>
+                      <th style="width:120px;">وضعیت</th>
+                      <th style="width:140px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% __teamBrands.forEach(function(tb){ %>
+                      <tr>
+                        <td><%= (tb.brand_code ? ('['+tb.brand_code+'] ') : '') + tb.brand_name %></td>
+                        <td><%= (tb.priority === null || tb.priority === undefined) ? '-' : tb.priority %></td>
+                        <td><%= tb.is_active ? 'فعال' : 'غیرفعال' %></td>
+                        <td style="text-align:left;">
+                          <form method="post" action="/admin/definitions/teams/<%= __team.id %>/brands/remove" style="display:inline;">
+                            <input type="hidden" name="brand_id" value="<%= tb.brand_id %>">
+                            <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('حذف برند از تیم؟');">حذف</button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </div>

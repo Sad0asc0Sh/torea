@@ -1,0 +1,204 @@
+<%
+const activeKey = 'settings_training_topics';
+  const pageTitle = 'موضوعات آموزش';
+  const extraCss = ['/css/admin/settings/training.css'];
+  const pageClass = 'page--settings';
+  const settings = (typeof __settings !== 'undefined') ? __settings : {};
+  const topics = Array.isArray(__topics) ? __topics : [];
+  const defaultOrder = (typeof __defaultOrder !== 'undefined') ? __defaultOrder : '';
+%>
+<%
+  // Safe fallback: route probably passes `topics` (without __)
+  var __topics = (typeof topics !== 'undefined' && Array.isArray(topics)) ? topics : [];
+%>
+      <div class="btn-row" style="margin-bottom:12px;">
+        <a class="btn btn-secondary" href="/admin/settings">بازگشت به تنظیمات</a>
+      </div>
+
+      <div class="stack">
+        <section class="card stack">
+          <div class="card-title">موضوعات آموزش</div>
+          <div class="card-subtitle">ترتیب نمایش و فعال‌سازی موضوعات همراه با تست تامین‌کننده</div>
+
+          <div class="pill" style="display:flex; gap:10px; flex-wrap:wrap;">
+            <span>حد آستانه: <strong><%= settings.threshold_score || '-' %></strong></span>
+            <span>طول میانگین: <strong><%= settings.rolling_window_n || '-' %></strong></span>
+            <a class="btn btn-tertiary" href="/admin/settings/training-config">ویرایش تنظیمات</a>
+          </div>
+        </section>
+
+        <section class="card stack">
+          <div class="card-title">افزودن موضوع جدید</div>
+          <form method="POST" action="/admin/settings/training-topics" class="stack" style="gap:10px;">
+            <div class="grid two-col">
+              <label class="form-field">
+                <span class="form-label">عنوان</span>
+                <input name="title" required placeholder="مثال: کشف نیاز" />
+              </label>
+              <label class="form-field">
+                <span class="form-label">کلید موضوع</span>
+                <input name="topic_key" required placeholder="need_discovery" />
+              </label>
+            </div>
+            <div class="grid two-col">
+              <label class="form-field">
+                <span class="form-label">ترتیب</span>
+                <input type="number" name="order_index" min="0" value="<%= defaultOrder %>">
+              </label>
+              <label class="form-field">
+                <span class="form-label">حالت تامین‌کننده</span>
+                <select name="provider_mode">
+                  <option value="hybrid">Hybrid</option>
+                  <option value="cloud">Cloud</option>
+                  <option value="local">Local</option>
+                </select>
+              </label>
+            </div>
+            <div class="grid two-col">
+              <label class="form-field">
+                <span class="form-label">توکن (اختیاری)</span>
+                <input name="token" placeholder="Bearer ..." />
+              </label>
+              <label class="form-field">
+                <span class="form-label">Base URL (اختیاری)</span>
+                <input name="base_url" placeholder="https://api.example.com" />
+              </label>
+            </div>
+            <div class="grid three-col">
+              <label class="form-field">
+                <span class="form-label">Prompt ساده</span>
+                <textarea name="prompt_simple" rows="2" placeholder="راهنمای ساده..."></textarea>
+              </label>
+              <label class="form-field">
+                <span class="form-label">Prompt منطقی</span>
+                <textarea name="prompt_logical" rows="2" placeholder="راهنمای منطقی..."></textarea>
+              </label>
+              <label class="form-field">
+                <span class="form-label">Prompt سختگیرانه</span>
+                <textarea name="prompt_strict" rows="2" placeholder="راهنمای سختگیرانه..."></textarea>
+              </label>
+            </div>
+            <label class="checkbox">
+              <input type="checkbox" name="is_enabled" checked>
+              <span>فعال</span>
+            </label>
+            <div class="btn-row">
+              <button type="submit" class="btn btn-primary">ثبت موضوع</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card stack">
+          <div class="card-title">لیست موضوعات</div>
+          <% if (!topics.length) { %>
+            <p class="muted">موضوعی ثبت نشده است.</p>
+          <% } %>
+          <div class="stack" style="gap:10px;">
+            <% topics.forEach(function(t){ %>
+              <details class="accordion" style="border:1px solid var(--border-color,#2d2d2d); border-radius:12px; padding:12px; background: rgba(255,255,255,0.02);">
+                <summary style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; cursor:pointer;">
+                  <strong><%= t.title %></strong>
+                  <span class="pill">کلید: <%= t.topic_key %></span>
+                  <span class="pill">ترتیب: <%= t.order_index ?? '-' %></span>
+                  <span class="pill">حالت: <%= t.provider_mode || 'hybrid' %></span>
+                  <span class="badge <%= t.is_enabled ? 'badge-success' : 'badge-neutral' %>"><%= t.is_enabled ? 'فعال' : 'غیرفعال' %></span>
+                </summary>
+                <div class="stack" style="margin-top:10px; gap:10px;">
+                  <form method="POST" action="/admin/settings/training-topics" class="stack" style="gap:8px;">
+                    <input type="hidden" name="id" value="<%= t.id %>">
+                    <input type="hidden" name="topic_id" value="<%= t.id %>">
+                    <div class="grid two-col">
+                      <label class="form-field">
+                        <span class="form-label">عنوان</span>
+                        <input name="title" value="<%= t.title %>" required>
+                      </label>
+                      <label class="form-field">
+                        <span class="form-label">کلید موضوع</span>
+                        <input name="topic_key" value="<%= t.topic_key %>" required>
+                      </label>
+                    </div>
+                    <div class="grid two-col">
+                      <label class="form-field">
+                        <span class="form-label">ترتیب</span>
+                        <input type="number" name="order_index" min="0" value="<%= t.order_index ?? '' %>">
+                      </label>
+                      <label class="form-field">
+                        <span class="form-label">حالت تامین‌کننده</span>
+                        <select name="provider_mode">
+                          <option value="hybrid" <%= (t.provider_mode || '') === 'hybrid' ? 'selected' : '' %>>Hybrid</option>
+                          <option value="cloud" <%= (t.provider_mode || '') === 'cloud' ? 'selected' : '' %>>Cloud</option>
+                          <option value="local" <%= (t.provider_mode || '') === 'local' ? 'selected' : '' %>>Local</option>
+                        </select>
+                      </label>
+                    </div>
+                    <div class="grid two-col">
+                      <label class="form-field">
+                        <span class="form-label">توکن</span>
+                        <input name="token" value="<%= t.token || '' %>" placeholder="Bearer ..." autocomplete="off">
+                      </label>
+                      <label class="form-field">
+                        <span class="form-label">Base URL</span>
+                        <input name="base_url" value="<%= t.base_url || '' %>" placeholder="https://..." autocomplete="off">
+                      </label>
+                    </div>
+                    <div class="grid three-col">
+                      <label class="form-field">
+                        <span class="form-label">Prompt ساده</span>
+                        <textarea name="prompt_simple" rows="2"><%= t.prompt_simple || '' %></textarea>
+                      </label>
+                      <label class="form-field">
+                        <span class="form-label">Prompt منطقی</span>
+                        <textarea name="prompt_logical" rows="2"><%= t.prompt_logical || '' %></textarea>
+                      </label>
+                      <label class="form-field">
+                        <span class="form-label">Prompt سختگیرانه</span>
+                        <textarea name="prompt_strict" rows="2"><%= t.prompt_strict || '' %></textarea>
+                      </label>
+                    </div>
+                    <label class="checkbox">
+                      <input type="checkbox" name="is_enabled" <%= t.is_enabled ? 'checked' : '' %>>
+                      <span>فعال (حذف نمی‌شود؛ فقط غیرفعال می‌گردد)</span>
+                    </label>
+                    <label class="form-field">
+                      <span class="form-label">نمونه مکالمه برای تست تامین‌کننده</span>
+                      <textarea name="sample" rows="2" placeholder="متن نمونه برای تست سریع">این یک نمونه مکالمه کوتاه برای تست تامین‌کننده است.</textarea>
+                    </label>
+                    <div class="btn-row" style="gap:8px; flex-wrap:wrap;">
+                      <button type="submit" class="btn btn-primary">ذخیره‌سازی</button>
+                      <button type="submit" class="btn btn-secondary" formaction="/admin/settings/training-topics/test">تست تامین‌کننده</button>
+                    </div>
+                  </form>
+                </div>
+              </details>
+            <% }); %>
+          </div>
+        </section>
+
+        <% if (topics.length) { %>
+        <section class="card stack">
+          <div class="card-title">ثبت ترتیب موضوعات</div>
+          <form method="POST" action="/admin/settings/training-topics/reorder" class="stack" style="gap:8px;">
+            <div class="table" role="table">
+              <div class="table-row table-header" role="row">
+                <div class="table-cell" role="columnheader">عنوان</div>
+                <div class="table-cell" role="columnheader">کلید</div>
+                <div class="table-cell" role="columnheader">ترتیب</div>
+              </div>
+              <% topics.forEach(function(t){ %>
+                <div class="table-row" role="row">
+                  <div class="table-cell" role="cell"><%= t.title %></div>
+                  <div class="table-cell" role="cell"><%= t.topic_key %></div>
+                  <div class="table-cell" role="cell">
+                    <input type="hidden" name="topic_id" value="<%= t.id %>">
+                    <input type="number" name="order_index" value="<%= t.order_index ?? '' %>" min="0" style="max-width:90px;">
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+            <div class="btn-row">
+              <button type="submit" class="btn btn-primary">ذخیره‌سازی ترتیب</button>
+            </div>
+          </form>
+        </section>
+        <% } %>
+      </div>

@@ -1,0 +1,29 @@
+<%
+  pageTitle = 'راه‌اندازی اولیه ادمین سیستم';
+  extraCss = ['/css/auth/system-admin-first-setup.css'];
+  headerTitle = pageTitle;
+  showAppBar = false;
+  pageClass = 'auth-shell is-sysadmin';
+%>
+
+<div class="box">
+  <div class="title">راه‌اندازی اولیه ادمین سیستم</div>
+  <div class="sub">
+    چون اولین ورود است، ابتدا توکن ربات تلگرام و telegram_id ادمین را ثبت کنید و سپس رمز عبور را به حالت قوی تغییر دهید.
+    بعد از ثبت، یک کد تأیید به تلگرام ارسال می‌شود.
+  </div>
+
+  <form method="POST" action="/admin/first-setup" autocomplete="off">
+    <input name="bot_token" placeholder="Telegram Bot Token (مثال: 12345:ABC...)" required>
+    <div class="hint">توکن در سیستم ذخیره می‌شود. (در پنل ادمین هم بعداً قابل تغییر است.)</div>
+
+    <input name="telegram_id" placeholder="telegram_id ادمین (عدد)" inputmode="numeric" required>
+    <div class="hint">این همان Chat ID ادمین است. باید عدد باشد.</div>
+
+    <input name="password" type="password" placeholder="رمز جدید (قوی)" required>
+    <input name="password2" type="password" placeholder="تکرار رمز جدید" required>
+    <div class="hint">قانون رمز: حداقل ۸ کاراکتر + حروف کوچک و بزرگ + عدد + علامت</div>
+
+    <button class="btn" type="submit">ثبت و ارسال کد تأیید تلگرام</button>
+  </form>
+</div>

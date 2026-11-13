@@ -1,0 +1,211 @@
+<%
+const activeKey = 'def_users';
+  const pageTitle = 'ویرایش کاربر (تعاریف)';
+  const extraCss = [];
+  const pageClass = '';
+%>
+<%
+  const __editUser = user || {};
+  const __roles = Array.isArray(roles) ? roles : [];
+  const __derivedStatus = __editUser.status || 'pending_manager';
+  const __managerApproved = String(__derivedStatus || '').toLowerCase() === 'active';
+  const __isActive = !!__editUser.active;
+  const __orgNodes = Array.isArray(orgNodes) ? orgNodes : [];
+  const __managers = Array.isArray(managers) ? managers : [];
+  const __userRoleUpper = String(__editUser.role || '').toUpperCase();
+  const __userUsernameLower = String(__editUser.username || '').toLowerCase();
+  const __hideOrgFields = (
+    __userRoleUpper === 'SUPER_ADMIN' ||
+    __userRoleUpper === 'SYSTEM' ||
+    __userUsernameLower === 'admin' ||
+    __userUsernameLower === 'general_manager'
+  );
+%>
+      
+      <div class="stack">
+        <% if (error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+      
+        <section class="card">
+          <h2 style="margin:0 0 8px 0;font-size:15px;font-weight:900;">ویرایش کاربر (ID: <%= __editUser.id %>)</h2>
+          <p class="muted" style="margin-top:0;">نام کاربری: <strong><%= __editUser.username %></strong> — نام کاربری قابل ویرایش نیست.</p>
+          <div class="alert alert-warn" style="margin-bottom:12px;">در صورت تغییر رمز عبور یا آیدی تلگرام، کاربر باید مجدداً در تلگرام احراز شود</div>
+      
+          <form class="form" method="post" action="/admin/definitions/users/<%= __editUser.id %>">
+            <div class="grid-2">
+              <div class="field">
+                <label for="username">نام کاربری</label>
+                <input id="username" value="<%= __editUser.username || '' %>" readonly />
+              </div>
+              <div class="field">
+                <label for="role">نقش</label>
+                <select id="role" name="role">
+                  <% __roles.forEach(function(r){ %>
+                    <option value="<%= r %>" <%= String(__editUser.role || '') === String(r) ? 'selected' : '' %>><%= r %></option>
+                  <% }); %>
+                </select>
+              </div>
+            </div>
+      
+            <div class="grid-2">
+              <div class="field">
+                <label for="org_node_id">سمت / واحد سازمانی</label>
+                <% if (__hideOrgFields) { %>
+                  <input id="org_node_id_display" value="<%= __editUser.org_node_title || '' %>" readonly />
+                  <input type="hidden" name="org_node_id" value="<%= __editUser.org_node_id || '' %>" />
+                <% } else { %>
+                  <select id="org_node_id" name="org_node_id" required>
+                    <option value="">انتخاب کنید...</option>
+                    <% (__orgNodes || []).forEach(function(n){ %>
+                      <option value="<%= n.id %>" <%= String(__editUser.org_node_id || '') === String(n.id) ? 'selected' : '' %>><%= n.title %></option>
+                    <% }); %>
+                  </select>
+                  <div class="hint">سطح سازمانی کاربر.</div>
+                <% } %>
+              </div>
+      
+              <div class="field">
+                <label for="manager_id">مدیر بالاسری</label>
+                <% if (__hideOrgFields) { %>
+                  <input id="manager_id_display" value="<%= __editUser.manager_id ? (__editUser.manager_name || __editUser.manager_username || __editUser.manager_id) : '—' %>" readonly />
+                  <input type="hidden" name="manager_id" value="<%= __editUser.manager_id || '' %>" />
+                <% } else { %>
+                  <select id="manager_id" name="manager_id" disabled>
+                    <option value="">ابتدا سمت را انتخاب کنید...</option>
+                  </select>
+                  <div class="hint">مدیر باید از لایه بالادست سمت انتخاب شود.</div>
+                <% } %>
+              </div>
+            </div>
+      
+            <div class="grid-2">
+              <div class="field">
+                <label for="first_name">نام</label>
+                <input id="first_name" name="first_name" value="<%= __editUser.first_name || '' %>" required />
+              </div>
+      
+              <div class="field">
+                <label for="last_name">نام خانوادگی</label>
+                <input id="last_name" name="last_name" value="<%= __editUser.last_name || '' %>" required />
+              </div>
+            </div>
+      
+            <div class="grid-2">
+              <div class="field">
+                <label for="phone">شماره همراه</label>
+                <input id="phone" name="phone" value="<%= __editUser.phone || '' %>" />
+              </div>
+
+              <div class="field">
+                <label for="telegram_id">آیدی تلگرام</label>
+                <input id="telegram_id" name="telegram_id" value="<%= __editUser.telegram_id || '' %>" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="accounting_code">کد حسابداری (اختیاری)</label>
+              <input id="accounting_code" name="accounting_code" value="<%= __editUser.accounting_code || '' %>" />
+              <div class="hint">در صورت پر کردن، باید یکتا باشد.</div>
+            </div>
+
+            <div class="field">
+              <label for="password">رمز عبور جدید (در صورت نیاز)</label>
+              <input id="password" name="password" type="password" autocomplete="new-password" />
+              <div class="hint">در صورت تغییر رمز عبور یا آیدی تلگرام، کاربر باید مجدداً در تلگرام احراز شود</div>
+            </div>
+      
+            <div class="grid-2">
+              <div class="field">
+                <label>
+                  <input type="checkbox" name="is_active" <%= __isActive ? 'checked' : '' %> />
+                  فعال باشد
+                </label>
+              </div>
+              <div class="field">
+                <label>
+                  <input type="checkbox" name="manager_approved" <%= __managerApproved ? 'checked' : '' %> />
+                  تایید مدیر
+                </label>
+              </div>
+            </div>
+      
+            <div class="field">
+              <label>وضعیت فعلی</label>
+              <div class="muted"><%= __derivedStatus %></div>
+            </div>
+      
+            <div class="btn-row">
+              <button type="submit" class="btn btn-primary">ذخیره</button>
+              <a class="btn btn-secondary" href="/admin/definitions/users">بازگشت</a>
+            </div>
+          </form>
+      
+          <% if (!__hideOrgFields) { %>
+          <script>
+            (function(){
+              var orgNodeSelect = document.getElementById('org_node_id');
+              var managerSelect = document.getElementById('manager_id');
+              if (!orgNodeSelect || !managerSelect) return;
+      
+              var ORG_NODES = <%- JSON.stringify(__orgNodes || []) %>;
+              var MANAGERS = <%- JSON.stringify(__managers || []) %>;
+              var CURRENT_MANAGER = "<%= __editUser.manager_id ? String(__editUser.manager_id) : '' %>";
+              var CURRENT_ORG = "<%= __editUser.org_node_id ? String(__editUser.org_node_id) : '' %>";
+      
+              var parentMap = {};
+              ORG_NODES.forEach(function(n){
+                if (!n) return;
+                parentMap[String(n.id)] = n.parent_id != null ? String(n.parent_id) : null;
+              });
+      
+              function rebuildManagerOptions(){
+                var orgId = orgNodeSelect.value || "";
+                var parentId = orgId && parentMap[orgId] ? parentMap[orgId] : null;
+      
+                managerSelect.innerHTML = "";
+                var placeholder = document.createElement('option');
+                placeholder.value = "";
+      
+                if (!parentId){
+                  placeholder.textContent = 'برای این سمت نیاز به تعیین مدیر بالادست نیست.';
+                  managerSelect.appendChild(placeholder);
+                  managerSelect.disabled = true;
+                  managerSelect.value = "";
+                  return;
+                }
+      
+                placeholder.textContent = 'مدیر بالاسری را انتخاب کنید...';
+                managerSelect.appendChild(placeholder);
+      
+                MANAGERS.forEach(function(u){
+                  if (!u || !u.id) return;
+                  if (String(u.org_node_id || '') !== String(parentId)) return;
+                  var opt = document.createElement('option');
+                  opt.value = String(u.id);
+                  opt.textContent = u.display_name || u.username || ('کاربر ' + u.id);
+                  managerSelect.appendChild(opt);
+                });
+      
+                managerSelect.disabled = false;
+      
+                if (CURRENT_MANAGER){
+                  managerSelect.value = CURRENT_MANAGER;
+                }
+              }
+      
+              orgNodeSelect.addEventListener('change', function(){
+                CURRENT_MANAGER = "";
+                rebuildManagerOptions();
+              });
+      
+              if (CURRENT_ORG){
+                orgNodeSelect.value = CURRENT_ORG;
+              }
+      
+              rebuildManagerOptions();
+            })();
+          </script>
+          <% } %>
+        </section>
+      </div>

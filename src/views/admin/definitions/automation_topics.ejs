@@ -1,0 +1,71 @@
+<%
+const activeKey = 'def_automation_topics';
+  const pageTitle = 'سرفصل اتوماسیون';
+  const extraCss = ['/css/admin/definitions/automation-topics.css'];
+  const pageClass = 'page--automation-topics';
+%>
+<%
+  const __topics = (typeof topics !== 'undefined' && Array.isArray(topics)) ? topics : [];
+%>      <div class="stack">
+        <section class="card">
+          <div class="top">
+            <div>
+              <h2 class="title">سرفصل اتوماسیون</h2>
+              <p class="sub">تعریف موضوع + انتخاب نوع (ابلاغ/درخواست/ارجاع) + پیشنویس</p>
+            </div>
+            <div class="btn-row">
+              <a class="btn btn-primary" href="/admin/definitions/automation-topics/new">افزودن سرفصل</a>
+              <a class="btn btn-secondary" href="/admin/definitions">بازگشت</a>
+            </div>
+          </div>
+
+          <div class="table-shell table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>عنوان</th>
+                  <th>نوع‌ها</th>
+                  <th>وضعیت</th>
+                  <th>ترتیب</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (!__topics.length) { %>
+                  <tr>
+                    <td colspan="5" style="text-align:center;">سرفصلی ثبت نشده است.</td>
+                  </tr>
+                <% } else { %>
+                  <% __topics.forEach(function(t){ %>
+                    <tr>
+                      <td><%= t.title %></td>
+                      <td class="badge-cell">
+                        <% if (t.is_for_request) { %><span class="tag tag-req">درخواست</span><% } %>
+                        <% if (t.is_for_referral) { %><span class="tag tag-ref">ارجاع</span><% } %>
+                        <% if (t.is_for_announcement) { %><span class="tag tag-ann">ابلاغ</span><% } %>
+                        <% if (!t.is_for_request && !t.is_for_referral && !t.is_for_announcement) { %>
+                          <span class="muted">—</span>
+                        <% } %>
+                      </td>
+                      <td>
+                        <% if (t.is_active) { %>
+                          <span class="pill pill-ok">فعال</span>
+                        <% } else { %>
+                          <span class="pill pill-bad">غیرفعال</span>
+                        <% } %>
+                      </td>
+                      <td class="mono"><%= typeof t.sort_order === 'number' ? t.sort_order : (t.sort_order || 0) %></td>
+                      <td class="actions">
+                        <a class="btn btn-secondary btn-sm" href="/admin/definitions/automation-topics/<%= t.id %>/edit">ویرایش</a>
+                        <form method="post" action="/admin/definitions/automation-topics/<%= t.id %>/toggle" style="display:inline;">
+                          <button type="submit" class="btn btn-ghost btn-sm"><%= t.is_active ? 'غیرفعال' : 'فعال' %> کردن</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>

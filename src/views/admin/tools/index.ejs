@@ -1,0 +1,19 @@
+<%
+  const activeKey = 'tools';
+  const pageTitle = 'ابزارهای مدیریت';
+  const extraCss = ['/css/admin/admin-landing.css'];
+  const pageClass = '';
+  const tiles = [
+    { icon: 'tools', label: 'تمرین مذاکره', desc: 'دریافت پیشنهادهای بهبود برای مکالمه', href: '/admin/tools/practice' },
+    { icon: 'reports', label: 'تحلیل مذاکره', desc: 'تحلیل کامل با گزارش و ثبت پیشرفت', href: '/admin/tools/negotiation-analysis' },
+    { icon: 'approvals', label: 'اتوماسیون اداری', desc: 'ارسال درخواست، ارجاع و ابلاغ', href: '/admin/tools/office-automation' },
+    { icon: 'tools', label: 'دستیار آموزش', desc: 'پایش عملکرد آموزشی', href: '/admin/tools/training' },
+  ];
+%>
+
+<%- include('../../partials/admin_section_home', {
+  title: 'ابزارهای مدیریت',
+  subtitle: message || 'ابزارهای عملیاتی مدیران',
+  tiles,
+  backHref: '/admin/dashboard'
+}) %>

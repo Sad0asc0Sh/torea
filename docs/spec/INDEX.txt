@@ -1,0 +1,14 @@
+docs/spec/_spec_files/01-Vision-and-Scope.md
+docs/spec/_spec_files/02-SRS-Requirements.md
+docs/spec/_spec_files/03-WBS.md
+docs/spec/_spec_files/04-Flowcharts.md
+docs/spec/_spec_files/05-ERD.md
+docs/spec/_spec_files/06-Architecture.md
+docs/spec/_spec_files/07-Roadmap.md
+docs/spec/_spec_files/08-UI-UX-Wireframes.md
+docs/spec/_spec_files/09-Test-Plan.md
+docs/spec/_spec_files/API.md
+docs/spec/_spec_files/IMPLEMENTATION_STATUS.md
+docs/spec/_spec_files/README.md
+docs/spec/_spec_files/SETUP.md
+docs/spec/_spec_files/ToInfinity.docx

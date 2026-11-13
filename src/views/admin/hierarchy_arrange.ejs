@@ -1,0 +1,86 @@
+<%
+const activeKey = 'hierarchy_arrange';
+  const pageTitle = 'چیدمان سمت‌ها';
+  const extraCss = [];
+  const pageClass = '';
+%>
+
+<%
+var nodes = (typeof nodes !== 'undefined' && Array.isArray(nodes)) ? nodes : [];
+var edges = (typeof edges !== 'undefined' && Array.isArray(edges)) ? edges : [];
+var error = (typeof error !== 'undefined') ? error : null;
+var message = (typeof message !== 'undefined') ? message : null;
+%>
+      
+      <div class="btn-row" style="margin-bottom:12px;">
+        <a class="btn btn-secondary" href="/admin/definitions">بازگشت به مرکز تعاریف</a>
+      </div>
+
+      <div class="stack">
+        <div class="grid-2">
+          <section class="card">
+            <p class="muted" style="margin:0 0 10px 0;line-height:1.9;">
+              اینجا فقط رابطه‌ی «یک ردیف بالاتر» تعریف می‌شود. لوپ اجازه داده نمی‌شود.
+            </p>
+      
+            <form class="form" method="post" action="/admin/definitions/hierarchy/link">
+              <div class="field">
+                <label>شاخه بالایی (بالادست)</label>
+                <select name="parent_id" required>
+                  <option value="">— انتخاب —</option>
+                  <% (nodes||[]).forEach(function(n){ %>
+                    <option value="<%= n.id %>"><%= (n.title||'') + ' (ID ' + n.id + ')' %></option>
+                  <% }); %>
+                </select>
+              </div>
+      
+              <div class="field">
+                <label>شاخه پایینی (زیرمجموعه مستقیم)</label>
+                <select name="child_id" required>
+                  <option value="">— انتخاب —</option>
+                  <% (nodes||[]).forEach(function(n){ %>
+                    <option value="<%= n.id %>"><%= (n.title||'') + ' (ID ' + n.id + ')' %></option>
+                  <% }); %>
+                </select>
+              </div>
+      
+              <div class="btn-row">
+                <button class="btn btn-primary" type="submit">ثبت رابطه</button>
+                <a class="btn btn-secondary" href="/admin/definitions/hierarchy/arrange">ریفرش</a>
+                <a class="btn btn-secondary" href="/admin/definitions/hierarchy">بازگشت به لیست سمت‌ها</a>
+              </div>
+            </form>
+      
+            <p class="hint" style="margin:0;">
+              شرط مهم: «شاخه پایینی» نباید باعث شود که یکی از زیرمجموعه‌های خودش، بالادستش شود (لوپ).
+            </p>
+          </section>
+      
+          <section class="card">
+            <h2 style="margin:0 0 8px 0;font-size:15px;font-weight:900;">روابط ثبت شده (child → parent)</h2>
+      
+            <% if (edges && edges.length) { %>
+              <div class="table-shell table-wrap is-compact">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>زیرمجموعه (Child)</th>
+                      <th>بالادست (Parent)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% edges.forEach(function(e){ %>
+                      <tr>
+                        <td><%= (e.child_title||'') + ' (ID ' + e.child_id + ')' %></td>
+                        <td><%= e.parent_id ? ((e.parent_title||'') + ' (ID ' + e.parent_id + ')') : '—' %></td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            <% } else { %>
+              <p class="muted" style="margin:0;">هنوز رابطه‌ای ثبت نشده.</p>
+            <% } %>
+          </section>
+        </div>
+      </div>

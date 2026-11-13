@@ -1,0 +1,66 @@
+<%
+  pageTitle = 'ورود ادمین سیستم';
+  extraCss = ['/css/shared/login-admin.css'];
+  headerTitle = pageTitle;
+  showAppBar = false;
+  adminTheme = true; // Enable admin theme
+%>
+
+<div class="page">
+  <div class="card card-elevated auth-card">
+    <!-- Brand Header -->
+    <div class="auth-header">
+      <img src="/icons/logo.png" alt="ToInfinity" class="auth-logo">
+      <div class="auth-brand">
+        <div class="auth-brand-name">ToInfinity</div>
+      </div>
+    </div>
+
+    <!-- Badge -->
+    <div class="badge badge-primary">
+      <span class="badge-dot"></span>
+      پنل ادمین سیستم
+    </div>
+
+    <!-- Title Section -->
+    <div class="auth-title-section">
+      <h1 class="auth-title">ورود ادمین</h1>
+      <p class="auth-subtitle">لطفاً با نام کاربری و رمز عبور ادمین وارد شوید</p>
+    </div>
+
+    <!-- Form -->
+    <form method="POST" action="/admin/login" class="form auth-form">
+      <div class="form-group">
+        <label for="username" class="form-label form-label-required">نام کاربری</label>
+        <input 
+          id="username" 
+          name="username" 
+          type="text" 
+          class="form-input" 
+          placeholder="نام کاربری ادمین" 
+          required 
+          autofocus
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label form-label-required">رمز عبور</label>
+        <input 
+          id="password" 
+          name="password" 
+          type="password" 
+          class="form-input" 
+          placeholder="رمز عبور" 
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">ورود به پنل ادمین</button>
+    </form>
+
+    <!-- Footer Link -->
+    <div class="auth-footer">
+      <a href="/login" class="link-muted">بازگشت به ورود کاربران</a>
+    </div>
+  </div>
+</div>

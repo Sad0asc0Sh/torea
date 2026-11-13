@@ -1,0 +1,69 @@
+<%
+  pageTitle = 'صندوق تسویه';
+  extraCss = [];
+  const base = (typeof basePath === 'string') ? basePath : '';
+  headerTitle = pageTitle;
+%>
+
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">در انتظار تایید</h2>
+      <span class="badge"><%= (items || []).length %> مورد</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>کد</th>
+              <th>درخواست</th>
+              <th>مشتری</th>
+              <th class="hide-mobile">مبلغ</th>
+              <th class="hide-mobile">نوع</th>
+              <th>عملیات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if ((items || []).length === 0) { %>
+              <tr>
+                <td colspan="6" class="text-center text-muted">موردی در انتظار تایید نیست</td>
+              </tr>
+            <% } %>
+            <% (items || []).forEach(it => { %>
+              <tr>
+                <td><%= it.settlement_id %></td>
+                <td>#<%= it.credit_request_id %></td>
+                <td>
+                  <div class="text-bold"><%= it.customer_code %></div>
+                  <div class="text-sm text-muted"><%= it.customer_name %></div>
+                </td>
+                <td class="hide-mobile"><%= formatMoney(it.invoice_amount) %></td>
+                <td class="hide-mobile">
+                  <span class="badge"><%= it.settlement_type %></span>
+                  <div class="text-xs text-muted mt-1"><%= it.settlement_ref_no %></div>
+                  <% if (it.notes) { %>
+                    <div class="text-xs text-muted mt-1"><%= it.notes %></div>
+                  <% } %>
+                </td>
+                <td>
+                  <div class="btn-group-vertical">
+                    <form method="post" action="<%= base %>/tools/credit-settlement/<%= it.settlement_id %>/decide">
+                      <input type="hidden" name="decision" value="approve"/>
+                      <button type="submit" class="btn btn-sm btn-success">تایید</button>
+                    </form>
+                    <form method="post" action="<%= base %>/tools/credit-settlement/<%= it.settlement_id %>/decide">
+                      <input type="hidden" name="decision" value="reject"/>
+                      <button type="submit" class="btn btn-sm btn-danger">رد</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+

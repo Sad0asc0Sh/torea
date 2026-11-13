@@ -1,0 +1,146 @@
+<%
+const activeKey = 'settings_catalog_access';
+  const pageTitle = 'کاتالوگ و دسترسی‌ها';
+  const extraCss = ['/css/admin/settings/settings.css', '/css/admin/settings/catalog-access.css'];
+  const pageClass = 'page--settings';
+  const __orgNodes = (typeof orgNodes !== 'undefined' && Array.isArray(orgNodes)) ? orgNodes : [];
+  const selectedOrgId = (typeof selectedOrgNodeId !== 'undefined') ? selectedOrgNodeId : '';
+  const selectedOrgTitleSafe = (typeof selectedOrgNode !== 'undefined' && selectedOrgNode && selectedOrgNode.title) ? selectedOrgNode.title : '';
+  const currentMode = (typeof mode !== 'undefined') ? mode : 'USER';
+  const catalogTree = Array.isArray(tree) ? tree : [];
+  const savedCountsSafe = (typeof savedCounts !== 'undefined' && savedCounts) ? savedCounts : null;
+%>
+      <div class="btn-row" style="margin-bottom:12px;">
+        <a class="btn btn-secondary" href="/admin/settings">بازگشت به تنظیمات</a>
+      </div>
+
+      <div class="stack">
+        <section class="card stack">
+          <div class="card-title">کاتالوگ و دسترسی‌ها</div>
+          <p class="muted" style="margin:0;">انتخاب سمت سازمانی </p>
+        </section>
+
+        <section class="card stack">
+          <form id="catalog-access-form" method="post" action="/admin/settings/catalog-access" class="stack">
+            <input type="hidden" name="org_node_id" value="<%= selectedOrgId || '' %>">
+            
+            <div class="stack" style="gap:12px;">
+              <div class="form-field">
+                <label for="org-node-select">انتخاب سمت/شاخه سازمانی</label>
+                <select id="org-node-select" name="org_node_id_selector" class="form-control" style="max-width:100%;">
+                  <% if (!__orgNodes.length) { %>
+                    <option value="">درخت سازمانی خالی است</option>
+                  <% } else { %>
+                    <% __orgNodes.forEach(function(node){ %>
+                      <option value="<%= node.id %>" <%= String(node.id) === String(selectedOrgId || '') ? 'selected' : '' %>>
+                        <%= node.title || ('نود #' + node.id) %>
+                      </option>
+                    <% }); %>
+                  <% } %>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label for="mode-select">حالت دسترسی</label>
+                <select id="mode-select" name="mode" class="form-control" style="max-width:200px;">
+                  <option value="USER" <%= currentMode !== 'ADMIN' ? 'selected' : '' %>>USER</option>
+                  <option value="ADMIN" <%= currentMode === 'ADMIN' ? 'selected' : '' %>>ADMIN</option>
+                </select>
+              </div>
+
+              <div class="btn-row" style="margin:0;">
+                <button type="submit" class="btn btn-primary">ذخیره دسترسی‌ها</button>
+              </div>
+            </div>
+
+            <% if (savedCountsSafe) { %>
+              <% const totalRows = Number(savedCountsSafe.total_rows || 0); %>
+              <% const visibleRows = Number(savedCountsSafe.visible_true_rows || 0); %>
+              <% const dashboardRows = Number(savedCountsSafe.dashboard_true_rows || 0); %>
+              <% const modeLabel = savedCountsSafe.mode || currentMode; %>
+              <div class="card card-compact" style="margin:12px 0 0; padding:12px; background:#f8fafc;">
+                <div class="card-title" style="margin:0 0 6px;">وضعیت ذخیره‌سازی</div>
+                <p class="muted" style="margin:0;">شاخه: <strong><%= selectedOrgTitleSafe || '---' %></strong></p>
+                <p class="muted" style="margin:4px 0;">حالت: <strong><%= modeLabel %></strong></p>
+                <div class="pill-row" style="display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 0;">
+                  <span class="pill pill-secondary">total: <%= totalRows %></span>
+                  <span class="pill pill-secondary">visible: <%= visibleRows %></span>
+                </div>
+              </div>
+            <% } %>
+
+              <div class="tree-shell">
+                <% if (!catalogTree.length) { %>
+                  <p class="muted" style="margin:0;">کاتالوگ فعالی برای نمایش وجود ندارد.</p>
+                <% } else { %>
+                  <ul class="tree-list tree-list--catalog">
+                     <% function renderCatalogNode(node, depth){ %>
+                       <%
+                         const level = Number.isFinite(depth) ? depth : 0;
+                        const hasChildren = node.children && node.children.length;
+                         const adminLocked = currentMode === 'ADMIN';
+                         const directChecked = adminLocked ? true : !!node.direct_grant;
+                         const inherited = !!node.inherited;
+                         const expanded = level <= 0;
+                         const effective = !!node.effective;
+                       %>
+                       <li class="tree-item" data-node-key="<%= node.key %>" data-parent-key="<%= node.parent_key || '' %>" data-depth="<%= level %>">
+                         <div class="tree-row catalog-row">
+                           <% if (hasChildren) { %>
+                             <button type="button" class="tree-toggle" data-toggle aria-expanded="<%= expanded ? 'true' : 'false' %>" aria-label="<%= expanded ? 'بستن' : 'باز کردن' %>"><%= expanded ? '−' : '+' %></button>
+                           <% } else { %>
+                             <span class="tree-toggle tree-toggle--spacer" aria-hidden="true"></span>
+                           <% } %>
+                           <div class="tree-row-main">
+                             <label class="tree-check">
+                              <input type="checkbox" name="visible[]" value="<%= node.key %>" <%= directChecked ? 'checked' : '' %> <%= adminLocked ? 'disabled' : '' %> data-admin-locked="<%= adminLocked ? '1' : '0' %>" data-visible>
+                              <span class="tree-label"><%= node.title %></span>
+                              </label>
+                              <% if (inherited) { %><span class="badge badge-inherited">ارثی</span><% } %>
+                              <% if (effective && !directChecked && !inherited) { %><span class="badge badge-ghost">موثر</span><% } %>
+                             <% if (node.description) { %><span class="muted"><%= node.description %></span><% } %>
+                              <% if (hasChildren) { %>
+                                <div class="tree-actions">
+                                  <button type="button" class="tree-action-btn" data-apply-children="grant" aria-label="اعمال برای فرزندان">فعال‌سازی فرزندان</button>
+                                  <button type="button" class="tree-action-btn tree-action-btn--danger" data-apply-children="revoke" aria-label="لغو برای فرزندان">لغو فرزندان</button>
+                                </div>
+                              <% } %>
+                           </div>
+                         </div>
+                         <% if (hasChildren) { %>
+                           <ul class="tree-children" <%= expanded ? '' : 'hidden' %>>
+                             <% node.children.forEach(function(ch){ renderCatalogNode(ch, level + 1); }); %>
+                           </ul>
+                         <% } %>
+                       </li>
+                     <% } %>
+                     <% catalogTree.forEach(function(n){ renderCatalogNode(n, 0); }); %>
+                   </ul>
+                 <% } %>
+               </div>
+            </form>
+        </section>
+      </div>
+
+      
+<script>
+/* Org Node Dropdown Auto-Submit */
+(function () {
+  try {
+    var select = document.getElementById('org-node-select');
+    if (!select) return;
+    
+    select.addEventListener('change', function () {
+      var orgNodeId = select.value;
+      if (!orgNodeId) return;
+      
+      // Navigate with GET to reload the page with selected org node
+      window.location.href = '/admin/settings/catalog-access?org_node_id=' + encodeURIComponent(orgNodeId);
+    });
+  } catch (e) {
+    // silent fail
+  }
+})();
+</script>
+
+      <script src="/js/admin/catalog-access.js"></script>

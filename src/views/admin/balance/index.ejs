@@ -1,0 +1,82 @@
+<%
+  const activeKey = 'balance';
+  const pageTitle = 'مانده فروشنده';
+  const extraCss = ['/css/admin/admin-landing.css'];
+  const pageClass = '';
+  const tiles = [
+    { icon: 'balance', label: 'ثبت فروش اعتباری', desc: 'انتخاب فروشنده و اعمال سقف سیاست', href: '/admin/balance/credit-requests/new' },
+    { icon: 'balance', label: 'لیست فروش اعتباری', desc: 'همه درخواستها و وضعیتها', href: '/admin/balance/credit-requests' },
+    { icon: 'balance', label: 'بدهیها', desc: 'مانده بر اساس فروشنده یا مشتری', href: '/admin/balance/debts' },
+    { icon: 'balance', label: 'ثبت تسویه', desc: 'تسویه بدهی تایید شده', href: '/admin/balance/settlement-requests/new' },
+    { icon: 'approvals', label: 'درخواستهای تسویه', desc: 'پیگیری وضعیت تسویهها', href: '/admin/balance/settlement-requests' },
+  ];
+%>
+
+<div class="stack">
+  <%- include('../../partials/admin_section_home', {
+    title: 'مانده فروشنده',
+    subtitle: 'فروش اعتباری، ماندهها و درخواستهای تسویه',
+    tiles,
+    backHref: '/admin/dashboard'
+  }) %>
+
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">شاخص‌های سریع</h2>
+          </div>
+          <div class="card-body">
+            <div class="dashboard-stats">
+              <div class="stat-card">
+                <div class="stat-title">تعداد باز</div>
+                <div class="stat-value"><%= summary?.open_count || 0 %></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-title">مبلغ باز (تومان)</div>
+                <div class="stat-value"><%= formatMoney(summary?.open_amount || 0) %></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-title">در انتظار تایید</div>
+                <div class="stat-value"><%= summary?.pending_count || 0 %></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">آخرین درخواست‌ها</h2>
+          </div>
+          <div class="card-body">
+            <% if (recent && recent.length) { %>
+              <div class="table-wrapper">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>کد</th>
+                      <th>مشتری</th>
+                      <th>مبلغ</th>
+                      <th>سررسید</th>
+                      <th>فروشنده</th>
+                      <th>وضعیت</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% recent.forEach(function(r){ %>
+                      <tr>
+                        <td><%= r.id %></td>
+                        <td><%= r.customer_name || r.customer_code || '-' %></td>
+                        <td><%= formatMoney(r.invoice_amount) %></td>
+                        <td><%= r.due_date || '-' %></td>
+                        <td><%= [r.seller_first_name, r.seller_last_name].filter(Boolean).join(' ') || '-' %></td>
+                        <td><span class="chip"><%= r.final_status %></span></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } else { %>
+              <p class="text-muted">موردی ثبت نشده است.</p>
+            <% } %>
+          </div>
+        </section>
+      </div>

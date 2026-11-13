@@ -1,0 +1,57 @@
+<%
+  // Include icon mapping
+  include('./icon-map');
+  
+  // Ensure variables have defaults
+  const sectionTitle = (typeof title !== 'undefined') ? title : 'مرکز مدیریت';
+  const sectionSubtitle = (typeof subtitle !== 'undefined') ? subtitle : '';
+  const sectionTiles = (typeof tiles !== 'undefined' && Array.isArray(tiles)) ? tiles : [];
+  const sectionBackHref = (typeof backHref !== 'undefined') ? backHref : '';
+%>
+
+<div class="admin-section-home">
+  <header class="section-header">
+    <h1 class="section-title"><%= sectionTitle %></h1>
+    <% if (sectionSubtitle) { %>
+      <p class="section-subtitle"><%= sectionSubtitle %></p>
+    <% } %>
+  </header>
+
+  <% if (sectionTiles.length > 0) { %>
+    <div class="action-card-grid">
+      <% sectionTiles.forEach(function(tile) { 
+        // Determine icon from tile key or label
+        let iconKey = 'default';
+        
+        // Try to extract key from href
+        if (tile.href) {
+          const urlParts = tile.href.split('/').filter(Boolean);
+          const lastPart = urlParts[urlParts.length - 1];
+          iconKey = lastPart.replace('#', '');
+        }
+        
+        // Use tile.icon if provided, otherwise use mapping
+        const icon = tile.icon || getIconForKey(iconKey);
+        const cardTitle = tile.label || tile.title || '';
+        const cardDescription = tile.desc || tile.description || '';
+        const cardHref = tile.href || '#';
+      %>
+        <%- include('./action-card', { 
+          icon: icon, 
+          title: cardTitle, 
+          description: cardDescription, 
+          href: cardHref 
+        }) %>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <% if (sectionBackHref) { %>
+    <div class="section-back">
+      <a href="<%= sectionBackHref %>" class="btn btn-secondary">
+        <svg class="icon icon--sm"><use href="/icons/icons.svg#icon-arrow"></use></svg>
+        بازگشت
+      </a>
+    </div>
+  <% } %>
+</div>

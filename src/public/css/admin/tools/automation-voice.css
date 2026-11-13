@@ -1,0 +1,92 @@
+/* Voice Recording & AI Formatting Styles */
+
+.recording-controls {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.btn-record {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.btn-record:hover {
+  background-color: #c82333;
+}
+
+.btn-record.recording {
+  background-color: #28a745;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.btn-format-ai {
+  background-color: #6f42c1;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.btn-format-ai:hover {
+  background-color: #5a32a3;
+}
+
+.btn-format-ai:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.status-message {
+  padding: 12px;
+  margin: 15px 0;
+  border-radius: 6px;
+  font-size: 14px;
+  display: none;
+}
+
+.status-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.status-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .recording-controls {
+    flex-direction: column;
+  }
+  
+  .btn-record,
+  .btn-format-ai {
+    width: 100%;
+  }
+}

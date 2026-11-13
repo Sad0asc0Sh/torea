@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS public.customer_industries (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL UNIQUE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

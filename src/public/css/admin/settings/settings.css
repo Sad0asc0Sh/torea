@@ -1,0 +1,6 @@
+/* wrapper to keep legacy references stable */
+@import url('/css/app.css');
+@import url('/css/shared/theme.css');
+@import url('/css/4-views/admin.css');
+
+/* add view-specific overrides below only if required */

@@ -1,0 +1,37 @@
+{
+  "name": "bria-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test",
+    "test:unit": "node --test test/unit",
+    "start": "node src/server.js",
+    "guide": "bash scripts/guide.sh",
+    "db:patch": "psql \"$DATABASE_URL\" -f migrations/000_fix_consistency.sql && psql \"$DATABASE_URL\" -f migrations/001_add_brand_manager.sql",
+    "db:migrate": "node scripts/db_migrate.js",
+    "catalog:health": "curl -s ${CATALOG_URL:-http://localhost:3000}/admin/settings/catalog-manager/health | json_pp",
+    "catalog:cache:clear": "curl -X POST ${CATALOG_URL:-http://localhost:3000}/admin/settings/catalog-manager/cache/clear"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.2",
+    "multer": "^2.0.2",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^2.7.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "superagent": "^10.2.3",
+    "supertest": "^7.1.4"
+  }
+}

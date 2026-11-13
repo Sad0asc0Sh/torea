@@ -1,0 +1,19 @@
+<%
+const pageTitle = title || 'تنظیمات';
+  const extraCss = ['/css/admin/admin-landing.css'];
+  const pageClass = '';
+%>
+
+  <div class="stack">
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title"><%= title %></h2>
+      </div>
+      <div class="card-body">
+        <p class="muted">این صفحه به زودی در دسترس خواهد بود.</p>
+        <% if (backHref) { %>
+          <a class="btn-secondary" href="<%= backHref %>">بازگشت</a>
+        <% } %>
+      </div>
+    </section>
+  </div>

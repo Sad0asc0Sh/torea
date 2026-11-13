@@ -1,0 +1,483 @@
+<%
+  const activeKey = 'tools_negotiation_analysis';
+  const pageTitle = 'تحلیل مذاکره | ابزارهای مدیریت';
+  const extraCss = ['/css/admin/tools/tools.css', '/css/admin/tools/negotiation-analysis.css'];
+  const pageClass = '';
+%>
+
+<%
+var error = (typeof error !== 'undefined') ? error : '';
+var stt_error = (typeof stt_error !== 'undefined') ? stt_error : '';
+var started_at = (typeof started_at !== 'undefined') ? started_at : '';
+var ended_at = (typeof ended_at !== 'undefined') ? ended_at : '';
+var duration_seconds = (typeof duration_seconds !== 'undefined') ? duration_seconds : '';
+var location = (typeof location !== 'undefined' && location) ? location : null;
+var address_auto = (typeof address_auto !== 'undefined') ? address_auto : '';
+var address_final = (typeof address_final !== 'undefined') ? address_final : '';
+var customer_name = (typeof customer_name !== 'undefined') ? customer_name : '';
+var customer_code = (typeof customer_code !== 'undefined') ? customer_code : '';
+var customer_industry_id = (typeof customer_industry_id !== 'undefined') ? customer_industry_id : '';
+var transcript_text = (typeof transcript_text !== 'undefined') ? transcript_text : '';
+var industries = (typeof industries !== 'undefined' && Array.isArray(industries)) ? industries : [];
+var result = (typeof result !== 'undefined' && result) ? result : null;
+%>
+
+<div class="tools-page">
+    <div class="page-container">
+      <div class="actions page-head">
+        <div>
+          <h1>تحلیل مذاکره</h1>
+          <p class="muted">ضبط ویس، استخراج خودکار متن و دریافت گزارش مدیریتی.</p>
+        </div>
+        <a href="/admin/tools" class="pill">بازگشت به ابزارها</a>
+      </div>
+
+      <div id="clientError" class="alert alert-error" style="display:none;"></div>
+
+      <div class="alert alert-info">
+        این فرم «ویس‌محور» است. فایل صوتی فقط موقتاً برای STT نگهداری می‌شود و سپس حذف می‌گردد. در صورت نیاز می‌توانید متن را ویرایش کنید.
+      </div>
+
+      <form method="POST" action="/admin/tools/negotiation-analysis/submit" class="card form-card" id="analysisForm">
+        <input type="hidden" name="started_at" id="started_at" value="<%= started_at || '' %>">
+        <input type="hidden" name="ended_at" id="ended_at" value="<%= ended_at || '' %>">
+        <input type="hidden" name="duration_seconds" id="duration_seconds" value="<%= duration_seconds || '' %>">
+        <input type="hidden" name="geo_lat" id="geo_lat" value="<%= (location && location.lat) || '' %>">
+        <input type="hidden" name="geo_lng" id="geo_lng" value="<%= (location && location.lng) || '' %>">
+        <input type="hidden" name="geo_accuracy_m" id="geo_accuracy_m" value="<%= (location && location.accuracy) || '' %>">
+        <input type="hidden" name="address_auto" id="address_auto" value="<%= address_auto || '' %>">
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="customer_name">نام مشتری / فروشگاه <span class="required">*</span></label>
+            <input
+              id="customer_name"
+              name="customer_name"
+              type="text"
+              required
+              placeholder="مثال: سوپر امیرکبیر"
+              value="<%= customer_name || '' %>"
+            />
+          </div>
+          <div class="form-field">
+            <label for="customer_code">کد مشتری (اختیاری)</label>
+            <input
+              id="customer_code"
+              name="customer_code"
+              type="text"
+              placeholder="کد یا شناسه داخلی"
+              value="<%= customer_code || '' %>"
+            />
+          </div>
+          <div class="form-field">
+            <label for="customer_industry_id">صنف مشتری</label>
+            <select id="customer_industry_id" name="customer_industry_id">
+              <option value="">انتخاب صنف</option>
+              <% (industries || []).forEach(function(ind){ %>
+                <option value="<%= ind.id %>" <%= Number(customer_industry_id) === Number(ind.id) ? 'selected' : '' %>><%= ind.title %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="voice-card">
+          <div class="voice-row">
+            <div class="timer" id="timerDisplay"><%= duration_seconds ? (Math.floor(duration_seconds/60)).toString().padStart(2,'0') + ':' + (duration_seconds%60).toString().padStart(2,'0') : '00:00' %></div>
+            <button type="button" id="recordBtn" class="btn-primary">🎤 شروع ضبط</button>
+            <button type="button" id="uploadBtn" class="pill dashed">آپلود فایل صوتی</button>
+            <input type="file" id="audioFile" accept="audio/*" style="display:none;">
+          </div>
+          <div class="voice-status" id="voiceStatus">آماده برای ضبط یا آپلود ویس.</div>
+          <div class="geo-row">
+            <span class="badge" id="geoStatus">لوکیشن: <%= (location && location.lat) ? `${location.lat}, ${location.lng}` : 'در انتظار اجازه' %></span>
+            <% if (location && location.accuracy) { %>
+              <span class="badge muted">دقت: ±<%= location.accuracy %>m</span>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="transcript_text">متن مذاکره (اختیاری، قابل ویرایش)</label>
+          <textarea id="transcript_text" name="transcript_text" rows="5" placeholder="پس از ضبط، متن به‌صورت خودکار پر می‌شود. در صورت لزوم ویرایش کنید."><%= transcript_text || '' %></textarea>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>آدرس استخراج‌شده</label>
+            <div class="readonly-box" id="addressAutoBox"><%= address_auto || 'در دسترس نیست' %></div>
+          </div>
+          <div class="form-field">
+            <label for="address_final">آدرس نهایی (قابل ویرایش)</label>
+            <input id="address_final" name="address_final" type="text" placeholder="در صورت نیاز، آدرس را اصلاح کنید" value="<%= address_final || '' %>">
+          </div>
+        </div>
+
+        <div class="actions" style="justify-content:flex-end; margin-top: 12px;">
+          <button type="submit" class="btn-primary">ارسال برای تحلیل</button>
+        </div>
+      </form>
+
+      <% if (result) { %>
+        <div class="card result-card">
+          <div class="result-header">
+            <div>
+              <div class="muted text-sm">گزارش ذخیره شد</div>
+              <h2 style="margin:4px 0 0;">مشتری: <%= result.customer_name || '-' %></h2>
+            </div>
+            <div class="score-chip">امتیاز: <%= result.score ?? '-' %></div>
+          </div>
+          <div class="result-grid">
+            <div class="pill">
+              <div class="pill-label">ضعف/تمرکز</div>
+              <div class="pill-value"><%= result.weakness_focus || '-' %></div>
+            </div>
+            <div class="pill">
+              <div class="pill-label">مدت مکالمه</div>
+              <div class="pill-value"><%= result.duration_seconds ? result.duration_seconds + ' ثانیه' : '-' %></div>
+            </div>
+            <div class="pill">
+              <div class="pill-label">لوکیشن</div>
+              <div class="pill-value">
+                <% if (result.location && (result.location.lat || result.location.lng)) { %>
+                  <%= result.location.lat %>, <%= result.location.lng %>
+                  <% if (result.location.accuracy) { %> (±<%= result.location.accuracy %>m) <% } %>
+                <% } else { %>ثبت نشد<% } %>
+              </div>
+            </div>
+            <div class="pill">
+              <div class="pill-label">آدرس نهایی</div>
+              <div class="pill-value"><%= result.address_final || result.address_auto || '-' %></div>
+            </div>
+          </div>
+
+          <% if (result.exercises && result.exercises.length) { %>
+            <div class="section">
+              <div class="section-title">دو تمرین پیشنهادی</div>
+              <ol class="section-list">
+                <% result.exercises.forEach(function(ex){ %>
+                  <li><%= ex %></li>
+                <% }) %>
+              </ol>
+            </div>
+          <% } %>
+
+          <% if (result.missed_strategic_products && result.missed_strategic_products.length) { %>
+            <div class="section">
+              <div class="section-title">کالاهای استراتژیک که مطرح نشد</div>
+              <div class="chip-row">
+                <% result.missed_strategic_products.forEach(function(p){ %>
+                  <span class="pill"><%= p %></span>
+                <% }) %>
+              </div>
+            </div>
+          <% } %>
+
+          <% if (result.manager_summary_25) { %>
+            <div class="section">
+              <div class="section-title">خلاصه ۲۵ کلمه‌ای</div>
+              <p><%= result.manager_summary_25 %></p>
+            </div>
+          <% } %>
+
+          <% if (result.manager_key_points && result.manager_key_points.length) { %>
+            <div class="section">
+              <div class="section-title">نکات کلیدی</div>
+              <ul class="section-list">
+                <% result.manager_key_points.filter(Boolean).forEach(function(kp){ %>
+                  <li><%= kp %></li>
+                <% }) %>
+              </ul>
+            </div>
+          <% } %>
+
+          <% if (result.transcript) { %>
+            <div class="section">
+              <div class="section-title">متن مکالمه</div>
+              <pre class="transcript-box"><%= result.transcript %></pre>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const MAX_SIZE = 15 * 1024 * 1024;
+      const form = document.getElementById('analysisForm');
+      const recordBtn = document.getElementById('recordBtn');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const fileInput = document.getElementById('audioFile');
+      const transcriptInput = document.getElementById('transcript_text');
+      const durationInput = document.getElementById('duration_seconds');
+      const startedInput = document.getElementById('started_at');
+      const endedInput = document.getElementById('ended_at');
+      const geoLat = document.getElementById('geo_lat');
+      const geoLng = document.getElementById('geo_lng');
+      const geoAcc = document.getElementById('geo_accuracy_m');
+      const geoStatus = document.getElementById('geoStatus');
+      const addressAuto = document.getElementById('address_auto');
+      const addressAutoBox = document.getElementById('addressAutoBox');
+      const customerInput = document.getElementById('customer_name');
+      const clientError = document.getElementById('clientError');
+      const voiceStatus = document.getElementById('voiceStatus');
+      const timerDisplay = document.getElementById('timerDisplay');
+
+      let mediaRecorder = null;
+      let chunks = [];
+      let isRecording = false;
+      let timerRef = null;
+      const parsedStart = startedInput?.value ? Date.parse(startedInput.value) : 0;
+      let startedAtMs = Number.isFinite(parsedStart) ? parsedStart : 0;
+
+      function showError(msg) {
+        if (!clientError) return;
+        clientError.textContent = msg || '';
+        clientError.style.display = msg ? 'block' : 'none';
+      }
+
+      function clearError() { showError(''); }
+
+      function ensureCustomerName() {
+        const name = (customerInput?.value || '').trim();
+        if (!name) {
+          showError('نام مشتری/فروشگاه الزامی است.');
+          customerInput?.focus();
+          return false;
+        }
+        return true;
+      }
+
+      function formatSeconds(sec) {
+        const s = Math.max(0, Number(sec) || 0);
+        const m = Math.floor(s / 60).toString().padStart(2, '0');
+        const rs = Math.floor(s % 60).toString().padStart(2, '0');
+        return `${m}:${rs}`;
+      }
+
+      function updateTimerFromStart() {
+        if (!startedAtMs) return;
+        const diff = Math.floor((Date.now() - startedAtMs) / 1000);
+        if (timerDisplay) timerDisplay.textContent = formatSeconds(diff);
+      }
+
+      function stopTimer() {
+        if (timerRef) clearInterval(timerRef);
+        timerRef = null;
+      }
+
+      function startTimer() {
+        stopTimer();
+        updateTimerFromStart();
+        timerRef = setInterval(updateTimerFromStart, 500);
+      }
+
+      function setTimerStatic(seconds) {
+        if (timerDisplay) timerDisplay.textContent = formatSeconds(seconds);
+      }
+
+      function setDuration(seconds) {
+        if (!durationInput) return;
+        if (Number.isFinite(seconds)) {
+          durationInput.value = Math.round(seconds);
+          setTimerStatic(seconds);
+        }
+      }
+
+      function setStarted(nowMs) {
+        startedAtMs = nowMs;
+        if (startedInput) startedInput.value = new Date(nowMs).toISOString();
+      }
+
+      function setEnded(nowMs) {
+        if (endedInput) endedInput.value = new Date(nowMs).toISOString();
+      }
+
+      function requestLocation() {
+        if (!navigator.geolocation) {
+          if (geoStatus) geoStatus.textContent = 'لوکیشن: در دسترس نیست';
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            if (geoStatus) geoStatus.textContent = `لوکیشن: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+            if (geoLat) geoLat.value = pos.coords.latitude || '';
+            if (geoLng) geoLng.value = pos.coords.longitude || '';
+            if (geoAcc) geoAcc.value = pos.coords.accuracy || '';
+          },
+          () => {
+            if (geoStatus) geoStatus.textContent = 'لوکیشن: در دسترس نیست';
+          },
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+        );
+      }
+
+      async function uploadAudioBlob(blob) {
+        if (!blob || !blob.size) {
+          showError('فایل صوتی معتبر نیست.');
+          return;
+        }
+        if (blob.size > MAX_SIZE) {
+          showError('حجم فایل نباید بیش از ۱۵ مگابایت باشد.');
+          return;
+        }
+        const fd = new FormData();
+        fd.append('voice', blob, 'voice.webm');
+        try {
+          if (voiceStatus) voiceStatus.textContent = 'در حال آپلود...';
+          const resp = await fetch('/admin/tools/media/voice-temp-upload', { method: 'POST', body: fd });
+          const data = await resp.json();
+          if (!data.ok) {
+            showError(data.message || 'آپلود ناموفق بود.');
+            return;
+          }
+          await transcribeTemp(data.temp_path);
+        } catch (err) {
+          showError('خطا در آپلود ویس.');
+        }
+      }
+
+      async function transcribeTemp(tempPath) {
+        if (!tempPath) return;
+        try {
+          if (voiceStatus) voiceStatus.textContent = 'در حال تبدیل گفتار به متن...';
+          const resp = await fetch('/admin/ai/transcribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ temp_path: tempPath }),
+          });
+          const data = await resp.json();
+          if (data.ok) {
+            if (transcriptInput) transcriptInput.value = data.text || '';
+            if (voiceStatus) voiceStatus.textContent = 'متن استخراج شد. در صورت نیاز ویرایش کنید.';
+            if (data.duration_seconds) {
+              setDuration(data.duration_seconds);
+              if (!startedInput.value && !endedInput.value) {
+                const endMs = Date.now();
+                setEnded(endMs);
+                setStarted(endMs - data.duration_seconds * 1000);
+              }
+            }
+          } else {
+            if (data.duration_seconds) {
+              setDuration(data.duration_seconds);
+              if (!startedInput.value && !endedInput.value) {
+                const endMs = Date.now();
+                setEnded(endMs);
+                setStarted(endMs - data.duration_seconds * 1000);
+              }
+            }
+            showError(data.message || 'استخراج متن ناموفق بود.');
+            if (voiceStatus) voiceStatus.textContent = 'استخراج متن ناموفق بود. متن را دستی وارد کنید.';
+          }
+        } catch (err) {
+          showError('استخراج متن ناموفق بود.');
+          if (voiceStatus) voiceStatus.textContent = 'استخراج متن ناموفق بود.';
+        }
+      }
+
+      async function startRecording() {
+        clearError();
+        if (!ensureCustomerName()) return;
+        requestLocation();
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showError('مرورگر از ضبط صدا پشتیبانی نمی‌کند.');
+          return;
+        }
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          chunks = [];
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) chunks.push(e.data);
+          };
+          mediaRecorder.onstop = async () => {
+            stream.getTracks().forEach((t) => {
+              if (typeof t.stop === 'function') t.stop();
+            });
+            isRecording = false;
+            if (recordBtn) recordBtn.textContent = '🎤 شروع ضبط';
+            setEnded(Date.now());
+            if (voiceStatus) voiceStatus.textContent = 'در حال پردازش ویس...';
+            const blob = new Blob(chunks, { type: 'audio/webm' });
+            await uploadAudioBlob(blob);
+          };
+          mediaRecorder.start();
+          isRecording = true;
+          setStarted(Date.now());
+          startTimer();
+          if (recordBtn) recordBtn.textContent = '⏹ توقف ضبط';
+          if (voiceStatus) voiceStatus.textContent = 'در حال ضبط... برای توقف کلیک کنید.';
+        } catch (err) {
+          showError('دسترسی به میکروفون امکان‌پذیر نیست.');
+        }
+      }
+
+      function stopRecording() {
+        if (mediaRecorder && isRecording) {
+          try { mediaRecorder.stop(); } catch (e) {}
+          stopTimer();
+        }
+      }
+
+      function handleUploadFile(file) {
+        if (!file) return;
+        clearError();
+        stopTimer();
+        startedAtMs = 0;
+        startedInput.value = '';
+        endedInput.value = '';
+        uploadAudioBlob(file);
+      }
+
+      if (recordBtn) {
+        recordBtn.addEventListener('click', () => {
+          if (isRecording) stopRecording();
+          else startRecording();
+        });
+      }
+
+      if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          handleUploadFile(file);
+        });
+      }
+
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          clearError();
+          if (isRecording) {
+            e.preventDefault();
+            stopRecording();
+            showError('لطفاً پس از پایان ضبط دوباره تلاش کنید.');
+            return;
+          }
+          if (!ensureCustomerName()) {
+            e.preventDefault();
+            return;
+          }
+          if (!startedInput.value || !endedInput.value) {
+            if (durationInput.value) {
+              const endMs = Date.now();
+              setEnded(endMs);
+              setStarted(endMs - Number(durationInput.value) * 1000);
+            } else {
+              showError('زمان ضبط مشخص نیست. لطفاً ویس را دوباره ضبط کنید.');
+              e.preventDefault();
+            }
+          }
+        });
+      }
+
+      if (timerDisplay && durationInput?.value) {
+        setTimerStatic(Number(durationInput.value));
+      }
+
+      requestLocation();
+      if (addressAutoBox && addressAuto?.value) {
+        addressAutoBox.textContent = addressAuto.value;
+      }
+    })();
+  </script>

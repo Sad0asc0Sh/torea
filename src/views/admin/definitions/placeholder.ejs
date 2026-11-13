@@ -1,0 +1,20 @@
+<%
+const pageTitle = title || 'تعاریف';
+  const extraCss = ['/css/admin/admin-landing.css'];
+  const pageClass = '';
+  const infoMessage = typeof message === 'undefined' ? null : message;
+%>
+
+  <div class="stack">
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title"><%= title %></h2>
+      </div>
+      <div class="card-body">
+        <p class="muted"><%= infoMessage || 'این بخش به زودی تکمیل می‌شود.' %></p>
+        <% if (backHref) { %>
+          <a class="btn-secondary" href="<%= backHref %>">بازگشت</a>
+        <% } %>
+      </div>
+    </section>
+  </div>

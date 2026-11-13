@@ -1,0 +1,71 @@
+<%
+const activeKey = 'def_brands';
+  const pageTitle = 'تعریف برندها';
+  const extraCss = [];
+  const pageClass = '';
+%>      <%
+        const __brands = Array.isArray(brands) ? brands : [];
+      %>
+      
+      <div class="stack">
+        <section class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <div>
+              <h2 style="margin:0 0 4px 0;font-size:16px;font-weight:900;">تعریف برندها</h2>
+              <p class="muted" style="margin:0;line-height:1.6;">نام یکتا، کد اختیاری (منحصر‌به‌فرد) و وضعیت فعال/غیرفعال.</p>
+            </div>
+            <div class="btn-row">
+              <a class="btn btn-primary" href="/admin/definitions/brands/new">افزودن برند</a>
+              <a class="btn btn-secondary" href="/admin/definitions">بازگشت</a>
+            </div>
+          </div>
+      
+          <div class="table-shell table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>نام برند</th>
+                  <th>کد</th>
+                  <th>مدیر برند</th>
+                  <th>وضعیت</th>
+                  <th>تعداد کالا</th>
+                  <th>تعداد تیم</th>
+                  <th>به‌روزرسانی</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (!__brands.length) { %>
+                  <tr>
+                    <td colspan="8" style="text-align:center;">برندی ثبت نشده است.</td>
+                  </tr>
+                <% } else { %>
+                  <% __brands.forEach(function(b){ %>
+                    <tr>
+                      <td><%= b.name %></td>
+                      <td class="mono"><%= b.code || '—' %></td>
+                      <td><%= b.manager_display_name || b.manager_user_id || '—' %></td>
+                      <td>
+                        <% if (b.is_active) { %>
+                          <span class="pill pill-ok">فعال</span>
+                        <% } else { %>
+                          <span class="pill pill-bad">غیرفعال</span>
+                        <% } %>
+                      </td>
+                      <td><%= b.products_count || 0 %></td>
+                      <td><%= b.teams_count || 0 %></td>
+                      <td><%= b.updated_at ? new Date(b.updated_at).toLocaleDateString('fa-IR') : (b.created_at ? new Date(b.created_at).toLocaleDateString('fa-IR') : '—') %></td>
+                      <td style="white-space:nowrap;display:flex;gap:6px;flex-wrap:wrap;">
+                        <a class="btn btn-secondary btn-sm" href="/admin/definitions/brands/<%= b.id %>/edit">ویرایش</a>
+                        <form method="post" action="/admin/definitions/brands/<%= b.id %>/toggle" style="display:inline;">
+                          <button class="btn btn-ghost btn-sm" type="submit"><%= b.is_active ? 'غیرفعال' : 'فعال' %> کردن</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>

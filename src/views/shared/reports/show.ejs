@@ -1,0 +1,110 @@
+<%
+  pageTitle = report.title;
+  extraCss = [];
+  const base = (typeof basePath === 'string') ? basePath : '';
+  backHref = (base || '') + '/reports';
+  headerTitle = pageTitle;
+%>
+
+<div class="container">
+  <% if (rivalsMessage) { %>
+    <div class="alert alert-warning">
+      <strong>پیام ثابت:</strong>
+      <p class="mt-1 text-muted"><%= rivalsMessage %></p>
+    </div>
+  <% } %>
+
+  <div class="card">
+    <div class="card-body">
+      <form class="filter-toolbar" id="filters-form">
+        <div class="form-group">
+          <label class="form-label" for="from">از تاریخ:</label>
+          <input type="date" id="from" name="from" class="form-input" value="<%= filters.from %>" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="to">تا تاریخ:</label>
+          <input type="date" id="to" name="to" class="form-input" value="<%= filters.to %>" />
+        </div>
+        <div class="form-actions-inline">
+          <button type="submit" class="btn btn-primary">اعمال فیلتر</button>
+        </div>
+      </form>
+      <p class="text-sm text-muted mt-2">دامنه اعمال شده روی تمام نمودارها</p>
+    </div>
+  </div>
+
+  <div class="widgets-grid" id="widgets">
+    <% report.widgets.forEach(function(w){ %>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><%= w.title %></h3>
+        </div>
+        <div class="card-body">
+          <canvas id="chart-<%= w.widget_key %>" height="200"></canvas>
+          <div class="text-muted text-sm mt-2" id="note-<%= w.widget_key %>"></div>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const reportKey = "<%= report.key %>";
+  const widgets = <%- JSON.stringify(report.widgets || []) %>;
+
+  function chartType(widgetType) {
+    if (widgetType === 'donut') return 'doughnut';
+    if (widgetType === 'gauge') return 'doughnut';
+    if (widgetType === 'stacked_bar') return 'bar';
+    return widgetType || 'bar';
+  }
+
+  function renderWidget(widget, payload) {
+    const canvas = document.getElementById('chart-' + widget.widget_key);
+    const noteEl = document.getElementById('note-' + widget.widget_key);
+    if (!canvas) return;
+    const series = payload.series || [];
+    const labels = series[0]?.data?.map(d => d.x) || [];
+    const data = series[0]?.data?.map(d => d.y) || [];
+    const type = chartType(widget.chart_type);
+
+    noteEl.textContent = payload.meta?.note ? 'یادداشت: ' + payload.meta.note : '';
+    const ctx = canvas.getContext('2d');
+    new Chart(ctx, {
+      type,
+      data: {
+        labels,
+        datasets: [{
+          label: series[0]?.name || widget.title,
+          data,
+          backgroundColor: 'rgba(0, 112, 243, 0.4)',
+          borderColor: 'rgba(0, 112, 243, 0.9)',
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+      }
+    });
+  }
+
+  async function loadData() {
+    const form = document.getElementById('filters-form');
+    const params = new URLSearchParams(new FormData(form));
+    const res = await fetch('<%= base %>/api/reports/' + reportKey + '/data?' + params.toString());
+    if (!res.ok) return;
+    const data = await res.json();
+    (data.widgets || []).forEach((w) => {
+      renderWidget(widgets.find(x => x.widget_key === w.widget_key) || w, w);
+    });
+  }
+
+  document.getElementById('filters-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    loadData();
+  });
+
+  loadData();
+</script>
+

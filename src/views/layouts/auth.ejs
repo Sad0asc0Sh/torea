@@ -1,0 +1,86 @@
+<%
+  // Auth Layout - Standard Layout System
+  // This file replaces the old auth_layout.ejs partial system
+  // Used for login, register, and authentication pages
+  
+  const __pageTitle = (typeof pageTitle !== 'undefined' && pageTitle) ? pageTitle : 'ToInfinity';
+  const __extraCss = Array.isArray(extraCss) ? extraCss : (extraCss ? [extraCss] : []);
+  const __pageClass = (typeof pageClass !== 'undefined' && pageClass) ? pageClass : 'auth-shell';
+  const __headerTitle = (typeof headerTitle !== 'undefined' && headerTitle) ? headerTitle : __pageTitle;
+  const __backHref = (typeof backHref !== 'undefined') ? backHref : null;
+  const __backLabel = (typeof backLabel !== 'undefined') ? backLabel : null;
+  const __showAppBar = (typeof showAppBar !== 'undefined') ? !!showAppBar : false;
+  const __user = (typeof user !== 'undefined') ? user : null;
+  const __error = (typeof error !== 'undefined' && error) ? error : null;
+  const __warn = (typeof warn !== 'undefined' && warn) ? warn : null;
+  const __info = (typeof info !== 'undefined' && info) ? info : null;
+  const __themeDisabled = (typeof themeDisabled !== 'undefined') ? !!themeDisabled : false;
+  const __scriptsDisabled = (typeof scriptsDisabled !== 'undefined') ? !!scriptsDisabled : false;
+  const __adminTheme = (typeof adminTheme !== 'undefined') ? !!adminTheme : false;
+  const __showDrawer = false;
+%>
+<!doctype html>
+<html lang="fa" dir="rtl" data-theme="<%= __adminTheme ? 'admin' : 'user' %>">
+<head>
+  <meta charset="utf-8">
+  <title><%= __pageTitle %> | ToInfinity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+  <meta name="theme-color" content="#0d6efd">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ToInfinity">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/icon_180.png">
+  <link rel="stylesheet" href="/css/app.css">
+  <% __extraCss.forEach(function(href){ %>
+    <link rel="stylesheet" href="<%= href %>">
+  <% }) %>
+</head>
+<body class="theme-<%= __adminTheme ? 'admin' : 'user' %> <%= __themeDisabled ? 'theme-disabled' : '' %> <%= __pageClass %>">
+  <div class="mobile-app">
+    <% if (__showAppBar) { %>
+    <header class="app-bar">
+      <div class="app-bar-left">
+        <% if (__backHref) { %>
+        <a href="<%= __backHref %>" class="btn-icon" aria-label="<%= __backLabel %>">
+          <span>←</span>
+        </a>
+        <% } %>
+      </div>
+      <div class="app-bar-center">
+        <a class="app-bar-logo-link" href="/" aria-label="خانه">
+          <img src="/icons/logo.png" alt="ToInfinity" class="app-bar-logo">
+        </a>
+        <span class="app-bar-title"><%= __headerTitle %></span>
+      </div>
+      <div class="app-bar-right"></div>
+    </header>
+    <% } %>
+
+    <main class="app-content">
+      <% if (__error) { %>
+        <div class="alert alert-error"><%= __error %></div>
+      <% } %>
+
+      <% if (__warn) { %>
+        <div class="alert alert-warn"><%= __warn %></div>
+      <% } %>
+
+      <% if (__info) { %>
+        <div class="alert alert-info"><%= __info %></div>
+      <% } %>
+      
+      <!-- Page Content (injected by child views via express-ejs-layouts) -->
+      <%- body %>
+      
+    </main>
+  </div>
+
+  <% if (!__scriptsDisabled) { %>
+  <script src="/js/ti-enhance.js"></script>
+  <% } %>
+</body>
+</html>

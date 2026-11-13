@@ -1,0 +1,479 @@
+<%
+  // Admin Layout - Standard Layout System
+  // This file replaces the old admin_layout.ejs partial system
+  
+  // Safe variable initialization with defaults
+  const __pageTitle = (typeof pageTitle !== 'undefined' && pageTitle) ? pageTitle : 'ToInfinity';
+  const __theme = 'admin';
+  const __themeDisabled = !!(typeof themeDisabled !== 'undefined' && themeDisabled);
+  const __scriptsDisabled = !!(typeof scriptsDisabled !== 'undefined' && scriptsDisabled);
+  const __isAdminTheme = true;
+  const __user = (typeof user !== 'undefined') ? user : null;
+  const __basketsHref = '/admin/definitions/baskets';
+  const __catalogKnownRoutesVal = Array.isArray(__catalogKnownRoutes) ? __catalogKnownRoutes : [];
+  const __catalogAllowedRoutesVal = Array.isArray(__catalogAllowedRoutes) ? __catalogAllowedRoutes : [];
+  const __catalogBypassVal = (typeof __catalogBypass !== 'undefined') ? !!__catalogBypass : false;
+  let menuFiltered = [];
+  if (typeof __menuFiltered !== 'undefined' && Array.isArray(__menuFiltered)) {
+    menuFiltered = __menuFiltered;
+  } else if (typeof locals !== 'undefined' && locals && Array.isArray(locals.__menuFiltered)) {
+    menuFiltered = locals.__menuFiltered;
+  }
+  const __menuAllowedHref = new Set(
+    menuFiltered
+      .map((it) => ____normalizeRoute(it?.href || it?.route_admin || it?.route_user || it?.url || ''))
+      .filter(Boolean)
+  );
+  const __menuAllowedHrefList = Array.from(__menuAllowedHref);
+    // NOTE: EJS templates do not have Node's require().
+    // Provide minimal route helper functions locally (hotfix).
+    function ____normalizeRoute(p) {
+      const v = String(p || '');
+      const noQuery = v.split('?')[0];
+      const trimmed = noQuery.replace(/\/+$/,'');
+      return trimmed || '/';
+    }
+    function ____matchesRoute(route, target) {
+      const r = ____normalizeRoute(route);
+      const t = ____normalizeRoute(target);
+      return t === r || t.startsWith(r + '/');
+    }
+
+    // Aliases for legacy code paths (avoid ReferenceError)
+    const __normalizeRoute = ____normalizeRoute;
+    const __matchesRoute = ____matchesRoute;
+
+  
+  // Menu items handling
+  const __activeKey = (typeof activeKey !== 'undefined' && activeKey) ? activeKey : 'dashboard';
+
+  function isCatalogManaged(href) {
+    if (__catalogBypassVal) return false;
+    if (!__catalogKnownRoutesVal.length) return false;
+    const target = __normalizeRoute(href || '');
+    return __catalogKnownRoutesVal.some(function(route){ return __matchesRoute(route, target); });
+  }
+
+  function isRouteAllowed(href) {
+    if (__catalogBypassVal) return true;
+    if (!__catalogKnownRoutesVal.length) return true;
+    const target = __normalizeRoute(href || '');
+    const managed = isCatalogManaged(target);
+    if (!managed) return true;
+    if (!__catalogAllowedRoutesVal.length) return false;
+    return __catalogAllowedRoutesVal.some(function(route){ return __matchesRoute(route, target); });
+  }
+  
+  // Initialize admin menu helpers if not already done
+  if (!globalThis.AdminMenuHelpers) {
+    globalThis.AdminMenuHelpers = {};
+  }
+  
+  // Define menu generation function inline if not available
+  if (typeof globalThis.AdminMenuHelpers.getAdminMenuItems !== 'function') {
+    globalThis.AdminMenuHelpers.getAdminMenuItems = function(activeKey) {
+      const definitionsKeys = ['definitions', 'def_users', 'hierarchy', 'def_products', 'def_teams', 'def_customers', 'definitions_base', 'definitions_roles', 'definitions_brands', 'customer_industries', 'automation_topics', 'credit_policy'];
+      const settingsKeys = ['settings', 'settings_themes', 'settings_catalog', 'settings_catalog_access', 'settings_company', 'settings_company_general', 'settings_company_telegram', 'settings_company_profile', 'settings_company_api', 'settings_training', 'settings_training_config', 'settings_training_topics', 'settings_training_thresholds', 'settings_training_apis', 'settings_apis'];
+      const toolsKeys = ['tools', 'tools_practice', 'tools_negotiation_practice', 'tools_training', 'tools_negotiation_analysis', 'tools_office_automation', 'tools_office_requests', 'tools_office_referrals', 'tools_office_announcements', 'tools_automation'];
+      const balanceKeys = ['balance', 'balance_new', 'balance_credit_requests', 'balance_stats', 'balance_credit_sales_new', 'balance_debts', 'balance_debts_import', 'balance_settlement_requests'];
+      const approvalKeys = ['inbox', 'approvals_credit_sales', 'approvals_settlements', 'approvals_automation', 'approvals_automation_requests', 'approvals_automation_referrals', 'approvals_automation_announcements', 'approvals_team_users', 'approvals_credit', 'approvals_users'];
+      const reportKeys = ['reports', 'reports_personal', 'reports_team', 'reports_competitors', 'reports_company'];
+
+      return [
+        { title: 'داشبورد', href: '/admin/dashboard', active: activeKey === 'dashboard' },
+        { title: 'ابزارها', type: 'group', open: toolsKeys.includes(activeKey), active: toolsKeys.includes(activeKey), children: [
+          { title: 'ابزارها', href: '/admin/tools', active: activeKey === 'tools' },
+          { title: 'تمرین', href: '/admin/tools/practice', active: activeKey === 'tools_practice' },
+          { title: 'تحلیل مذاکره', href: '/admin/tools/negotiation-analysis', active: activeKey === 'tools_negotiation_analysis' },
+          { title: 'اتوماسیون اداری', href: '/admin/tools/office-automation', active: activeKey === 'tools_office_automation' },
+          { title: 'درخواست‌ها', href: '/admin/tools/office-automation/requests', active: activeKey === 'tools_office_requests' },
+          { title: 'ارجاع‌ها', href: '/admin/tools/office-automation/referrals', active: activeKey === 'tools_office_referrals' },
+          { title: 'ابلاغیه‌ها', href: '/admin/tools/office-automation/announcements', active: activeKey === 'tools_office_announcements' },
+        ]},
+        { title: 'مانده فروشنده', type: 'group', open: balanceKeys.includes(activeKey), active: balanceKeys.includes(activeKey), children: [
+          { title: 'مرکز مانده', href: '/admin/balance', active: activeKey === 'balance' },
+          { title: 'آمار مانده', href: '/admin/balance/stats', active: activeKey === 'balance_stats' },
+          { title: 'فروش اعتباری جدید', href: '/admin/balance/credit-sales/new', active: activeKey === 'balance_credit_sales_new' },
+          { title: 'بدهی‌ها', href: '/admin/balance/debts', active: activeKey === 'balance_debts' },
+          { title: 'درخواست‌های تسویه', href: '/admin/balance/settlement-requests', active: activeKey === 'balance_settlement_requests' },
+        ]},
+        { title: 'صندوق ورودی', type: 'group', open: approvalKeys.includes(activeKey), active: approvalKeys.includes(activeKey), children: [
+          { title: 'صندوق ورودی', href: '/admin/inbox', active: activeKey === 'inbox' },
+          { title: 'تأییدات اعتباری', href: '/admin/inbox?category=credit', active: activeKey === 'approvals_credit' },
+          { title: 'تأییدات اتوماسیون', href: '/admin/inbox?category=automation', active: activeKey === 'approvals_automation' },
+          { title: 'تأیید کاربران', href: '/admin/inbox?category=users', active: activeKey === 'approvals_users' },
+        ]},
+        { title: 'گزارشات', type: 'group', open: reportKeys.includes(activeKey), active: reportKeys.includes(activeKey), children: [
+          { title: 'مرکز گزارشات', href: '/admin/reports', active: activeKey === 'reports' },
+          { title: 'گزارش فردی', href: '/admin/reports/personal', active: activeKey === 'reports_personal' },
+          { title: 'گزارش تیم', href: '/admin/reports/team', active: activeKey === 'reports_team' },
+          { title: 'گزارش رقبا', href: '/admin/reports/competitors', active: activeKey === 'reports_competitors' },
+          { title: 'گزارش سازمان', href: '/admin/reports/company', active: activeKey === 'reports_company' },
+        ]},
+        { title: 'تعاریف', type: 'group', open: definitionsKeys.includes(activeKey), active: definitionsKeys.includes(activeKey), children: [
+          { title: 'مرکز تعاریف', href: '/admin/definitions', active: activeKey === 'definitions' },
+          { title: 'کاربران', href: '/admin/definitions/users', active: activeKey === 'def_users' },
+          { title: 'سمت‌ها', href: '/admin/definitions/hierarchy', active: activeKey === 'hierarchy' },
+          { title: 'کالاها', href: '/admin/definitions/products', active: activeKey === 'def_products' },
+          { title: 'تیم‌ها', href: '/admin/definitions/teams', active: activeKey === 'def_teams' },
+          { title: 'مشتریان', href: '/admin/definitions/customers', active: activeKey === 'def_customers' },
+          { title: 'تعاریف پایه', href: '/admin/definitions/base', active: activeKey === 'definitions_base' },
+          { title: 'نقش‌ها', href: '/admin/definitions/base/roles', active: activeKey === 'definitions_roles' },
+          { title: 'برندها', href: '/admin/definitions/base/brands', active: activeKey === 'definitions_brands' },
+          { title: 'صنایع مشتریان', href: '/admin/definitions/base/customer-industries', active: activeKey === 'customer_industries' },
+          { title: 'موضوعات اتوماسیون', href: '/admin/definitions/base/automation-topics', active: activeKey === 'automation_topics' },
+          { title: 'سیاست‌های اعتباری', href: '/admin/definitions/credit-policies', active: activeKey === 'credit_policy' },
+        ]},
+        { title: 'تنظیمات', type: 'group', open: settingsKeys.includes(activeKey), active: settingsKeys.includes(activeKey), children: [
+          { title: 'مرکز تنظیمات', href: '/admin/settings', active: activeKey === 'settings' },
+          { title: 'تم‌ها', href: '/admin/settings/themes', active: activeKey === 'settings_themes' },
+          { title: 'کاتالوگ و دسترسی', href: '/admin/settings/catalog-access', active: activeKey === 'settings_catalog_access' },
+          { title: 'تنظیمات شرکت', href: '/admin/settings/company', active: activeKey === 'settings_company' },
+          { title: 'اطلاعات عمومی', href: '/admin/settings/company/general', active: activeKey === 'settings_company_general' },
+          { title: 'توکن تلگرام', href: '/admin/settings/company/telegram', active: activeKey === 'settings_company_telegram' },
+          { title: 'پروفایل ادمین', href: '/admin/settings/company/admin-profile', active: activeKey === 'settings_company_profile' },
+          { title: 'API اتوماسیون', href: '/admin/settings/company/automation-api', active: activeKey === 'settings_company_api' },
+          { title: 'تنظیمات آموزش', href: '/admin/settings/training', active: activeKey === 'settings_training' },
+          { title: 'موضوعات آموزش', href: '/admin/settings/training/topics', active: activeKey === 'settings_training_topics' },
+          { title: 'آستانه‌های آموزش', href: '/admin/settings/training/thresholds', active: activeKey === 'settings_training_thresholds' },
+          { title: 'API های آموزش', href: '/admin/settings/training/apis', active: activeKey === 'settings_training_apis' },
+        ]},
+        { title: 'خروج', href: '/admin/logout', active: activeKey === 'logout' },
+      ];
+    };
+  }
+  
+  // Define filter function if not available
+  if (typeof globalThis.AdminMenuHelpers.filterMenuItems !== 'function') {
+    globalThis.AdminMenuHelpers.filterMenuItems = function(menuItems, excludeHref) {
+      const __exclude = excludeHref || '/admin/definitions/baskets';
+      const __menuSafe = Array.isArray(menuItems) ? menuItems : [];
+      return __menuSafe.map(function(item){
+        if (item && Array.isArray(item.children)) {
+          return {...item, children: item.children.filter(function(child){ return child.href !== __exclude; })};
+        }
+        return item;
+      }).filter(function(item){
+        if (item && Array.isArray(item.children)) {
+          return item.children.length > 0 || item.href !== __exclude;
+        }
+        return item && item.href !== __exclude;
+      });
+    };
+  }
+  
+  function filterMenuByCatalog(menuItems) {
+    if (!Array.isArray(menuItems)) return [];
+    return menuItems.map(function(item){
+      const children = Array.isArray(item.children) ? filterMenuByCatalog(item.children) : [];
+      const allowedSelf = isRouteAllowed(item?.href);
+      const targetHref = __normalizeRoute(item?.href || '');
+      let allowedByServer = true;
+      if (__menuAllowedHref.size > 0) {
+        allowedByServer = __menuAllowedHref.has(targetHref) || __menuAllowedHrefList.some(function(route){ return __matchesRoute(route, targetHref); });
+      }
+      const allowed = allowedSelf && allowedByServer;
+      const activeChild = children.some(function(ch){ return ch.active; });
+      if (children.length || allowed) {
+        return {
+          ...item,
+          children,
+          open: item.open && children.length > 0,
+          active: item.active && (allowed || activeChild),
+        };
+      }
+      return null;
+    }).filter(Boolean);
+  }
+
+  const __menu = globalThis.AdminMenuHelpers.getAdminMenuItems(__activeKey);
+  const __menuFilteredBase = globalThis.AdminMenuHelpers.filterMenuItems(__menu, __basketsHref);
+  menuFiltered = filterMenuByCatalog(__menuFilteredBase);
+  const __showDrawer = menuFiltered.length > 0;
+  
+  // Flash messages
+  const __error = (typeof error !== 'undefined' && error) ? error : null;
+  const __warn = (typeof warn !== 'undefined' && warn) ? warn : null;
+  const __info = (typeof info !== 'undefined' && info) ? info : null;
+  
+  // Extra CSS and page class
+  const __extraCss = Array.isArray(extraCss) ? extraCss : (extraCss ? [extraCss] : []);
+  const __userName = (__user && ([__user.first_name, __user.last_name].filter(Boolean).join(' ').trim() || __user.username || __user.name)) || null;
+  const __pageClass = (typeof pageClass !== 'undefined' && pageClass) ? pageClass : '';
+%>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="admin">
+<head>
+  <meta charset="utf-8">
+  <title><%= __pageTitle %> | ToInfinity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ToInfinity">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/icon_180.png">
+  <link rel="preload" href="/fonts/vazir/Vazirmatn-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+    (function() {
+      var defaultTheme = 'theme--maroon';
+      window.AdminTheme = window.AdminTheme || {};
+      var AdminTheme = window.AdminTheme;
+      AdminTheme.normalize = AdminTheme.normalize || function(theme) {
+        return (theme === 'theme--navy' || theme === 'theme--maroon' || theme === 'theme--light') ? theme : defaultTheme;
+      };
+      AdminTheme.applyClass = AdminTheme.applyClass || function(theme) {
+        var safe = AdminTheme.normalize(theme);
+        var docEl = document.documentElement;
+        if (docEl && docEl.classList) {
+          docEl.classList.remove('theme--navy', 'theme--maroon', 'theme--light');
+          docEl.classList.add(safe);
+        }
+        AdminTheme.current = safe;
+        return safe;
+      };
+
+      var storedTheme;
+      try {
+        storedTheme = window.localStorage.getItem('admin_theme');
+      } catch (err) {
+        storedTheme = null;
+      }
+      AdminTheme.applyClass(storedTheme || defaultTheme);
+    })();
+  </script>
+  
+  <!-- Mobile-First CSS -->
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/shared/theme.css">
+  <% __extraCss.forEach(function(href){ %>
+    <link rel="stylesheet" href="<%= href %>">
+  <% }) %>
+</head>
+<body data-skin="admin" class="theme-admin <%= __themeDisabled ? 'theme-disabled' : '' %> admin-ui <%= __pageClass %>">
+  <div class="mobile-app">
+    <!-- App Bar -->
+    <header class="app-bar">
+      <div class="app-bar-left">
+        <% if (__showDrawer) { %>
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="منو">
+          <span>☰</span>
+        </button>
+        <% } %>
+      </div>
+      
+      <div class="app-bar-center admin-brand">
+        <a class="app-bar-logo-link" href="/admin/definitions" aria-label="خانه">
+          <img src="/icons/logo.png" alt="ToInfinity" class="app-bar-logo">
+        </a>
+        <span class="app-bar-title">ToInfinity</span>
+      </div>
+      
+      <div class="app-bar-right">
+        <button id="theme-toggle" class="btn-icon" aria-label="تغییر تم">
+          <span id="theme-icon">
+            <svg class="icon"><use href="/icons/icons.svg#icon-moon"></use></svg>
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <% if (__showDrawer) { %>
+    <div id="drawer-overlay" class="drawer-overlay"></div>
+    
+    <nav id="drawer" class="drawer">
+      <div class="drawer-header">
+        <h2 class="drawer-title">منو</h2>
+        <button id="drawer-close" class="drawer-close" aria-label="بستن">×</button>
+      </div>
+      
+      <div class="drawer-content">
+         <ul class="drawer-menu">
+          <% menuFiltered.forEach(function(item) { %>
+            <li class="drawer-menu-item">
+              <% if (item && item.children && item.children.length) { %>
+                <details class="drawer-details" <%= item.open ? 'open="open"' : '' %>>
+                  <summary class="drawer-menu-link drawer-menu-summary <%= item.active ? 'active' : '' %>">
+                    <span><%= item.title %></span>
+                    <span class="drawer-menu-chevron" aria-hidden="true"></span>
+                  </summary>
+                  <ul class="drawer-submenu">
+                    <% item.children.forEach(function(child) { %>
+                      <li>
+                        <a href="<%= child.href %>" class="drawer-menu-link <%= child.active ? 'active' : '' %>">
+                          <span><%= child.title %></span>
+                        </a>
+                      </li>
+                    <% }); %>
+                  </ul>
+                </details>
+              <% } else if (item) { %>
+                <a href="<%= item.href %>" class="drawer-menu-link <%= item.active ? 'active' : '' %>">
+                  <span><%= item.title %></span>
+                </a>
+              <% } %>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+      
+      <% if (__user) { %>
+      <div class="drawer-footer">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          <span><%= __userName || 'کاربر' %></span>
+        </div>
+      </div>
+      <% } %>
+    </nav>
+    <% } %>
+
+    <!-- Main Content -->
+    <main class="app-content admin-main stack">
+      <% if (__error) { %>
+        <div class="alert alert-error"><%= __error %></div>
+      <% } %>
+
+      <% if (__warn) { %>
+        <div class="alert alert-warn"><%= __warn %></div>
+      <% } %>
+      
+      <% if (__info) { %>
+        <div class="alert alert-info"><%= __info %></div>
+      <% } %>
+      
+      <!-- Page Content (injected by child views via express-ejs-layouts) -->
+      <%- body %>
+      
+    </main>
+
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav">
+      <% if (isRouteAllowed('/admin/definitions')) { %>
+        <a href="/admin/definitions" class="bottom-nav-item <%= (__activeKey.startsWith('def') || __activeKey.startsWith('definitions') || ['customer_industries', 'automation_topics', 'credit_policy'].includes(__activeKey)) ? 'bottom-nav-item--active' : '' %>">
+          <span class="bottom-nav-icon">
+            <svg class="icon"><use href="/icons/icons.svg#icon-definitions"></use></svg>
+          </span>
+          <span class="bottom-nav-label">تعاریف</span>
+        </a>
+      <% } %>
+      <% if (isRouteAllowed('/admin/reports')) { %>
+        <a href="/admin/reports" class="bottom-nav-item <%= __activeKey.startsWith('reports') ? 'bottom-nav-item--active' : '' %>">
+          <span class="bottom-nav-icon">
+            <svg class="icon"><use href="/icons/icons.svg#icon-reports"></use></svg>
+          </span>
+          <span class="bottom-nav-label">گزارشات</span>
+        </a>
+      <% } %>
+      <% if (isRouteAllowed('/admin/tools')) { %>
+        <a href="/admin/tools" class="bottom-nav-item <%= __activeKey.startsWith('tools') ? 'bottom-nav-item--active' : '' %>">
+          <span class="bottom-nav-icon">
+            <svg class="icon"><use href="/icons/icons.svg#icon-tools"></use></svg>
+          </span>
+          <span class="bottom-nav-label">ابزارها</span>
+        </a>
+      <% } %>
+      <% if (isRouteAllowed('/admin/balance')) { %>
+        <a href="/admin/balance" class="bottom-nav-item <%= __activeKey.startsWith('balance') ? 'bottom-nav-item--active' : '' %>">
+          <span class="bottom-nav-icon">
+            <svg class="icon"><use href="/icons/icons.svg#icon-balance"></use></svg>
+          </span>
+          <span class="bottom-nav-label">مانده فروشنده</span>
+        </a>
+      <% } %>
+      <% if (isRouteAllowed('/admin/inbox')) { %>
+        <a href="/admin/inbox" class="bottom-nav-item <%= __activeKey.startsWith('inbox') || __activeKey.startsWith('approvals') ? 'bottom-nav-item--active' : '' %>">
+          <span class="bottom-nav-icon">
+            <svg class="icon"><use href="/icons/icons.svg#icon-inbox"></use></svg>
+          </span>
+          <span class="bottom-nav-label">صندوق ورودی</span>
+        </a>
+      <% } %>
+      <% if (isRouteAllowed('/admin/settings')) { %>
+        <a href="/admin/settings" class="bottom-nav-item <%= __activeKey.startsWith('settings') ? 'bottom-nav-item--active' : '' %>">
+          <span class="bottom-nav-icon">
+            <svg class="icon"><use href="/icons/icons.svg#icon-settings"></use></svg>
+          </span>
+          <span class="bottom-nav-label">تنظیمات</span>
+        </a>
+      <% } %>
+    </nav>
+  </div>
+
+  <!-- Scripts: Load independently of theme -->
+  <% if (__showDrawer && !__scriptsDisabled) { %>
+  <script src="/js/mobile-ui.js"></script>
+  <% } %>
+  
+  <% if (__isAdminTheme && !__scriptsDisabled) { %>
+  <script defer src="/js/admin-ui.js"></script>
+  <% } %>
+  
+  <% if (!__scriptsDisabled) { %>
+  <script src="/js/ti-enhance.js"></script>
+  <script src="/js/mobile-interactions.js"></script>
+  <script src="/js/pwa-install.js"></script>
+  <script src="/js/sw-update-notifier.js"></script>
+  <% } %>
+  
+  <script>
+    // Theme Toggle Script
+    (function() {
+      var toggle = document.getElementById('theme-toggle');
+      var icon = document.getElementById('theme-icon');
+      if (!toggle || !icon) return;
+      
+      function updateIcon() {
+        var theme = window.AdminTheme.current || 'theme--maroon';
+        
+        // Moon icon for dark themes (maroon, navy)
+        // Sun icon for light theme
+        if (theme === 'theme--light') {
+          icon.innerHTML = '<svg class="icon"><use href="/icons/icons.svg#icon-sun"></use></svg>';
+        } else {
+          icon.innerHTML = '<svg class="icon"><use href="/icons/icons.svg#icon-moon"></use></svg>';
+        }
+      }
+      
+      updateIcon();
+      
+      toggle.addEventListener('click', function() {
+        var current = window.AdminTheme.current || 'theme--maroon';
+        var newTheme;
+        
+        // 3-way cycle: maroon → navy → light → maroon
+        if (current === 'theme--maroon') {
+          newTheme = 'theme--navy';
+        } else if (current === 'theme--navy') {
+          newTheme = 'theme--light';
+        } else {
+          newTheme = 'theme--maroon';
+        }
+        
+        window.AdminTheme.applyClass(newTheme);
+        try { localStorage.setItem('admin_theme', newTheme); } catch(e) {}
+        updateIcon();
+      });
+    })();
+  </script>
+  
+  <% if (!__scriptsDisabled) { %>
+  <script>
+    // Register Service Worker
+    window.addEventListener('load', function() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(function(registration) {
+          console.log('Service Worker registered:', registration.scope);
+        }).catch(function(error) {
+          console.log('Service Worker registration failed:', error);
+        });
+      }
+    });
+  </script>
+  <% } %>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<%
+  const activeKey = 'definitions';
+  const pageTitle = 'تعاریف';
+  const extraCss = ['/css/admin/admin-landing.css'];
+  const pageClass = 'page--definitions-center';
+  const tiles = [
+    { icon: 'customers', label: 'تعریف تیمها', href: '/admin/definitions/teams' },
+    { icon: 'definitions', label: 'تعریف برندها', href: '/admin/definitions/brands' },
+    { icon: 'definitions', label: 'تعریف سلسله مراتب (سمتها)', desc: 'لیست سمتها', href: '/admin/definitions/hierarchy' },
+    { icon: 'definitions', label: 'چیدمان سلسله مراتب', desc: 'بالادستی/پایینی', href: '/admin/definitions/hierarchy/arrange' },
+    { icon: 'definitions', label: 'تعریف کالاها', href: '/admin/definitions/products' },
+    { icon: 'customers', label: 'صنف مشتری', desc: 'برای گزارشگیری و دستهبندی', href: '/admin/definitions/customer-industries' },
+    { icon: 'tools', label: 'سرفصل اتوماسیون', desc: 'تعریف موضوع و نوع', href: '/admin/definitions/automation-topics' },
+    { icon: 'balance', label: 'سیاست اعتباری', desc: 'تعریف تاییدکنندهها و سقفها', href: '/admin/definitions/credit-policy' },
+    { icon: 'profile', label: 'تعریف کاربران', desc: 'مدیریت کاربران', href: '/admin/definitions/users' },
+  ];
+%>
+
+<%- include('../../partials/admin_section_home', {
+  title: 'مرکز تعاریف',
+  subtitle: 'تعریف ساختار، کالاها و کاربران',
+  tiles,
+  backHref: '/admin/dashboard'
+}) %>

@@ -1,0 +1,91 @@
+<%
+  const activeKey = 'tools_practice';
+  const pageTitle = 'تمرین مذاکره | ابزارهای مدیریت';
+  const extraCss = ['/css/admin/tools/tools.css', '/css/admin/tools/negotiation-practice.css'];
+  const pageClass = '';
+%>
+
+<%
+var error = (typeof error !== 'undefined') ? error : '';
+var scenario_text = (typeof scenario_text !== 'undefined') ? scenario_text : '';
+var industries = (typeof industries !== 'undefined' && Array.isArray(industries)) ? industries : [];
+var customer_industry_id = (typeof customer_industry_id !== 'undefined') ? customer_industry_id : '';
+var result = (typeof result !== 'undefined' && result) ? result : null;
+%>
+
+<div class="tools-page">
+    <div class="page-container">
+      <div class="actions practice-head">
+        <div>
+          <h1 class="page-title">تمرین مذاکره (متنی)</h1>
+          <p class="muted">سناریوی مذاکره را بنویسید تا پیشنهادهای کوتاه برای جملات بهتر بگیرید. بدون ضبط صدا.</p>
+        </div>
+        <a href="/admin/tools" class="pill">بازگشت به ابزارها</a>
+      </div>
+
+      <form method="POST" action="/admin/tools/practice/run" class="card practice-card">
+        <div class="form-field">
+          <label for="scenario_text">سناریو / متن مذاکره <span class="required">*</span></label>
+          <textarea
+            id="scenario_text"
+            name="scenario_text"
+            required
+            placeholder="متن مذاکره، سناریو یا اسکریپت فعلی را اینجا وارد کنید"
+          ><%= scenario_text || '' %></textarea>
+        </div>
+
+        <div class="form-field">
+          <label for="customer_industry_id">صنف مشتری (اختیاری)</label>
+          <select id="customer_industry_id" name="customer_industry_id">
+            <option value="">انتخاب صنف</option>
+            <% (industries || []).forEach(function(ind) { %>
+              <option value="<%= ind.id %>" <%= Number(customer_industry_id) === Number(ind.id) ? 'selected' : '' %>><%= ind.title %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="actions form-actions">
+          <button type="submit" class="btn-primary">پیشنهاد بهتر بده</button>
+        </div>
+      </form>
+
+      <% if (result) { %>
+        <div class="card output-card">
+          <h2>پیشنهادهای بهبود</h2>
+
+          <% if (result.improved_sentences && result.improved_sentences.length > 0) { %>
+            <div class="output-block">
+              <div class="block-title">جملات پیشنهادی بهتر</div>
+              <ul class="bullet-list">
+                <% result.improved_sentences.forEach(function(item) { %>
+                  <li><%= item %></li>
+                <% }); %>
+              </ul>
+            </div>
+          <% } %>
+
+          <% if (result.say_instead && result.say_instead.length > 0) { %>
+            <div class="output-block">
+              <div class="block-title">به جای آن بگویید</div>
+              <ul class="bullet-list numbered">
+                <% result.say_instead.forEach(function(item, index) { %>
+                  <li><span class="index"><%= index + 1 %>.</span><span><%= item %></span></li>
+                <% }); %>
+              </ul>
+            </div>
+          <% } %>
+
+          <% if (result.weak_points && result.weak_points.length > 0) { %>
+            <div class="output-block">
+              <div class="block-title muted">نقاط قابل بهبود</div>
+              <ul class="chip-list">
+                <% result.weak_points.forEach(function(point) { %>
+                  <li><%= point %></li>
+                <% }); %>
+              </ul>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </div>

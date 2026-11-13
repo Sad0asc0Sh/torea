@@ -1,0 +1,60 @@
+<%
+const activeKey = 'balance_new';
+  const pageTitle = 'ثبت فروش اعتباری';
+  const extraCss = ['/css/admin/balance/balance.css'];
+  const pageClass = '';
+%>
+
+      <div class="btn-row" style="margin-bottom:12px;">
+        <a class="btn btn-secondary" href="/admin/balance">بازگشت به مانده فروشنده</a>
+      </div>
+
+      <div class="balance-container">
+        <div class="balance-card">
+          <h1 style="margin:0 0 6px;font-size:18px;font-weight:800;">ثبت فروش اعتباری</h1>
+          <p class="muted" style="margin:0 0 12px;">اعمال سیاست اعتباری قبل از ثبت</p>
+          <form method="POST" action="/admin/balance/credit-requests" class="form-grid">
+            <div>
+              <label>فروشنده *</label>
+              <select name="seller_user_id" required>
+                <option value="">انتخاب کنید</option>
+                <% (sellers || []).forEach(function(s){ %>
+                  <option value="<%= s.id %>" <%= String(form?.seller_user_id || '') === String(s.id) ? 'selected' : '' %>><%= s.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div>
+              <label>کد مشتری *</label>
+              <input name="customer_code" value="<%= form?.customer_code || '' %>" required>
+            </div>
+            <div>
+              <label>نام مشتری</label>
+              <input name="customer_name" value="<%= form?.customer_name || '' %>">
+            </div>
+            <div>
+              <label>مبلغ فاکتور *</label>
+              <input type="number" min="0" name="invoice_amount" value="<%= form?.invoice_amount || '' %>" required>
+            </div>
+            <div>
+              <label>مهلت (روز)</label>
+              <input type="number" min="0" name="due_days" value="<%= form?.due_days || '' %>">
+            </div>
+            <div>
+              <label>تاریخ سررسید (اختیاری)</label>
+              <input type="date" name="due_date" value="<%= form?.due_date || '' %>">
+            </div>
+            <div>
+              <label>شماره فاکتور (اختیاری)</label>
+              <input name="invoice_number" value="<%= form?.invoice_number || '' %>">
+            </div>
+            <div style="grid-column:1/-1;">
+              <label>توضیح درخواست‌کننده</label>
+              <textarea name="requester_note" rows="3"><%= form?.requester_note || '' %></textarea>
+            </div>
+            <div class="form-actions" style="grid-column:1/-1;">
+              <button type="submit" class="btn-primary">ثبت فروش اعتباری</button>
+              <a class="btn-secondary" href="/admin/balance/credit-requests">بازگشت به لیست</a>
+            </div>
+          </form>
+        </div>
+      </div>

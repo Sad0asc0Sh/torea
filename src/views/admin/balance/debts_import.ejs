@@ -1,0 +1,84 @@
+<%
+const activeKey = 'balance_debts_import';
+  const pageTitle = 'ورود بدهی با فایل';
+  const extraCss = ['/css/admin/balance/balance.css'];
+  const pageClass = '';
+%>
+
+<!-- محتوای اصلی صفحه -->
+<div class="balance-container">
+  <div class="balance-card">
+    <div class="flex items-center justify-between gap-sm flex-wrap">
+      <div>
+        <h1 class="card-title mb-1">ورود بدهی با فایل</h1>
+        <p class="muted">آپلود اکسل یا CSV و سپس تعیین نگاشت ستون‌ها</p>
+      </div>
+      <a class="balance-link" style="max-width:220px;" href="/admin/balance/debts">
+        <div class="title">بازگشت به لیست بدهی‌ها</div>
+        <div class="desc">مشاهده مانده‌ها</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="balance-card">
+    <div class="alert alert-info">
+      <strong>راهنمای ورود بدهیها:</strong>
+      <ul class="mt-1 mr-5">
+        <li>فایل نمونه را دانلود کنید. ستون‌ها با عناوین فارسی هستند.</li>
+        <li>برای شناسایی فروشنده، <strong>فقط کد مالی کافی است</strong> (نیازی به نام کاربری نیست).</li>
+        <li>ستون‌های الزامی: "کد مشتری"، "مبلغ بدهی"، "کد مالی فروشنده"</li>
+        <li>فرمت تاریخ: YYYY-MM-DD (مثال: 2025-01-15)</li>
+        <li>فایل‌های قدیمی با نام کاربری نیز پشتیبانی می‌شوند.</li>
+      </ul>
+      <div class="mt-2">
+        <a href="/admin/balance/debts/template.xlsx" class="link">دانلود قالب نمونه</a>
+      </div>
+    </div>
+    
+    <form method="POST" action="/admin/balance/debts/import/preview" enctype="multipart/form-data" class="form-grid mt-3">
+      <div>
+        <label>فایل بدهی</label>
+        <input type="file" name="file" accept=".xlsx,.csv" required>
+      </div>
+      <div class="flex items-center gap-sm mt-2">
+        <input type="checkbox" id="has_header" name="has_header" value="on" checked>
+        <label for="has_header" class="m-0">اولین ردیف فایل هدر است</label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">مرحله بعد (پیش‌نمایش)</button>
+      </div>
+    </form>
+  </div>
+
+  <% if (importResult) { %>
+  <div class="balance-card">
+    <h3 class="mt-0">نتیجه آخرین ورود</h3>
+    <div class="muted mb-2">
+      ردیف‌ها: <%= importResult.totalRows || 0 %> | 
+      درج‌شده: <%= importResult.inserted || 0 %> | 
+      به‌روزرسانی‌شده: <%= importResult.updated || 0 %> | 
+      خطا: <%= importResult.failed || importResult.errors?.length || 0 %>
+    </div>
+    <% if (importResult.errors && importResult.errors.length) { %>
+      <table class="balance-table">
+        <thead>
+          <tr>
+            <th>ردیف</th>
+            <th>پیام خطا</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% importResult.errors.slice(0, 20).forEach(function(err){ %>
+            <tr>
+              <td><%= err.row %></td>
+              <td><%= err.message %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p class="muted m-0">خطایی گزارش نشده است.</p>
+    <% } %>
+  </div>
+  <% } %>
+</div>

@@ -1,0 +1,150 @@
+/**
+ * ============================================================================
+ * ToInfinity - Main CSS Entry Point
+ * ============================================================================
+ * 
+ * نام برنامه: ToInfinity
+ * سیستم CSS مدرن با پشتیبانی RTL برای فارسی
+ * 
+ * ساختار:
+ * 1. Foundation - متغیرها، ریست و تایپوگرافی
+ * 2. Components - کامپوننتهای قابل استفاده مجدد
+ * 3. Layouts - چیدمان و ساختار صفحات
+ * 4. Views - استایلهای خاص هر View
+ * 
+ * تمها:
+ * - Admin: تم تیره با رنگ اصلی #6366f1 (data-theme="admin")
+ * - User: تم روشن با رنگ اصلی #0d6efd (data-theme="user")
+ * 
+ * استفاده:
+ * <html data-theme="admin"> یا <html data-theme="user">
+ * 
+ * ============================================================================
+ */
+
+/* ============ 1. Foundation Layer ============ */
+/* متغیرها و Design Tokens */
+@import url('./1-foundation/variables.css');
+
+/* CSS Reset مدرن */
+@import url('./1-foundation/reset.css');
+
+/* فونت و تایپوگرافی */
+@import url('./1-foundation/typography.css');
+
+/* ============ 2. Components Layer ============ */
+/* دکمهها */
+@import url('./2-components/buttons.css');
+
+/* فرمها و input ها */
+@import url('./2-components/forms.css');
+
+/* کارتها */
+@import url('./2-components/cards.css');
+
+/* جداول */
+@import url('./2-components/tables.css');
+
+/* بج و pill */
+@import url('./2-components/badges.css');
+
+/* ناوبری (app-bar, drawer, menu) */
+@import url('./2-components/navigation.css');
+
+/* کاشی‌ها (action tiles) */
+@import url('./2-components/tiles.css');
+
+/* کامپوننتهای موبایل اپلیکیشن */
+@import url('./2-components/mobile-app.css');
+
+/* کارتهای اکشن */
+@import url('./2-components/action-cards.css');
+
+/* ============ 3. Layouts Layer ============ */
+/* ساختار کلی صفحه */
+@import url('./3-layouts/shell.css');
+
+/* Grid و flexbox utilities */
+@import url('./3-layouts/grid.css');
+
+/* Margin و padding utilities */
+@import url('./3-layouts/spacing.css');
+
+/* ============ 4. Views Layer ============ */
+/* استایلهای خاص ادمین */
+@import url('./4-views/admin.css');
+
+/* استایلهای خاص کاربر */
+@import url('./4-views/user.css');
+
+/* استایلهای خاص صفحات Auth */
+@import url('./auth/auth-pages.css');
+
+/* ============ Mobile App Globals ============ */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  height: -webkit-fill-available;
+}
+
+body {
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============ Utility Classes ============ */
+
+/* Hide visually but keep for screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Prevent text selection */
+.no-select {
+  user-select: none;
+}
+
+/* Pointer events */
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.pointer-events-auto {
+  pointer-events: auto;
+}
+
+/* ============ Print Styles ============ */
+@media print {
+  /* Hide non-essential elements when printing */
+  .no-print,
+  .app-bar,
+  .drawer,
+  .sidebar,
+  .btn,
+  .form-actions {
+    display: none !important;
+  }
+  
+  /* Adjust colors for print */
+  * {
+    color: #000 !important;
+    background: #fff !important;
+  }
+  
+  /* Show links */
+  a[href]::after {
+    content: " (" attr(href) ")";
+  }
+}
+
+/* ============ End of ToInfinity CSS ============ */

@@ -1,0 +1,229 @@
+<%
+const activeKey = 'def_teams';
+  const pageTitle = 'مدیریت اعضای تیم';
+  const extraCss = [];
+  const pageClass = '';
+%>      <%
+        const __team = team || {};
+        const __members = Array.isArray(members) ? members : [];
+      %>
+      
+      <div class="stack">
+        <section class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <div>
+              <h2 style="margin:0 0 4px 0;font-size:16px;font-weight:900;">مسئولین و زیرمجموعه‌های تیم</h2>
+              <p class="muted" style="margin:0;line-height:1.6;"><%= __team.name || 'تیم' %></p>
+            </div>
+            <div class="btn-row">
+              <a class="btn btn-secondary" href="/admin/definitions/teams">بازگشت به لیست تیم‌ها</a>
+              <a class="btn btn-secondary" href="/admin/definitions/teams/<%= __team.id %>/brands">مدیریت برندهای تیم</a>
+            </div>
+          </div>
+      
+          <% if (error) { %>
+            <div class="alert alert-error" style="margin-top:10px;"><%= error %></div>
+          <% } %>
+          <% if (info) { %>
+            <div class="alert alert-success" style="margin-top:10px;"><%= info %></div>
+          <% } %>
+        </section>
+      
+        <section class="card">
+          <h3 style="margin:0 0 8px 0;font-size:15px;font-weight:900;">افزودن عضو جدید</h3>
+          <p class="muted" style="margin:0 0 6px 0;">با افزودن یک مدیر/سرگروه، تمام زیرمجموعه‌های او نیز به تیم اضافه می‌شوند.</p>
+          <p class="muted" style="margin:0 0 10px 0;">جستجو بر اساس نام کاربری، نام، نام خانوادگی یا تلفن.</p>
+          <label style="display:flex;align-items:center;gap:6px;margin:0 0 8px 0;">
+            <input type="checkbox" id="allow-reassign-toggle" name="allow_reassign" />
+            <span class="muted">انتقال افراد از تیم دیگر به این تیم (پیش‌فرض: فقط افزودن افراد آزاد)</span>
+          </label>
+          <form id="member-search-form" class="form" style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;">
+            <input id="member-search-input" type="text" name="query" placeholder="عبارت جستجو..." style="flex:1;min-width:220px;" autocomplete="off" />
+            <button id="member-search-btn" class="btn btn-primary" type="submit">جستجو</button>
+          </form>
+          <div id="member-search-status" class="muted">برای جستجو حداقل ۲ حرف وارد کنید.</div>
+          <div id="member-search-results"></div>
+        </section>
+      
+        <section class="card">
+          <h3 style="margin:0 0 8px 0;font-size:15px;font-weight:900;">اعضای فعلی</h3>
+          <% if (!__members.length) { %>
+            <div class="alert alert-info">هنوز عضوی ثبت نشده است.</div>
+          <% } else { %>
+            <div class="table-shell table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>کاربر</th>
+                    <th>تلفن</th>
+                    <th>وضعیت</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% __members.forEach(function(m){ %>
+                    <tr data-member-id="<%= m.user_id %>">
+                      <td><%= m.username || '' %> - <%= (m.first_name || '') + ' ' + (m.last_name || '') %></td>
+                      <td><%= m.phone || '—' %></td>
+                      <td><%= m.active && m.status === 'active' ? 'فعال' : (m.status || '—') %></td>
+                      <td>
+                        <form method="post" action="/admin/definitions/teams/<%= __team.id %>/members/remove" style="display:inline;">
+                          <input type="hidden" name="user_id" value="<%= m.user_id %>" />
+                          <button class="btn btn-ghost btn-sm" type="submit">حذف</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </section>
+      </div>
+      
+      <script>
+      (() => {
+        const teamId = <%- JSON.stringify(__team.id) %>;
+        const memberIds = new Set(
+          Array.from(document.querySelectorAll('[data-member-id]')).map((el) => String(el.getAttribute('data-member-id')))
+        );
+        const allowReassignCheckbox = document.getElementById('allow-reassign-toggle');
+        const input = document.getElementById('member-search-input');
+        const submitBtn = document.getElementById('member-search-btn');
+        const statusEl = document.getElementById('member-search-status');
+        const resultsEl = document.getElementById('member-search-results');
+        let debounceTimer = null;
+        let lastController = null;
+
+        const getAllowReassignValue = () => (allowReassignCheckbox && allowReassignCheckbox.checked ? '1' : '');
+
+        function syncAllowReassignInputs() {
+          const val = getAllowReassignValue();
+          const forms = resultsEl.querySelectorAll('form[data-allow-reassign-sync]');
+          forms.forEach((f) => {
+            let hidden = f.querySelector('input[name="allow_reassign"]');
+            if (!hidden) {
+              hidden = document.createElement('input');
+              hidden.type = 'hidden';
+              hidden.name = 'allow_reassign';
+              f.appendChild(hidden);
+            }
+            hidden.value = val;
+          });
+        }
+
+        function setStatus(msg) {
+          if (statusEl) statusEl.textContent = msg;
+        }
+      
+        function renderCandidates(list) {
+          const filtered = list.filter((u) => !memberIds.has(String(u.id)));
+          if (!filtered.length) {
+            resultsEl.innerHTML = '<div class="alert alert-info">کاربر فعالی با این مشخصات یافت نشد یا قبلاً عضو است.</div>';
+            return;
+          }
+          const table = document.createElement('table');
+          table.className = 'table';
+          const thead = document.createElement('thead');
+          thead.innerHTML = '<tr><th>کاربر</th><th>تلفن</th><th>وضعیت</th><th></th></tr>';
+          table.appendChild(thead);
+      
+          const tbody = document.createElement('tbody');
+          filtered.slice(0, 50).forEach((u) => {
+            const tr = document.createElement('tr');
+            const userTd = document.createElement('td');
+            const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ').trim();
+            const displayParts = [u.username || '', fullName].filter((v) => v && v.trim() !== '');
+            userTd.textContent = displayParts.join(' - ');
+            tr.appendChild(userTd);
+      
+            const phoneTd = document.createElement('td');
+            phoneTd.textContent = u.phone || '—';
+            tr.appendChild(phoneTd);
+      
+            const statusTd = document.createElement('td');
+            statusTd.textContent = u.active && u.status === 'active' ? 'فعال' : (u.status || '—');
+            tr.appendChild(statusTd);
+      
+            const actionTd = document.createElement('td');
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = `/admin/definitions/teams/${teamId}/members/add`;
+            form.setAttribute('data-allow-reassign-sync', '1');
+            form.style = 'display:flex;gap:6px;align-items:center;flex-wrap:wrap;';
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'user_id';
+            hidden.value = u.id;
+            form.appendChild(hidden);
+            const allowHidden = document.createElement('input');
+            allowHidden.type = 'hidden';
+            allowHidden.name = 'allow_reassign';
+            allowHidden.value = getAllowReassignValue();
+            form.appendChild(allowHidden);
+            const button = document.createElement('button');
+            button.className = 'btn btn-secondary btn-sm';
+            button.type = 'submit';
+            button.textContent = 'افزودن';
+            form.appendChild(button);
+            actionTd.appendChild(form);
+            tr.appendChild(actionTd);
+            tbody.appendChild(tr);
+          });
+      
+          table.appendChild(tbody);
+          const wrapper = document.createElement('div');
+          wrapper.className = 'table-shell table-responsive';
+          wrapper.appendChild(table);
+          resultsEl.innerHTML = '';
+          resultsEl.appendChild(wrapper);
+          syncAllowReassignInputs();
+        }
+      
+        async function fetchCandidates(q) {
+          const query = (q || '').trim();
+          if (!query || query.length < 2) {
+            resultsEl.innerHTML = '';
+            setStatus('برای جستجو حداقل ۲ حرف وارد کنید.');
+            return;
+          }
+          if (debounceTimer) clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(async () => {
+            const started = performance.now();
+            if (lastController) lastController.abort();
+            lastController = new AbortController();
+            setStatus('در حال جستجو...');
+            try {
+              const resp = await fetch(
+                `/admin/definitions/teams/${teamId}/members/candidates?q=${encodeURIComponent(query)}`,
+                { signal: lastController.signal }
+              );
+              if (!resp.ok) throw new Error('search_failed');
+              const data = await resp.json();
+              renderCandidates(Array.isArray(data.results) ? data.results : []);
+              const duration = Math.round(performance.now() - started);
+              setStatus(
+                (data.results && data.results.length)
+                  ? `نتایج (${Math.min(data.results.length, 50)}) - ${duration} میلی‌ثانیه`
+                  : 'کاربر فعالی با این مشخصات یافت نشد یا قبلاً عضو است.'
+              );
+            } catch (err) {
+              if (err.name === 'AbortError') return;
+              setStatus('خطا در جستجو. لطفاً دوباره تلاش کنید.');
+              resultsEl.innerHTML = '';
+            }
+          }, 250);
+        }
+      
+        if (input && submitBtn) {
+          submitBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            fetchCandidates(input.value);
+          });
+          input.addEventListener('input', (e) => fetchCandidates(e.target.value));
+        }
+        if (allowReassignCheckbox) {
+          allowReassignCheckbox.addEventListener('change', syncAllowReassignInputs);
+        }
+      })();
+      </script>

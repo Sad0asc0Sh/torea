@@ -1,0 +1,26 @@
+<%
+  const activeKey = 'settings';
+  const pageTitle = 'تنظیمات';
+  const extraCss = [
+    '/css/admin/settings/settings.css',
+    '/css/admin/admin-landing.css',
+  ];
+  const pageClass = 'page--settings';
+  const tiles = [
+    { icon: 'tools', label: 'موضوعات آموزش', desc: 'لیست موضوعات و دستهبندی', href: '/admin/settings/training-topics' },
+    { icon: 'definitions', label: 'کاتالوگ و دسترسیها', desc: 'مدیریت کاتالوگ و دسترسی org_node', href: '/admin/settings/catalog' },
+    { icon: 'settings', label: 'تنظیمات آموزش', desc: 'حد آستانه و تنظیمات پایه', href: '/admin/settings/training-config' },
+    { icon: 'settings', label: 'اتصال API ها', desc: 'مدیریت کلیدها و سرویسها', href: '/admin/settings/apis' },
+    { icon: 'tools', label: 'سرفصل اتوماسیون', desc: 'تعریف موضوعات اتوماسیون', href: '/admin/definitions/automation-topics' },
+    { icon: 'definitions', label: 'دسترسی‌های سازمانی', desc: 'تخصیص آیتمهای کاتالوگ به سمتها', href: '/admin/settings/org-permissions' },
+  ];
+%>
+
+<div class="stack">
+  <%- include('../../partials/admin_section_home', {
+    title: 'تنظیمات',
+    subtitle: 'مدیریت تنظیمات آموزش و سرویسها',
+    tiles,
+    backHref: '/admin/dashboard'
+  }) %>
+</div>

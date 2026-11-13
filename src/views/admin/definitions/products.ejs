@@ -1,0 +1,192 @@
+<%
+const activeKey = 'def_products';
+  const pageTitle = 'تعریف کالاها';
+  const extraCss = [];
+  const pageClass = '';
+%>
+
+<!-- محتوای اصلی صفحه -->
+<%
+  const __products = Array.isArray(products) ? products : [];
+  const __brands = Array.isArray(brands) ? brands : [];
+  const currentBrandId = filterBrandId ? Number(filterBrandId) : null;
+  const totalPagesSafe = totalPages && totalPages > 0 ? totalPages : 1;
+
+  function buildPageHref(p) {
+    const qs = new URLSearchParams();
+    if (currentBrandId) qs.set('brand_id', currentBrandId);
+    if (searchQuery) qs.set('q', searchQuery);
+    qs.set('page', p);
+    return '/admin/definitions/products?' + qs.toString();
+  }
+
+  function formatAliases(aliases) {
+    if (Array.isArray(aliases)) return aliases.join(', ') || '—';
+    return aliases || '—';
+  }
+%>
+
+<div class="stack">
+  <section class="card">
+    <div class="flex items-center justify-between gap-sm flex-wrap">
+      <div>
+        <h2 class="card-title">تعریف کالاها</h2>
+        <p class="muted">لیست کالاها همراه با برند، وضعیت و جست‌وجو/فیلتر.</p>
+      </div>
+      <div class="btn-row flex-wrap gap-xs">
+        <a class="btn btn-primary" href="/admin/definitions/products/new">افزودن کالا</a>
+        <a class="btn btn-secondary" href="/admin/definitions/products/template.xlsx">دانلود قالب اکسل</a>
+        <details class="inline-block">
+          <summary class="btn btn-secondary cursor-pointer">ورود از اکسل</summary>
+          <form action="/admin/definitions/products/import" method="post" enctype="multipart/form-data" class="flex gap-xs items-center mt-2 flex-wrap">
+            <input type="file" name="file" accept=".xlsx" required class="file-input" />
+            <button class="btn btn-ghost" type="submit">بارگذاری</button>
+          </form>
+        </details>
+        <a class="btn btn-secondary" href="/admin/definitions">بازگشت</a>
+      </div>
+    </div>
+    
+    <div class="alert alert-info mt-3">
+      <strong>راهنمای ورود انبوه:</strong>
+      <ul class="mt-1 mr-5">
+        <li>فایل نمونه را با کلیک روی "دانلود قالب اکسل" دریافت کنید.</li>
+        <li>ستون‌های فایل با <strong>عناوین فارسی</strong> هستند: "کد برند"، "نام برند"، "نام کالا"، "کد کالا"، ...</li>
+        <li>برای مقادیر بله/خیر می‌توانید از: <code>بله/خیر</code>، <code>true/false</code>، یا <code>1/0</code> استفاده کنید.</li>
+        <li>حداقل ستون‌های "نام کالا" و "کد برند" الزامی هستند.</li>
+        <li>فایل‌های قدیمی با هدر انگلیسی نیز پشتیبانی می‌شوند.</li>
+      </ul>
+    </div>
+
+    <form method="get" action="/admin/definitions/products" class="form mt-3 flex gap-sm flex-wrap items-end">
+      <div class="form-group flex-1" style="min-width:160px;">
+        <label for="brand_id">برند</label>
+        <select id="brand_id" name="brand_id">
+          <option value="">همه برندها</option>
+          <% __brands.forEach(function(b){ %>
+            <option value="<%= b.id %>" <%= currentBrandId === Number(b.id) ? 'selected' : '' %>>
+              <%= b.name %><%= b.is_active === false ? ' (غیرفعال)' : '' %>
+            </option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="form-group flex-1" style="min-width:200px;">
+        <label for="q">جست‌وجو (کد یا نام کالا)</label>
+        <input id="q" name="q" type="text" value="<%= searchQuery || '' %>" placeholder="مثال: ACME-001 یا نوشابه" />
+      </div>
+      <button class="btn btn-secondary" type="submit">اعمال فیلتر</button>
+    </form>
+    
+    <% if (!__brands.length) { %>
+      <div class="alert alert-info mt-2">اول برند بسازید.</div>
+    <% } %>
+
+    <% if (importResult) { %>
+      <div class="alert <%= importResult.failed ? 'alert-warn' : 'alert-info' %> mt-2">
+        <strong>نتیجه ورود اکسل</strong>
+        <div class="mt-1">
+          <span>کل: <%= importResult.totalRows || 0 %></span>
+          <span class="mr-2">درج: <%= importResult.inserted || 0 %></span>
+          <span class="mr-2">به‌روزرسانی: <%= importResult.updated || 0 %></span>
+          <span class="mr-2">خطا: <%= importResult.failed || 0 %></span>
+        </div>
+        <% if (importResult.errors && importResult.errors.length) { %>
+          <div class="table-shell table-responsive mt-2">
+            <table class="table">
+              <thead><tr><th>ردیف</th><th>پیام خطا</th></tr></thead>
+              <tbody>
+                <% importResult.errors.forEach(function(e){ %>
+                  <tr>
+                    <td class="mono"><%= e.row %></td>
+                    <td><%= e.message %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+            <p class="muted mt-1">حداکثر <%= importResult.errors.length %> خطای اول نمایش داده می‌شود.</p>
+          </div>
+        <% } %>
+      </div>
+    <% } %>
+
+    <div class="table-shell table-responsive product-table-wrap">
+      <table class="table product-table">
+        <thead>
+          <tr>
+            <th>کالا</th>
+            <th>برند</th>
+            <th>کد SKU</th>
+            <th>وضعیت</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!__products.length) { %>
+            <tr>
+              <td colspan="5" class="text-center">کالایی ثبت نشده است.</td>
+            </tr>
+          <% } else { %>
+            <% __products.forEach(function(p){ %>
+              <tr>
+                <td>
+                  <div class="flex flex-col gap-xs">
+                    <strong><%= p.name %></strong>
+                    <details class="product-details">
+                      <summary>جزئیات</summary>
+                      <div class="muted mt-1">برچسب‌ها: <%= formatAliases(p.aliases) %></div>
+                      <div class="mt-1">
+                        <% if (p.is_key) { %>
+                          <span class="pill pill-ok">کالای کلیدی</span>
+                        <% } else { %>
+                          <span class="pill pill-muted">غیرکلیدی</span>
+                        <% } %>
+                      </div>
+                    </details>
+                  </div>
+                </td>
+                <td>
+                  <%= p.brand_name || '—' %>
+                  <% if (p.brand_is_active === false) { %>
+                    <span class="pill pill-bad mr-1">غیرفعال</span>
+                  <% } %>
+                </td>
+                <td class="mono"><%= p.sku_code || '—' %></td>
+                <td>
+                  <% if (p.is_active) { %>
+                    <span class="pill pill-ok">فعال</span>
+                  <% } else { %>
+                    <span class="pill pill-bad">غیرفعال</span>
+                  <% } %>
+                </td>
+                <td class="nowrap flex gap-xs flex-wrap">
+                  <a class="btn btn-secondary btn-sm" href="/admin/definitions/products/<%= p.id %>/edit">ویرایش</a>
+                  <form method="post" action="/admin/definitions/products/<%= p.id %>/toggle" class="inline-block">
+                    <button class="btn btn-ghost btn-sm" type="submit"><%= p.is_active ? 'غیرفعال' : 'فعال' %> کردن</button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (totalPagesSafe > 1) { %>
+      <div class="pager flex gap-sm justify-end items-center mt-2">
+        <span class="muted">صفحه <%= page %> از <%= totalPagesSafe %></span>
+        <div class="btn-row">
+          <% if (page > 1) { %>
+            <a class="btn btn-secondary btn-sm" href="<%= buildPageHref(page - 1) %>">قبلی</a>
+          <% } else { %>
+            <button class="btn btn-secondary btn-sm" disabled>قبلی</button>
+          <% } %>
+          <% if (page < totalPagesSafe) { %>
+            <a class="btn btn-secondary btn-sm" href="<%= buildPageHref(page + 1) %>">بعدی</a>
+          <% } else { %>
+            <button class="btn btn-secondary btn-sm" disabled>بعدی</button>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+  </section>
+</div>

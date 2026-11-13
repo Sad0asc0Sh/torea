@@ -1,0 +1,54 @@
+<%
+const activeKey = 'settings_training_config';
+  const pageTitle = 'تنظیمات آموزش';
+  const extraCss = ['/css/admin/settings/training.css'];
+  const pageClass = 'page--settings';
+  const safeCurrentSettings = (typeof currentSettings !== 'undefined') ? currentSettings : {};
+%>
+
+      <div class="btn-row" style="margin-bottom:12px;">
+        <a class="btn btn-secondary" href="/admin/settings">بازگشت به تنظیمات</a>
+      </div>
+
+      <div class="stack">
+        <section class="card stack">
+          <div>
+            <div class="card-title">تنظیمات موتور آموزش</div>
+            <div class="card-subtitle">تعریف حداقل نمونه‌ها و آستانه امتیاز برای عبور از هر موضوع</div>
+          </div>
+
+          <form method="POST" action="/admin/settings/training-config" class="stack" style="gap:12px;">
+            <label class="form-field">
+              <span class="form-label">تعداد نمونه پایه (baseline)</span>
+              <input type="number" min="1" name="baseline_voices_count" value="<%= safeCurrentSettings.baseline_voices_count || '' %>" required>
+              <small class="muted">پس از این تعداد نمونه، کاربر وارد فاز تمرین می‌شود.</small>
+            </label>
+
+            <label class="form-field">
+              <span class="form-label">طول پنجره میانگین متحرک</span>
+              <input type="number" min="1" name="rolling_window_n" value="<%= safeCurrentSettings.rolling_window_n || '' %>" required>
+              <small class="muted">برای محاسبه میانگین امتیازهای اخیر به کار می‌رود.</small>
+            </label>
+
+            <label class="form-field">
+              <span class="form-label">حد آستانه امتیاز</span>
+              <input type="number" min="0" max="100" name="threshold_score" value="<%= safeCurrentSettings.threshold_score || '' %>" required>
+              <small class="muted">میانگین بالاتر از این مقدار به معنای عبور از موضوع است.</small>
+            </label>
+
+            <div class="btn-row">
+              <button type="submit" class="btn btn-primary">ذخیره تنظیمات</button>
+              <a class="btn btn-secondary" href="/admin/settings/training-topics">مدیریت موضوعات</a>
+            </div>
+          </form>
+        </section>
+
+        <section class="card">
+          <div class="card-title">راهنما</div>
+          <ul class="stack" style="padding-right:18px; margin:0;">
+            <li>همه تنظیمات در سطح شرکت اعمال می‌شود و روی همه کاربران تأثیر دارد.</li>
+            <li>برای جلوگیری از حذف تصادفی، موضوعات فقط غیرفعال می‌شوند.</li>
+            <li>دکمه تست تامین‌کننده در صفحه موضوعات در دسترس است.</li>
+          </ul>
+        </section>
+      </div>

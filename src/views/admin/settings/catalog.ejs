@@ -1,0 +1,30 @@
+<%
+const activeKey = 'settings_catalog';
+  const pageTitle = 'کاتالوگ و دسترسی‌ها';
+  const extraCss = ['/css/admin/settings/settings.css'];
+  const pageClass = 'page--settings';
+%>
+
+      <div class="btn-row" style="margin-bottom:10px;">
+        <a class="btn btn-secondary" href="/admin/settings">بازگشت به تنظیمات</a>
+      </div>
+
+      <div class="stack">
+        <section class="card stack">
+          <div>
+            <h1 class="card-title">کاتالوگ و دسترسی‌ها</h1>
+            <p class="card-subtitle">مدیریت نمایش ابزارها/فرم‌ها/گزارشات</p>
+          </div>
+
+          <div class="action-grid">
+            <a class="action-tile" href="/admin/settings/catalog-access">
+              <strong>تنظیم دسترسی بر اساس org_node</strong>
+              <span>کنترل نمایش کاتالوگ بر مبنای سلسله‌مراتب سازمانی</span>
+            </a>
+            <a class="action-tile" href="/admin/settings/catalog-manager" style="border: 2px solid #667eea;">
+              <strong>🌟 مدیریت پیشرفته کاتالوگ</strong>
+              <span>کشف خودکار، ویرایش دستی و ساختار درختی | <span style="background: #667eea; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">جدید</span></span>
+            </a>
+          </div>
+        </section>
+      </div>

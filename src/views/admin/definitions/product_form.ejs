@@ -1,0 +1,84 @@
+<%
+const activeKey = 'def_products';
+  const pageTitle = mode === 'edit' ? 'ویرایش کالا' : 'ایجاد کالا';
+  const extraCss = [];
+  const pageClass = '';
+%>      <%
+        const __product = product || {};
+        const __brands = Array.isArray(brands) ? brands : [];
+        const __aliasesValue = Array.isArray(__product.aliases) ? __product.aliases.join(', ') : (__product.aliases || '');
+        const __shouldShowAdvanced = !!__aliasesValue || __product.is_key === true || __product.is_active === false;
+        const actionUrl = (mode === 'edit' && __product.id)
+          ? `/admin/definitions/products/${__product.id}`
+          : '/admin/definitions/products';
+      %>
+      
+      <div class="card">
+        <h1 class="card-title"><%= mode === 'edit' ? 'ویرایش کالا' : 'ایجاد کالای جدید' %></h1>
+        <p class="card-subtitle">نام کالا الزامی، کد SKU اختیاری ولی یکتا، برند فعال، برچسب‌ها و کلیدی بودن اختیاری.</p>
+      
+        <% if (error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        <% if (!__brands.length) { %>
+          <div class="alert alert-info">اول برند بسازید.</div>
+        <% } %>
+      
+        <form method="post" action="<%= actionUrl %>" class="form stack" style="margin-top:12px;">
+          <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+            <label class="form-group" for="brand_id">
+              <span>برند <span style="color:var(--danger)">*</span></span>
+              <select id="brand_id" name="brand_id" required>
+                <option value="">انتخاب کنید</option>
+                <% __brands.forEach(function(b){ %>
+                  <option value="<%= b.id %>" <%= Number(__product.brand_id) === Number(b.id) ? 'selected' : '' %>>
+                    <%= b.name %><%= b.is_active === false ? ' (غیرفعال)' : '' %>
+                  </option>
+                <% }); %>
+              </select>
+            </label>
+      
+            <label class="form-group" for="name">
+              <span>نام کالا <span style="color:var(--danger)">*</span></span>
+              <input id="name" name="name" type="text" required value="<%= __product.name || '' %>" />
+            </label>
+      
+            <label class="form-group" for="sku_code">
+              <span>کد کالا (SKU) <span class="muted">(اختیاری اما یکتا)</span></span>
+              <input id="sku_code" name="sku_code" type="text" value="<%= __product.sku_code || '' %>" />
+            </label>
+          </div>
+      
+          <details class="form-group" style="margin-top:6px;" <%= __shouldShowAdvanced ? 'open' : '' %>>
+            <summary style="cursor:pointer;font-weight:700;">گزینه‌های اختیاری</summary>
+            <div class="stack" style="margin-top:8px;gap:10px;">
+              <label class="form-group" for="aliases" style="margin:0;">
+                <span>برچسب‌ها (با کاما جدا کنید)</span>
+                <input id="aliases" name="aliases" type="text" value="<%= __aliasesValue %>" placeholder="مثال: سایز کوچک, بسته ۶ تایی" />
+              </label>
+      
+              <label class="form-group" style="display:flex;align-items:center;gap:8px;margin:0;">
+                <input type="checkbox" name="is_key" <%= (__product.is_key === true) ? 'checked' : '' %> />
+                کالای کلیدی است
+              </label>
+      
+              <label class="form-group" style="display:flex;align-items:center;gap:8px;margin:0;">
+                <input type="checkbox" name="is_active" <%= (__product.is_active !== false) ? 'checked' : '' %> />
+                فعال باشد
+              </label>
+            </div>
+          </details>
+      
+          <div class="btn-row">
+            <button class="btn btn-primary" type="submit">ذخیره</button>
+            <a class="btn btn-secondary" href="/admin/definitions/products">انصراف</a>
+          </div>
+        </form>
+        <% if (mode === 'edit' && __product.id) { %>
+          <div class="btn-row" style="margin-top:10px;">
+            <form method="post" action="/admin/definitions/products/<%= __product.id %>/delete" onsubmit="return confirm('آیا از حذف این کالا مطمئن هستید؟');" style="display:inline;">
+              <button class="btn btn-danger" type="submit">حذف</button>
+            </form>
+          </div>
+        <% } %>
+      </div>

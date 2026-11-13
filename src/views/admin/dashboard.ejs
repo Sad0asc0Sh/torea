@@ -1,0 +1,75 @@
+<%
+const activeKey = 'dashboard';
+  const pageTitle = 'داشبورد مدیریت';
+  const extraCss = ['/css/admin/admin-landing.css'];
+  const pageClass = '';
+  const catalogKnownRoutes = Array.isArray(__catalogKnownRoutes) ? __catalogKnownRoutes : [];
+  const catalogAllowedRoutes = Array.isArray(__catalogAllowedRoutes) ? __catalogAllowedRoutes : [];
+  const catalogBypass = (typeof __catalogBypass !== 'undefined') ? !!__catalogBypass : false;
+  // NOTE: EJS templates do not have Node's require().
+  // Provide minimal route helper functions locally (hotfix).
+  function ____normalizeRoute(p) {
+    const v = String(p || '');
+    const noQuery = v.split('?')[0];
+    const trimmed = noQuery.replace(/\/+$/,'');
+    return trimmed || '/';
+  }
+  function ____matchesRoute(route, target) {
+    const r = ____normalizeRoute(route);
+    const t = ____normalizeRoute(target);
+    return t === r || t.startsWith(r + '/');
+  }
+
+  // Aliases for legacy helper names (avoid ReferenceError)
+  const __normalizeRoute = ____normalizeRoute;
+  const __matchesRoute = ____matchesRoute;
+
+  function isRouteAllowed(href) {
+    if (catalogBypass) return true;
+    if (!catalogKnownRoutes.length) return true;
+    const target = __normalizeRoute(href || '');
+    const managed = catalogKnownRoutes.some(function(route){ return __matchesRoute(route, target); });
+    if (!managed) return true;
+    if (!catalogAllowedRoutes.length) return false;
+    return catalogAllowedRoutes.some(function(route){ return __matchesRoute(route, target); });
+  }
+%>
+
+<div class="admin-section-home">
+  <header class="section-header">
+    <h1 class="section-title">داشبورد مدیریت</h1>
+    
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px;">
+    <% if (isRouteAllowed('/admin/inbox')) { %>
+      <a class="action-tile" href="/admin/inbox">
+        <div class="text-bold">📥 اینباکس</div>
+        <div class="muted small-text" style="margin-top:6px;">اتوماسیون، آموزش، اعتبار و اعلان‌ها</div>
+      </a>
+    <% } %>
+  </div>
+
+<p class="section-subtitle">یک بخش را برای شروع انتخاب کنید</p>
+  </header>
+
+  <div class="action-card-grid">
+    <% if (isRouteAllowed('/admin/definitions')) { %>
+      <%- include('../partials/action-card', { icon: 'definitions', title: 'تعاریف', description: 'برندها، کالاها و ساختار سازمان', href: '/admin/definitions' }) %>
+    <% } %>
+    <% if (isRouteAllowed('/admin/tools')) { %>
+      <%- include('../partials/action-card', { icon: 'tools', title: 'ابزارها', description: 'دستیار من', href: '/admin/tools' }) %>
+    <% } %>
+    <% if (isRouteAllowed('/admin/reports')) { %>
+      <%- include('../partials/action-card', { icon: 'reports', title: 'گزارشات', description: 'KPI و آمار', href: '/admin/reports' }) %>
+    <% } %>
+    <% if (isRouteAllowed('/admin/inbox')) { %>
+      <%- include('../partials/action-card', { icon: 'inbox', title: 'صندوق ورودی', description: 'درخواستهای در انتظار', href: '/admin/inbox' }) %>
+    <% } %>
+    <% if (isRouteAllowed('/admin/settings')) { %>
+      <%- include('../partials/action-card', { icon: 'settings', title: 'تنظیمات', description: 'آموزش، API و تنظیمات', href: '/admin/settings' }) %>
+    <% } %>
+    <% if (isRouteAllowed('/admin/balance')) { %>
+      <%- include('../partials/action-card', { icon: 'balance', title: 'مانده فروشنده', description: 'فروش اعتباری، ماندهها', href: '/admin/balance' }) %>
+    <% } %>
+  </div>
+</div>

@@ -1,0 +1,65 @@
+
+.env
+node_modules/
+
+WORKLOG_ToInfinity_*.txt
+راهنما.txt
+qa_smoke_logs/
+
+# local backups / logs
+_bak_*
+backups/
+*.log
+QA_*.txt
+_schema_before_*.sql
+
+# credentials
+_admin_reset.txt
+
+# local backups / logs
+_bak_*
+_hotfix_bak_*/
+backups/
+*.log
+QA_*.txt
+_schema_before_*.sql
+
+# credentials
+_admin_reset.txt
+
+# local backups / logs
+_bak_*
+_hotfix_bak_*
+backups/
+*.log
+QA_*.txt
+_schema_before_*.sql
+
+# credentials
+_admin_reset.txt
+.env
+*.bak.*
+src/**/*.bak.*
+scripts/debug_*.js
+
+# keep refactor quarantine artifacts
+!backups/
+backups/*
+!backups/_quarantine_refactor_fix_20251222T170001Z/
+!backups/_quarantine_refactor_fix_20251222T170001Z/**
+
+# local migration backups
+migrations/*.bak_*
+migrations/*.sql.bak_*
+
+# Backup files - prevent accidental commit of database snapshots in root
+/*.sql
+/*.dump
+/backup_*.sql
+/backup_*.dump
+/*backup*.sql
+/*backup*.dump
+
+# Temporary legacy files
+/y
+/NewInbox

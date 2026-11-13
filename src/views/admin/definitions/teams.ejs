@@ -1,0 +1,70 @@
+<%
+const activeKey = 'def_teams';
+  const pageTitle = 'تعریف تیم‌ها';
+  const extraCss = [];
+  const pageClass = '';
+%>      <%
+        const __teams = Array.isArray(teams) ? teams : [];
+      %>
+      
+      <div class="stack">
+        <section class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <div>
+              <h2 style="margin:0 0 4px 0;font-size:16px;font-weight:900;">تعریف تیم‌ها</h2>
+              <p class="muted" style="margin:0;line-height:1.6;">لیست تیم‌ها همراه ، مدیر و برندهای مرتبط.</p>
+            </div>
+            <div class="btn-row">
+              <a class="btn btn-primary" href="/admin/definitions/teams/new">ایجاد تیم</a>
+              <a class="btn btn-secondary" href="/admin/definitions">بازگشت</a>
+            </div>
+          </div>
+      
+          <div class="table-shell table-responsive">
+            <table class="table" data-no-mobile-actions="1">
+              <thead>
+                <tr>
+                  <th>نام تیم</th>
+                  <th>اعضا</th>
+                  <th>برندها</th>
+                  <th>وضعیت</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (!__teams.length) { %>
+                  <tr>
+                    <td colspan="6" style="text-align:center;">تیمی ثبت نشده است.</td>
+                  </tr>
+                <% } else { %>
+                  <% __teams.forEach(function(t){ const isActive = t.active ?? t.is_active; %>
+                    <tr>
+                      <td><%= t.name %></td>
+                      <td><%= t.members_count || 0 %></td>
+                      <td><%= t.brands_count || 0 %></td>
+                      <td>
+                        <% if (isActive) { %>
+                          <span class="pill pill-ok">فعال</span>
+                        <% } else { %>
+                          <span class="pill pill-bad">غیرفعال</span>
+                        <% } %>
+                      </td>
+                      <td style="white-space:nowrap;display:flex;gap:6px;flex-wrap:wrap;">
+                        <a class="btn btn-secondary btn-sm" href="/admin/definitions/teams/<%= t.id %>/edit">ویرایش</a>
+                        <a class="btn btn-secondary btn-sm" href="/admin/definitions/teams/<%= t.id %>/members">اعضا</a>
+                        <a class="btn btn-secondary btn-sm" href="/admin/definitions/teams/<%= t.id %>/brands">برندها</a>
+                        <form method="post" action="/admin/definitions/teams/<%= t.id %>/toggle" style="display:inline;">
+                          <button class="btn btn-ghost btn-sm" type="submit"><%= isActive ? 'غیرفعال' : 'فعال' %> کردن </button>
+                        </form>
+                        <form method="post" action="/admin/definitions/teams/<%= t.id %>/delete" style="display:inline;" onsubmit="return confirm('آیا از حذف این تیم مطمئن هستید؟');">
+                          <button class="btn btn-ghost btn-sm" type="submit">حذف</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>

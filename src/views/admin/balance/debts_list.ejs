@@ -1,0 +1,86 @@
+<%
+const activeKey = 'balance_debts';
+  const pageTitle = 'بدهی‌ها';
+  const extraCss = ['/css/admin/balance/balance.css'];
+  const pageClass = '';
+%>
+
+      <div class="btn-row" style="margin-bottom:12px;">
+        <a class="btn btn-secondary" href="/admin/balance">بازگشت به مانده فروشنده</a>
+      </div>
+
+      <div class="balance-container">
+        <div class="balance-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;flex-wrap:wrap;">
+            <div>
+              <h1 style="margin:0 0 6px;font-size:18px;font-weight:800;">بدهی‌ها</h1>
+              <p class="muted" style="margin:0;">مانده بر اساس فروشنده یا مشتری</p>
+            </div>
+            <a class="balance-link" style="max-width:220px;" href="/admin/balance/debts/import">
+              <div class="title">آپلود فایل</div>
+              <div class="desc">ورود بدهی با فایل</div>
+            </a>
+          </div>
+
+          <form method="GET" action="/admin/balance/debts" class="form-grid" style="margin-top:10px;">
+            <div>
+              <label>فروشنده</label>
+              <select name="seller_id">
+                <option value="">همه</option>
+                <% (sellers || []).forEach(function(s){ %>
+                  <option value="<%= s.id %>" <%= String(filters?.seller_id || '') === String(s.id) ? 'selected' : '' %>><%= s.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div>
+              <label>کد مشتری</label>
+              <input name="customer_code" value="<%= filters?.customer_code || '' %>">
+            </div>
+            <div>
+              <label>وضعیت</label>
+              <select name="status">
+                <option value="open" <%= filters?.status === 'open' ? 'selected' : '' %>>باز</option>
+                <option value="all" <%= filters?.status === 'all' ? 'selected' : '' %>>همه</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">اعمال فیلتر</button>
+              <a class="btn-secondary" href="/admin/balance/debts">پاکسازی</a>
+            </div>
+          </form>
+        </div>
+
+        <div class="balance-card">
+          <% if (items && items.length) { %>
+            <table class="balance-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>مشتری</th>
+                  <th>فروشنده</th>
+                  <th>مبلغ</th>
+                  <th>سررسید</th>
+                  <th>وضعیت</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% items.forEach(function(r){ %>
+                  <tr>
+                    <td><%= r.id %></td>
+                    <td>
+                      <div><%= r.customer_name || '-' %></div>
+                      <div class="muted" style="font-size:12px;"><%= r.customer_code || '' %></div>
+                    </td>
+                    <td><%= [r.seller_first_name, r.seller_last_name].filter(Boolean).join(' ') || '-' %></td>
+                    <td><%= formatMoney(r.invoice_amount) %></td>
+                    <td><%= r.due_date || '-' %></td>
+                    <td><span class="chip"><%= r.final_status %></span></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <p class="muted" style="margin:0;">موردی یافت نشد.</p>
+          <% } %>
+        </div>
+      </div>

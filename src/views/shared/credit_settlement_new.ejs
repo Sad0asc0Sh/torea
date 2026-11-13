@@ -1,0 +1,81 @@
+<%
+  pageTitle = 'درخواست تسویه';
+  extraCss = [];
+  const base = (typeof basePath === 'string') ? basePath : '';
+  backHref = (base || '') + '/tools/settlement/inbox';
+  headerTitle = pageTitle;
+%>
+
+<div class="container container-sm">
+  <% if (sale) { %>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">درخواست #<%= sale.id %></h3>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">مشتری</span>
+            <span class="info-value"><%= sale.customer_code %> - <%= sale.customer_name %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">مبلغ فاکتور</span>
+            <span class="info-value"><%= formatMoney(sale.invoice_amount) %> تومان</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">وضعیت</span>
+            <span class="badge badge-success"><%= sale.final_status %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">اطلاعات تسویه</h2>
+    </div>
+    <div class="card-body">
+      <form method="post" action="<%= base %>/tools/credit-settlement" class="form-stack">
+        <input type="hidden" name="credit_request_id" value="<%= form.credit_request_id || '' %>"/>
+
+        <div class="form-group">
+          <label class="form-label" for="settlement_type">نوع تسویه</label>
+          <select id="settlement_type" name="settlement_type" class="form-select" required>
+            <option value="cash" <%= form.settlement_type === 'cash' ? 'selected' : '' %>>نقدی</option>
+            <option value="cheque" <%= form.settlement_type === 'cheque' ? 'selected' : '' %>>چک</option>
+            <option value="transfer" <%= form.settlement_type === 'transfer' ? 'selected' : '' %>>حواله</option>
+            <option value="other" <%= form.settlement_type === 'other' ? 'selected' : '' %>>سایر</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="settlement_ref_no">شماره/ارجاع</label>
+          <input 
+            type="text" 
+            id="settlement_ref_no"
+            name="settlement_ref_no" 
+            class="form-input"
+            value="<%= form.settlement_ref_no || '' %>" 
+            placeholder="شماره چک یا ارجاع"
+            required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="notes">توضیحات</label>
+          <textarea 
+            id="notes"
+            name="notes" 
+            class="form-textarea"
+            rows="3"
+            placeholder="توضیحات تکمیلی"><%= form.notes || '' %></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">ثبت تسویه</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,54 @@
+<%
+const activeKey = 'def_teams';
+  const pageTitle = mode === 'edit' ? 'ویرایش تیم' : 'ایجاد تیم';
+  const extraCss = [];
+  const pageClass = '';
+%>      <%
+        const __team = team || {};
+        const __orgNodes = Array.isArray(orgNodes) ? orgNodes : [];
+        const actionUrl = (mode === 'edit' && __team.id)
+          ? `/admin/definitions/teams/${__team.id}`
+          : '/admin/definitions/teams';
+      %>
+      
+      <div class="card">
+        <h1 class="card-title"><%= mode === 'edit' ? 'ویرایش تیم' : 'ایجاد تیم جدید' %></h1>
+        <p class="card-subtitle">نام یکتا، وضعیت فعال و اتصال اختیاری به چارت سازمانی.</p>
+      
+        <% if (error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+      
+        <form method="post" action="<%= actionUrl %>" class="form stack" style="margin-top:12px;">
+          <div class="form-group">
+            <label for="name">نام تیم <span style="color:var(--danger)">*</span></label>
+            <input id="name" name="name" type="text" required minlength="2" value="<%= __team.name || '' %>" />
+          </div>
+      
+          <div class="form-group">
+      <div style="display:none">
+            <label for="org_node_id" style="display:none">سمت سازمانی (اختیاری)</label>
+      </div>
+            <select id="org_node_id" name="org_node_id" style="display:none">
+              <option value="">— انتخاب نشده —</option>
+              <% __orgNodes.forEach(function(n){ %>
+                <option value="<%= n.id %>" <%= (__team.org_node_id && Number(__team.org_node_id) === Number(n.id)) ? 'selected' : '' %>>
+                  <%= n.title || ('نود #' + n.id) %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+      
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;">
+              <input type="checkbox" name="is_active" <%= (__team.is_active !== false) ? 'checked' : '' %> />
+              فعال باشد
+            </label>
+          </div>
+      
+          <div class="btn-row">
+            <button class="btn btn-primary" type="submit">ذخیره</button>
+            <a class="btn btn-secondary" href="/admin/definitions/teams">انصراف</a>
+          </div>
+        </form>
+      </div>

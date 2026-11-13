@@ -1,0 +1,67 @@
+<%
+  pageTitle = 'درخواست‌های باز من';
+  extraCss = [];
+  const base = (typeof basePath === 'string') ? basePath : '';
+  headerTitle = pageTitle;
+%>
+
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">لیست درخواست‌ها</h2>
+      <div class="form-actions-inline">
+        <a href="<%= base %>/tools/credit-sale/new" class="btn btn-primary btn-sm">درخواست جدید</a>
+        <span class="badge"><%= (items || []).length %> مورد</span>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>کد</th>
+              <th>مشتری</th>
+              <th class="hide-mobile">مبلغ</th>
+              <th class="hide-mobile">سررسید</th>
+              <th>وضعیت</th>
+              <th>عملیات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if ((items || []).length > 0) { %>
+              <% items.forEach(it => { %>
+                <tr>
+                  <td><%= it.id %></td>
+                  <td>
+                    <div class="text-bold"><%= it.customer_code %></div>
+                    <div class="text-sm text-muted"><%= it.customer_name %></div>
+                  </td>
+                  <td class="hide-mobile"><%= formatMoney(it.invoice_amount) %></td>
+                  <td class="hide-mobile"><%= (it.due_date || '').toString().slice(0,10) %></td>
+                  <td>
+                    <span class="badge <%= it.final_status === 'approved' ? 'badge-success' : it.final_status === 'rejected' ? 'badge-danger' : 'badge-warning' %>">
+                      <%= it.final_status %>
+                    </span>
+                    <div class="text-xs text-muted mt-1">
+                      A1: <%= it.approver1_status %><br/>
+                      A2: <%= it.approver2_status %><br/>
+                      مالی: <%= it.finance_status %>
+                    </div>
+                  </td>
+                  <td>
+                    <a href="<%= base %>/tools/credit-sale/<%= it.id %>" class="btn btn-sm">جزئیات</a>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="6" class="text-center text-muted">درخواستی یافت نشد</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+

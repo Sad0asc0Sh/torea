@@ -1,0 +1,250 @@
+<%
+  pageTitle = 'صندوق ورودی';
+  extraCss = ['/css/inbox.css'];
+  const base = (typeof basePath === 'string') ? basePath : '';
+  headerTitle = pageTitle;
+%>
+
+<div class="container">
+  <% if (error) { %>
+    <div class="alert alert-danger"><%= error %></div>
+  <% } %>
+  <% if (info) { %>
+    <div class="alert alert-info"><%= info %></div>
+  <% } %>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">📬 صندوق ورودی</h2>
+      <% if (counts && counts.total > 0) { %>
+        <span class="badge badge-danger"><%= counts.total %> آیتم</span>
+      <% } %>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="inbox-tabs">
+      <a href="<%= base %>/inbox" class="inbox-tab <%= !activeCategory ? 'active' : '' %>">
+        همه
+        <% if (counts && counts.total > 0) { %><span class="badge badge-sm"><%= counts.total %></span><% } %>
+      </a>
+      <a href="<%= base %>/inbox?category=automation" class="inbox-tab <%= activeCategory === 'automation' ? 'active' : '' %>">
+        اتوماسیون
+        <% if (counts && counts.automation > 0) { %><span class="badge badge-sm"><%= counts.automation %></span><% } %>
+      </a>
+      <a href="<%= base %>/inbox?category=training" class="inbox-tab <%= activeCategory === 'training' ? 'active' : '' %>">
+        آموزشی
+        <% if (counts && counts.training > 0) { %><span class="badge badge-sm"><%= counts.training %></span><% } %>
+      </a>
+      <a href="<%= base %>/inbox?category=credit" class="inbox-tab <%= activeCategory === 'credit' ? 'active' : '' %>">
+        فروش اعتباری
+        <% if (counts && counts.credit > 0) { %><span class="badge badge-sm"><%= counts.credit %></span><% } %>
+      </a>
+      <a href="<%= base %>/inbox?category=users" class="inbox-tab <%= activeCategory === 'users' ? 'active' : '' %>">
+        کاربران
+        <% if (counts && counts.users > 0) { %><span class="badge badge-sm"><%= counts.users %></span><% } %>
+      </a>
+    </div>
+
+    <div class="card-body">
+      <!-- Items List -->
+      <% if (items && items.length > 0) { %>
+        <% items.forEach(item => { %>
+          <div class="inbox-item priority-<%= item.priority || 'low' %>" data-item-id="<%= item.id %>">
+            <div class="inbox-item-header">
+              <div class="inbox-item-title"><%= item.title %></div>
+              <div class="inbox-item-date">
+                <%= new Date(item.created_at).toLocaleDateString('fa-IR', {year: 'numeric', month: 'long', day: 'numeric'}) %>
+              </div>
+            </div>
+            <div class="inbox-item-body"><%= item.body %></div>
+            <div class="inbox-item-actions">
+              <% if (item.actions && item.actions.length > 0) { %>
+                <% item.actions.forEach(action => { %>
+                  <button 
+                    class="btn <%= action.style || 'btn-secondary' %> btn-sm"
+                    onclick="handleAction('<%= item.id %>', '<%= action.key %>', '<%= item.category %>', '<%= item.metadata ? JSON.stringify(item.metadata).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;') : '' %>')">
+                    <% if (action.icon) { %><%= action.icon %> <% } %>
+                    <%= action.label %>
+                  </button>
+                <% }) %>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="empty-inbox">
+          <div class="empty-inbox-icon">📭</div>
+          <p>صندوق ورودی شما خالی است!</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .inbox-tabs { 
+    display: flex; 
+    gap: 10px; 
+    padding: 15px 20px 0;
+    border-bottom: 2px solid #e0e0e0;
+    overflow-x: auto;
+  }
+  .inbox-tab { 
+    padding: 10px 20px; 
+    cursor: pointer; 
+    border: none; 
+    background: transparent; 
+    font-size: 16px; 
+    color: #666; 
+    position: relative;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .inbox-tab.active { 
+    color: #007bff; 
+    font-weight: bold; 
+  }
+  .inbox-tab.active::after { 
+    content: ''; 
+    position: absolute; 
+    bottom: -2px; 
+    left: 0; 
+    right: 0; 
+    height: 2px; 
+    background: #007bff; 
+  }
+  .inbox-tab .badge-sm { 
+    margin-right: 5px; 
+    background: #dc3545; 
+    color: white; 
+    padding: 2px 8px; 
+    border-radius: 12px; 
+    font-size: 12px; 
+  }
+  .inbox-item { 
+    background: white; 
+    border: 1px solid #e0e0e0; 
+    border-radius: 8px; 
+    padding: 15px; 
+    margin-bottom: 15px; 
+    transition: box-shadow 0.2s; 
+  }
+  .inbox-item:hover { 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+  }
+  .inbox-item-header { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .inbox-item-title { 
+    font-size: 18px; 
+    font-weight: bold; 
+    color: #333; 
+  }
+  .inbox-item-date { 
+    font-size: 14px; 
+    color: #999; 
+  }
+  .inbox-item-body { 
+    color: #666; 
+    margin-bottom: 15px; 
+    line-height: 1.6; 
+  }
+  .inbox-item-actions { 
+    display: flex; 
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .inbox-item-actions button { 
+    flex: 0 0 auto; 
+  }
+  .priority-high { 
+    border-right: 4px solid #dc3545; 
+  }
+  .priority-medium { 
+    border-right: 4px solid #ffc107; 
+  }
+  .priority-low { 
+    border-right: 4px solid #28a745; 
+  }
+  .empty-inbox { 
+    text-align: center; 
+    padding: 60px 20px; 
+    color: #999; 
+  }
+  .empty-inbox-icon { 
+    font-size: 64px; 
+    margin-bottom: 20px; 
+  }
+</style>
+
+<script>
+  function handleAction(itemId, actionKey, category, metadataStr) {
+    let metadata = {};
+    try {
+      metadata = metadataStr ? JSON.parse(metadataStr) : {};
+    } catch (e) {
+      console.error('Failed to parse metadata:', e);
+    }
+
+    const entityType = metadata.entity_type;
+    const entityId = metadata.entity_id;
+
+    let url = '';
+    let method = 'POST';
+    let body = { entity_type: entityType };
+
+    // Build URL based on category
+    if (category === 'automation') {
+      if (actionKey === 'forward') {
+        const forwardToUserId = prompt('لطفاً شناسه کاربر مقصد را وارد کنید:');
+        if (!forwardToUserId) return;
+        url = '<%= base %>/inbox/automation/' + entityId + '/forward';
+        body.forward_to_user_id = forwardToUserId;
+      } else {
+        url = '<%= base %>/inbox/automation/' + entityId + '/' + actionKey;
+      }
+    } else if (category === 'credit') {
+      url = '<%= base %>/inbox/credit/' + entityId + '/' + actionKey;
+    } else if (category === 'users') {
+      url = '<%= base %>/inbox/users/' + entityId + '/' + actionKey;
+    } else if (category === 'training') {
+      alert('عملیات آموزشی هنوز پیاده‌سازی نشده است.');
+      return;
+    }
+
+    if (!url) {
+      alert('عملیات نامعتبر');
+      return;
+    }
+
+    // Confirm before action
+    if (actionKey === 'reject' || actionKey === 'approve') {
+      const confirmMsg = actionKey === 'reject' ? 'آیا مطمئن هستید که می‌خواهید رد کنید؟' : 'آیا مطمئن هستید که می‌خواهید تایید کنید؟';
+      if (!confirm(confirmMsg)) return;
+    }
+
+    // Send request
+    fetch(url, {
+      method: method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert(data.message || 'انجام شد');
+        window.location.reload();
+      } else {
+        alert(data.message || 'خطا در انجام عملیات');
+      }
+    })
+    .catch(err => {
+      console.error('Action error:', err);
+      alert('خطا در ارتباط با سرور');
+    });
+  }
+</script>

@@ -1,0 +1,366 @@
+<%
+  const __activeKey = 'credit_policy';
+  const __definitionsKeys = [
+    'definitions',
+    'def_teams',
+    'def_brands',
+    'def_products',
+    'def_users',
+    'credit_policy',
+    'hierarchy',
+    'hierarchy_arrange',
+    'users'
+  ];
+
+  const __menuItems = [
+    { title: 'داشبورد', href: '/admin/dashboard', active: __activeKey === 'dashboard' },
+    {
+      title: 'تعاریف',
+      type: 'group',
+      open: __definitionsKeys.includes(__activeKey),
+      active: __definitionsKeys.includes(__activeKey),
+      children: [
+        { title: 'مرکز تعاریف', href: '/admin/definitions', active: __activeKey === 'definitions' },
+        { title: 'تعریف برندها', href: '/admin/definitions/brands', active: __activeKey === 'def_brands' },
+        { title: 'تعریف کالاها', href: '/admin/definitions/products', active: __activeKey === 'def_products' },
+        { title: 'سمت‌ها', href: '/admin/definitions/hierarchy', active: __activeKey === 'hierarchy' },
+        { title: 'چیدمان سلسله مراتب', href: '/admin/definitions/hierarchy/arrange', active: __activeKey === 'hierarchy_arrange' },
+        { title: 'کاربران', href: '/admin/users', active: __activeKey === 'users' },
+        { title: 'سیاست اعتباری', href: '/admin/definitions/credit-policy', active: __activeKey === 'credit_policy' },
+      ],
+    },
+    {
+      title: 'گزارشات',
+      type: 'group',
+      open: __activeKey === 'reports',
+      active: __activeKey === 'reports',
+      children: [
+        { title: 'KPI و آمار', href: '/admin/reports', active: __activeKey === 'reports' },
+      ],
+    },
+    {
+      title: 'تأییدها',
+      type: 'group',
+      open: __activeKey === 'approvals',
+      active: __activeKey === 'approvals',
+      children: [
+        { title: 'در انتظار تأیید', href: '/admin/approvals', active: __activeKey === 'approvals' },
+      ],
+    },
+    { title: 'خروج', href: '/admin/logout', active: __activeKey === 'logout' },
+  
+  ,
+  {
+    group: 'ابزارها',
+    items: [
+      { label: 'دستیار من', href: '/admin/tools', icon: '🧰' }
+    ]
+  }
+
+];
+%>
+<%
+  const pageTitle = 'ویرایش سیاست اعتباری';
+  const theme = 'admin';
+  const themeDisabled = false;
+  const menuItems = __menuItems;
+  const userVal = (typeof user !== 'undefined' ? user : null);
+  const errorMsg = (typeof error !== 'undefined' ? error : null);
+  const warnMsg = (typeof warn !== 'undefined' ? warn : null);
+  const infoMsg = (typeof info !== 'undefined' ? info : null);
+  const extraCss = [];
+  const pageClass = '';
+  const __pageTitle = (typeof pageTitle !== 'undefined' && pageTitle) ? pageTitle : 'ToInfinity';
+  const __theme = (typeof theme !== 'undefined' && theme) ? theme : 'user';
+  const __themeDisabled = !!(typeof themeDisabled !== 'undefined' && themeDisabled);
+  const __isAdminTheme = __theme === 'admin';
+  const __user = (typeof userVal !== 'undefined') ? userVal : null;
+  const __basketsHref = '/admin/definitions/baskets';
+  const __menu = (typeof menuItems !== 'undefined' && Array.isArray(menuItems)) ? menuItems : [];
+  const __menuFiltered = __menu.map(function(item){
+    if (item && Array.isArray(item.children)) {
+      return {
+        ...item,
+        children: item.children.filter(function(child){ return child.href !== __basketsHref; })
+      };
+    }
+    return item;
+  }).filter(function(item){
+    if (item && Array.isArray(item.children)) {
+      return item.children.length > 0 || item.href !== __basketsHref;
+    }
+    return item && item.href !== __basketsHref;
+  });
+  const __showDrawer = __menuFiltered.length > 0;
+  const __error = (typeof errorMsg !== 'undefined' && errorMsg) ? errorMsg : null;
+  const __warn = (typeof warnMsg !== 'undefined' && warnMsg) ? warnMsg : null;
+  const __info = (typeof infoMsg !== 'undefined' && infoMsg) ? infoMsg : null;
+  const __extraCss = (typeof extraCss !== 'undefined' && extraCss) ? extraCss : [];
+  const __userName = (__user && ([__user.first_name, __user.last_name].filter(Boolean).join(' ').trim() || __user.username || __user.name)) || null;
+  const __pageClass = (typeof pageClass !== 'undefined' && pageClass) ? pageClass : '';
+%>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title><%= __pageTitle %> | ToInfinity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/logo.png" type="image/png">
+  <% if (__isAdminTheme) { %>
+    <link rel="preload" href="/fonts/vazir/Vazirmatn-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <% } %>
+  
+  <!-- Mobile-First CSS -->
+  <% if (!__themeDisabled) { %>
+    <link rel="stylesheet" href="/css/app-mobile.css?v=1">
+    <% if (__isAdminTheme) { %>
+      <link rel="stylesheet" href="/css/admin-ui.css">
+    <% } %>
+  <% } else { %>
+  <% } %>
+  <% __extraCss.forEach(function(href){ %>
+    <link rel="stylesheet" href="<%= href %>">
+  <% }) %>
+</head>
+<body data-skin="admin" class="theme-<%= __theme %> <%= __themeDisabled ? 'theme-disabled' : '' %> <%= __isAdminTheme ? 'admin-ui' : '' %> <%= __pageClass %>">
+  <div class="mobile-app">
+    <!-- App Bar -->
+    <header class="app-bar">
+      <div class="app-bar-left">
+        <% if (__showDrawer) { %>
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="منو">
+          <span>☰</span>
+        </button>
+        <% } %>
+      </div>
+      
+      <div class="app-bar-center <%= __isAdminTheme ? 'admin-brand' : '' %>">
+        <a class="app-bar-logo-link" href="<%= __isAdminTheme ? '/admin/definitions' : '/' %>" aria-label="خانه">
+          <img src="/icons/icon_1024.png" alt="ToInfinity" class="app-bar-logo">
+        </a>
+        <span class="app-bar-title">تا بینهایت</span>
+      </div>
+      
+      <div class="app-bar-right"></div>
+    </header>
+
+    <% if (__showDrawer) { %>
+    <div id="drawer-overlay" class="drawer-overlay"></div>
+    
+    <nav id="drawer" class="drawer">
+      <div class="drawer-header">
+        <h2 class="drawer-title">منو</h2>
+        <button id="drawer-close" class="drawer-close" aria-label="بستن">×</button>
+      </div>
+      
+      <div class="drawer-content">
+         <ul class="drawer-menu">
+           <% __menuFiltered.forEach(function(item) { %>
+            <li class="drawer-menu-item">
+              <% if (item && item.children && item.children.length) { %>
+                <details class="drawer-details" <%= item.open ? 'open="open"' : '' %>>
+                  <summary class="drawer-menu-link drawer-menu-summary <%= item.active ? 'active' : '' %>">
+                    <span><%= item.title %></span>
+                    <span class="drawer-menu-chevron" aria-hidden="true"></span>
+                  </summary>
+                  <ul class="drawer-submenu">
+                    <% item.children.forEach(function(child) { %>
+                      <li>
+                        <a href="<%= child.href %>" class="drawer-menu-link <%= child.active ? 'active' : '' %>">
+                          <span><%= child.title %></span>
+                        </a>
+                      </li>
+                    <% }); %>
+                  </ul>
+                </details>
+              <% } else if (item) { %>
+                <a href="<%= item.href %>" class="drawer-menu-link <%= item.active ? 'active' : '' %>">
+                  <span><%= item.title %></span>
+                </a>
+              <% } %>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+      
+      <% if (__user) { %>
+      <div class="drawer-footer">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          <span><%= __userName || 'کاربر' %></span>
+        </div>
+      </div>
+      <% } %>
+    </nav>
+    <% } %>
+
+    <!-- Main Content -->
+    <main class="app-content <%= __isAdminTheme ? 'admin-main stack' : '' %>">
+      <% if (__error) { %>
+        <div class="alert alert-error"><%= __error %></div>
+      <% } %>
+
+      <% if (__warn) { %>
+        <div class="alert alert-warn"><%= __warn %></div>
+      <% } %>
+      
+      <% if (__info) { %>
+        <div class="alert alert-info"><%= __info %></div>
+      <% } %>
+      
+      <%
+        const p = policy || {};
+        const checkedFinance = !!p.finance_required;
+      %>
+      <div class="stack">
+        <section class="card">
+          <h2 style="margin:0 0 8px 0;font-size:15px;font-weight:900;">سیاست اعتباری برای <%= node.title || ('نود #' + node.id) %></h2>
+          <p class="muted" style="margin:0 0 12px 0;line-height:1.7;">
+            تاییدکننده اول الزامی است. تاییدکننده دوم اختیاری است ولی نباید با تاییدکننده اول یکسان باشد.
+            در صورت نیاز به تایید مالی، کاربر مالی را مشخص کنید. سقف‌ها می‌توانند خالی بمانند.
+          </p>
+      
+          <% if (error) { %>
+            <div class="alert alert-error"><%= error %></div>
+          <% } %>
+      
+          <form class="form" method="post" action="/admin/definitions/credit-policy/<%= node.id %>">
+            <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:4px;">
+              <label class="field" for="org_node_display">
+                <span>نود</span>
+                <input id="org_node_display" type="text" value="<%= node.title || ('نود #' + node.id) %>" disabled>
+              </label>
+              <label class="field" for="org_node_id">
+                <span>شناسه نود</span>
+                <input id="org_node_id" type="text" value="<%= node.id %>" disabled>
+              </label>
+              <% if (p.created_at) { %>
+                <label class="field" for="created_at">
+                  <span>ایجاد</span>
+                  <input id="created_at" type="text" value="<%= p.created_at %>" disabled>
+                </label>
+              <% } %>
+              <% if (p.updated_at) { %>
+                <label class="field" for="updated_at">
+                  <span>آخرین بروزرسانی</span>
+                  <input id="updated_at" type="text" value="<%= p.updated_at %>" disabled>
+                </label>
+              <% } %>
+            </div>
+      
+            <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;">
+              <div class="field">
+                <label for="approver1_node_id">تاییدکننده اول (الزامی)</label>
+                <select id="approver1_node_id" name="approver1_node_id" required>
+                  <option value="">انتخاب کنید</option>
+                  <% if (orgNodes && orgNodes.length) { %>
+                    <% orgNodes.forEach(function(n){ %>
+                      <option value="<%= n.id %>" <%= (p.approver1_node_id && Number(p.approver1_node_id) === Number(n.id)) ? 'selected' : '' %>><%= n.title || n.id %></option>
+                    <% }); %>
+                  <% } %>
+                </select>
+              </div>
+              <div class="field">
+                <label for="approver2_node_id">تاییدکننده دوم (اختیاری)</label>
+                <select id="approver2_node_id" name="approver2_node_id">
+                  <option value="">بدون تاییدکننده دوم</option>
+                  <% if (orgNodes && orgNodes.length) { %>
+                    <% orgNodes.forEach(function(n){ %>
+                      <option value="<%= n.id %>" <%= (p.approver2_node_id && Number(p.approver2_node_id) === Number(n.id)) ? 'selected' : '' %>><%= n.title || n.id %></option>
+                    <% }); %>
+                  <% } %>
+                </select>
+              </div>
+            </div>
+      
+            <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:8px;">
+              <div class="field checkbox-field" style="align-self:end;">
+                <label class="checkbox">
+                  <input type="checkbox" name="finance_required" id="finance_required" <%= checkedFinance ? 'checked' : '' %>>
+                  <span>تأیید مالی لازم است</span>
+                </label>
+              </div>
+      
+              <div class="field" id="finance-user-field" style="<%= checkedFinance ? '' : 'display:none;' %>">
+                <label for="finance_user_id">کاربر مالی</label>
+                <select id="finance_user_id" name="finance_user_id" <%= checkedFinance ? 'required' : '' %>>
+                  <option value="">انتخاب کاربر</option>
+                  <% if (users && users.length) { %>
+                    <% users.forEach(function(u){ %>
+                      <option value="<%= u.id %>" <%= (p.finance_user_id && String(p.finance_user_id) === String(u.id)) ? 'selected' : '' %>><%= u.display_name || u.id %></option>
+                    <% }); %>
+                  <% } %>
+                </select>
+              </div>
+            </div>
+      
+            <div class="field" style="border:1px dashed var(--border-muted,#ccc);padding:10px;border-radius:8px;margin-top:8px;">
+              <strong style="display:block;margin-bottom:8px;">سقف‌های اعتباری (اختیاری)</strong>
+              <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:2px;">
+                <label class="field" for="max_open_invoices_per_user">
+                  <span>حداکثر فاکتور باز برای کاربر</span>
+                  <input id="max_open_invoices_per_user" name="max_open_invoices_per_user" type="number" inputmode="numeric" value="<%= (p.max_open_invoices_per_user ?? '') %>">
+                </label>
+      
+                <label class="field" for="max_open_amount_per_user">
+                  <span>حداکثر مبلغ باز برای کاربر</span>
+                  <input id="max_open_amount_per_user" name="max_open_amount_per_user" type="number" step="0.01" inputmode="decimal" value="<%= (p.max_open_amount_per_user ?? '') %>">
+                </label>
+      
+                <label class="field" for="max_open_invoices_per_customer">
+                  <span>حداکثر فاکتور باز برای مشتری</span>
+                  <input id="max_open_invoices_per_customer" name="max_open_invoices_per_customer" type="number" inputmode="numeric" value="<%= (p.max_open_invoices_per_customer ?? '') %>">
+                </label>
+      
+                <label class="field" for="max_open_amount_per_customer">
+                  <span>حداکثر مبلغ باز برای مشتری</span>
+                  <input id="max_open_amount_per_customer" name="max_open_amount_per_customer" type="number" step="0.01" inputmode="decimal" value="<%= (p.max_open_amount_per_customer ?? '') %>">
+                </label>
+      
+                <label class="field" for="max_invoice_amount">
+                  <span>حداکثر مبلغ هر فاکتور</span>
+                  <input id="max_invoice_amount" name="max_invoice_amount" type="number" step="0.01" inputmode="decimal" value="<%= (p.max_invoice_amount ?? '') %>">
+                </label>
+              </div>
+            </div>
+      
+            <div class="btn-row">
+              <button type="submit" class="btn btn-primary">ثبت</button>
+              <a href="/admin/definitions/credit-policy" class="btn btn-secondary">بازگشت</a>
+            </div>
+          </form>
+        </section>
+      </div>
+      
+      <script>
+        (function() {
+          var financeCheckbox = document.getElementById('finance_required');
+          var financeField = document.getElementById('finance-user-field');
+          var financeSelect = document.getElementById('finance_user_id');
+          if (!financeCheckbox || !financeField) return;
+          financeCheckbox.addEventListener('change', function() {
+            financeField.style.display = financeCheckbox.checked ? '' : 'none';
+            if (financeSelect) {
+              financeSelect.required = !!financeCheckbox.checked;
+            }
+            if (!financeCheckbox.checked) {
+              if (financeSelect) financeSelect.value = '';
+            }
+          });
+        })();
+      </script>
+      
+    </main>
+  </div>
+
+  <% if (!__themeDisabled && __showDrawer) { %>
+  <script src="/js/mobile-ui.js"></script>
+  <% } %>
+  <% if (!__themeDisabled && __isAdminTheme) { %>
+  <script defer src="/js/admin-ui.js"></script>
+  <% } %>
+  <script src="/js/ti-enhance.js"></script>
+</body>
+</html>

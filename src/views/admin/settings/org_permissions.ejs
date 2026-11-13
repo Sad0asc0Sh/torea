@@ -1,0 +1,330 @@
+<%
+const activeKey = 'settings_org_permissions';
+const pageTitle = 'مدیریت دسترسی‌های سازمانی';
+const extraCss = ['/css/admin/settings/org-permissions.css'];
+const pageClass = 'page--org-permissions';
+const __orgNodes = (typeof orgNodes !== 'undefined' && Array.isArray(orgNodes)) ? orgNodes : [];
+const selectedOrgId = (typeof selectedOrgNodeId !== 'undefined') ? selectedOrgNodeId : '';
+const selectedOrgTitleSafe = (typeof selectedOrgNode !== 'undefined' && selectedOrgNode && selectedOrgNode.title) ? selectedOrgNode.title : '';
+const currentMode = (typeof mode !== 'undefined') ? mode : 'USER';
+const itemsList = Array.isArray(items) ? items : [];
+%>
+
+<!-- Messages -->
+<% if (success) { %>
+  <div class="alert alert-success"><%= success %></div>
+<% } %>
+<% if (error) { %>
+  <div class="alert alert-danger"><%= error %></div>
+<% } %>
+
+<!-- Header -->
+<div class="org-permissions-header">
+  <div class="header-left">
+    <h1>🔐 مدیریت دسترسی‌های سازمانی</h1>
+    <p class="page-subtitle">تخصیص آیتمهای کاتالوگ به سمت‌های سازمانی</p>
+  </div>
+  <div class="header-right">
+    <a class="btn btn-secondary" href="/admin/settings">بازگشت به تنظیمات</a>
+  </div>
+</div>
+
+<!-- Stats Cards -->
+<% if (selectedOrgId) { %>
+  <div class="stats-cards">
+    <div class="stat-card">
+      <div class="stat-value"><%= itemsList.filter(i => i.visible).length %></div>
+      <div class="stat-label">آیتم‌های قابل مشاهده</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value"><%= itemsList.filter(i => i.show_on_dashboard).length %></div>
+      <div class="stat-label">آیتم‌های داشبورد</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value"><%= itemsList.length %></div>
+      <div class="stat-label">کل آیتم‌ها</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value"><%= currentMode %></div>
+      <div class="stat-label">حالت دسترسی</div>
+    </div>
+  </div>
+<% } %>
+
+<!-- Main Form -->
+<div class="org-permissions-container">
+  <form id="org-permissions-form" method="post" action="/admin/settings/org-permissions">
+    <input type="hidden" name="org_node_id" value="<%= selectedOrgId || '' %>">
+    
+    <!-- Sidebar: Org Node Selector -->
+    <div class="sidebar">
+      <div class="card">
+        <h3>انتخاب سمت سازمانی</h3>
+        
+        <div class="form-field">
+          <label for="org-node-select">سمت/شاخه سازمانی:</label>
+          <select id="org-node-select" name="org_node_id_selector" class="form-control">
+            <option value="">-- انتخاب کنید --</option>
+            <% if (!__orgNodes.length) { %>
+              <option value="" disabled>درخت سازمانی خالی است</option>
+            <% } else { %>
+              <% __orgNodes.forEach(function(node){ %>
+                <option value="<%= node.id %>" <%= String(node.id) === String(selectedOrgId || '') ? 'selected' : '' %>>
+                  <%= '  '.repeat(node.level - 1) %><%= node.title || ('نود #' + node.id) %>
+                </option>
+              <% }); %>
+            <% } %>
+          </select>
+        </div>
+        
+        <div class="form-field">
+          <label for="mode-select">حالت دسترسی:</label>
+          <select id="mode-select" name="mode" class="form-control" <%= !selectedOrgId ? 'disabled' : '' %>>
+            <option value="USER" <%= currentMode !== 'ADMIN' ? 'selected' : '' %>>USER</option>
+            <option value="ADMIN" <%= currentMode === 'ADMIN' ? 'selected' : '' %>>ADMIN</option>
+          </select>
+          <small class="form-help">ADMIN: دسترسی به همه آیتم‌ها</small>
+        </div>
+        
+        <% if (selectedOrgId) { %>
+          <div class="sidebar-actions">
+            <button type="submit" class="btn btn-primary">💾 ذخیره دسترسی‌ها</button>
+            <button type="button" class="btn btn-secondary" onclick="showCopyModal()">📋 کپی از سمت دیگر</button>
+          </div>
+        <% } %>
+      </div>
+      
+      <% if (selectedOrgId) { %>
+        <div class="card">
+          <h4>عملیات سریع</h4>
+          <div class="quick-actions">
+            <button type="button" class="btn btn-sm" onclick="selectAllVisible()">☑ انتخاب همه</button>
+            <button type="button" class="btn btn-sm" onclick="selectNoneVisible()">☐ لغو همه</button>
+            <button type="button" class="btn btn-sm" onclick="toggleDashboardAll()">📊 تبدیل به داشبورد</button>
+          </div>
+        </div>
+      <% } %>
+    </div>
+    
+    <!-- Main: Items Table -->
+    <div class="main-content">
+      <% if (!selectedOrgId) { %>
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <p>لطفاً یک سمت سازمانی از فهرست انتخاب کنید</p>
+        </div>
+      <% } else if (currentMode === 'ADMIN') { %>
+        <div class="alert alert-info">
+          <strong>حالت ADMIN:</strong> این سمت به همه آیتم‌های کاتالوگ دسترسی دارد. تنظیمات جزئی غیرفعال است.
+        </div>
+        
+        <div class="items-preview">
+          <h3>پیش‌نمایش آیتم‌های کاتالوگ</h3>
+          <div class="items-count"><%= itemsList.length %> آیتم</div>
+          <table class="items-table preview-table">
+            <thead>
+              <tr>
+                <th>عنوان</th>
+                <th>نوع</th>
+                <th>مسیر</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% itemsList.forEach(function(item){ %>
+                <tr>
+                  <td><%= item.title %></td>
+                  <td><span class="badge badge-<%= item.type %>"><%= item.type %></span></td>
+                  <td class="text-muted"><%= item.route_admin || item.route_user || '-' %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="items-header">
+          <h3>آیتم‌های کاتالوگ</h3>
+          <div class="items-filter">
+            <input type="text" id="search-items" placeholder="🔍 جستجو..." class="form-control">
+          </div>
+        </div>
+        
+        <% if (!itemsList.length) { %>
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <p>هیچ آیتم فعالی در کاتالوگ وجود ندارد</p>
+          </div>
+        <% } else { %>
+          <table class="items-table" id="items-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;">#</th>
+                <th>عنوان</th>
+                <th>نوع</th>
+                <th style="width: 120px; text-align: center;">
+                  <label class="table-checkbox">
+                    <input type="checkbox" id="toggle-all-visible" onclick="toggleAllVisible()">
+                    قابل مشاهده
+                  </label>
+                </th>
+                <th style="width: 120px; text-align: center;">
+                  <label class="table-checkbox">
+                    <input type="checkbox" id="toggle-all-dashboard" onclick="toggleAllDashboard()">
+                    داشبورد
+                  </label>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <% itemsList.forEach(function(item, idx){ %>
+                <tr class="item-row" data-title="<%= item.title.toLowerCase() %>" data-type="<%= item.type %>">
+                  <td><%= idx + 1 %></td>
+                  <td>
+                    <div class="item-title">
+                      <% if (item.icon) { %><span class="item-icon"><%= item.icon %></span><% } %>
+                      <%= item.title %>
+                    </div>
+                    <% if (item.description) { %>
+                      <div class="item-description"><%= item.description %></div>
+                    <% } %>
+                  </td>
+                  <td><span class="badge badge-<%= item.type %>"><%= item.type %></span></td>
+                  <td style="text-align: center;">
+                    <input type="checkbox" name="visible[]" value="<%= item.key %>" <%= item.visible ? 'checked' : '' %> class="checkbox-visible" data-key="<%= item.key %>">
+                  </td>
+                  <td style="text-align: center;">
+                    <input type="checkbox" name="dashboard[]" value="<%= item.key %>" <%= item.show_on_dashboard ? 'checked' : '' %> class="checkbox-dashboard" data-key="<%= item.key %>">
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } %>
+      <% } %>
+    </div>
+  </form>
+</div>
+
+<!-- Copy Modal -->
+<div id="copy-modal" class="modal" style="display: none;">
+  <div class="modal-backdrop" onclick="hideCopyModal()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>کپی دسترسی‌ها از سمت دیگر</h3>
+      <button type="button" class="modal-close" onclick="hideCopyModal()">×</button>
+    </div>
+    <form method="post" action="/admin/settings/org-permissions/copy">
+      <input type="hidden" name="target_org_node_id" value="<%= selectedOrgId || '' %>">
+      <div class="modal-body">
+        <p>دسترسی‌های یک سمت دیگر را به این سمت کپی کنید.</p>
+        
+        <div class="form-field">
+          <label for="source-org-node">سمت مبدأ:</label>
+          <select id="source-org-node" name="source_org_node_id" class="form-control" required>
+            <option value="">-- انتخاب کنید --</option>
+            <% __orgNodes.forEach(function(node){ %>
+              <% if (String(node.id) !== String(selectedOrgId)) { %>
+                <option value="<%= node.id %>">
+                  <%= '  '.repeat(node.level - 1) %><%= node.title || ('نود #' + node.id) %>
+                </option>
+              <% } %>
+            <% }); %>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="hideCopyModal()">انصراف</button>
+        <button type="submit" class="btn btn-primary">کپی دسترسی‌ها</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Org Node Dropdown Auto-Submit
+(function () {
+  const select = document.getElementById('org-node-select');
+  if (select) {
+    select.addEventListener('change', function () {
+      const orgNodeId = select.value;
+      if (orgNodeId) {
+        window.location.href = '/admin/settings/org-permissions?org_node_id=' + encodeURIComponent(orgNodeId);
+      }
+    });
+  }
+})();
+
+// Search functionality
+(function () {
+  const searchInput = document.getElementById('search-items');
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      const query = this.value.toLowerCase();
+      const rows = document.querySelectorAll('.item-row');
+      rows.forEach(row => {
+        const title = row.getAttribute('data-title') || '';
+        const type = row.getAttribute('data-type') || '';
+        if (title.includes(query) || type.includes(query)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+  }
+})();
+
+// Toggle all visible checkboxes
+function toggleAllVisible() {
+  const masterCheckbox = document.getElementById('toggle-all-visible');
+  const checkboxes = document.querySelectorAll('.checkbox-visible');
+  checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+}
+
+// Toggle all dashboard checkboxes
+function toggleAllDashboard() {
+  const masterCheckbox = document.getElementById('toggle-all-dashboard');
+  const checkboxes = document.querySelectorAll('.checkbox-dashboard');
+  checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+}
+
+// Quick actions
+function selectAllVisible() {
+  document.querySelectorAll('.checkbox-visible').forEach(cb => cb.checked = true);
+}
+
+function selectNoneVisible() {
+  document.querySelectorAll('.checkbox-visible').forEach(cb => cb.checked = false);
+}
+
+function toggleDashboardAll() {
+  const visibleCheckboxes = document.querySelectorAll('.checkbox-visible:checked');
+  visibleCheckboxes.forEach(cb => {
+    const key = cb.getAttribute('data-key');
+    const dashboardCb = document.querySelector('.checkbox-dashboard[data-key="' + key + '"]');
+    if (dashboardCb) dashboardCb.checked = true;
+  });
+}
+
+// Modal functions
+function showCopyModal() {
+  document.getElementById('copy-modal').style.display = 'flex';
+}
+
+function hideCopyModal() {
+  document.getElementById('copy-modal').style.display = 'none';
+}
+
+// Auto-check dashboard when visible is unchecked
+(function() {
+  const visibleCheckboxes = document.querySelectorAll('.checkbox-visible');
+  visibleCheckboxes.forEach(cb => {
+    cb.addEventListener('change', function() {
+      if (!this.checked) {
+        const key = this.getAttribute('data-key');
+        const dashboardCb = document.querySelector('.checkbox-dashboard[data-key="' + key + '"]');
+        if (dashboardCb) dashboardCb.checked = false;
+      }
+    });
+  });
+})();
+</script>

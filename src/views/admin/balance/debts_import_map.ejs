@@ -1,0 +1,128 @@
+<%
+const activeKey = 'balance_debts_import';
+  const pageTitle = 'نگاشت ستون‌های بدهی';
+  const extraCss = ['/css/admin/balance/balance.css'];
+  const pageClass = '';
+%>
+
+<!-- محتوای اصلی صفحه -->
+<div class="balance-container">
+  <div class="balance-card flex items-center justify-between gap-sm flex-wrap">
+    <div>
+      <h1 class="card-title mb-1">نگاشت ستون‌ها</h1>
+      <p class="muted">فایل: <%= previewData.uploadedName || '—' %> | ردیف‌ها: <%= previewData.totalRows || 0 %></p>
+    </div>
+    <a class="balance-link" style="max-width:220px;" href="/admin/balance/debts/import">
+      <div class="title">تغییر فایل</div>
+      <div class="desc">بازگشت و انتخاب فایل دیگر</div>
+    </a>
+  </div>
+
+  <div class="balance-card">
+    <form method="POST" action="/admin/balance/debts/import/confirm" class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+      <div>
+        <label>کد مشتری (الزامی)</label>
+        <select name="map_customer_code" required>
+          <option value="">انتخاب ستون</option>
+          <% headers.forEach(function(h, idx){ %>
+            <option value="<%= idx %>" <%= String(valueOrEmpty(mappingVal.customer_code)) === String(idx) ? 'selected' : '' %>><%= h || ('ستون ' + idx) %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label>مبلغ (الزامی)</label>
+        <select name="map_amount" required>
+          <option value="">انتخاب ستون</option>
+          <% headers.forEach(function(h, idx){ %>
+            <option value="<%= idx %>" <%= String(valueOrEmpty(mappingVal.amount)) === String(idx) ? 'selected' : '' %>><%= h || ('ستون ' + idx) %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label>تاریخ سررسید (اختیاری)</label>
+        <select name="map_due_date">
+          <option value="">انتخاب ستون</option>
+          <% headers.forEach(function(h, idx){ %>
+            <option value="<%= idx %>" <%= String(valueOrEmpty(mappingVal.due_date)) === String(idx) ? 'selected' : '' %>><%= h || ('ستون ' + idx) %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label>شماره فاکتور (اختیاری)</label>
+        <select name="map_invoice_number">
+          <option value="">انتخاب ستون</option>
+          <% headers.forEach(function(h, idx){ %>
+            <option value="<%= idx %>" <%= String(valueOrEmpty(mappingVal.invoice_number)) === String(idx) ? 'selected' : '' %>><%= h || ('ستون ' + idx) %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label>نام مشتری (اختیاری)</label>
+        <select name="map_customer_name">
+          <option value="">انتخاب ستون</option>
+          <% headers.forEach(function(h, idx){ %>
+            <option value="<%= idx %>" <%= String(valueOrEmpty(mappingVal.customer_name)) === String(idx) ? 'selected' : '' %>><%= h || ('ستون ' + idx) %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label>کد فروشنده (اختیاری)</label>
+        <select name="map_seller_id">
+          <option value="">انتخاب ستون</option>
+          <% headers.forEach(function(h, idx){ %>
+            <option value="<%= idx %>" <%= String(valueOrEmpty(mappingVal.seller_id)) === String(idx) ? 'selected' : '' %>><%= h || ('ستون ' + idx) %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label>کد مالی فروشنده (کلید اصلی)</label>
+        <select name="map_seller_accounting_code">
+          <option value="">انتخاب ستون</option>
+          <% headers.forEach(function(h, idx){ %>
+            <option value="<%= idx %>" <%= String(valueOrEmpty(mappingVal.seller_accounting_code)) === String(idx) ? 'selected' : '' %>><%= h || ('ستون ' + idx) %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label>نام کاربری فروشنده (سازگاری فایل‌های قدیمی)</label>
+        <select name="map_seller_username">
+          <option value="">انتخاب ستون</option>
+          <% headers.forEach(function(h, idx){ %>
+            <option value="<%= idx %>" <%= String(valueOrEmpty(mappingVal.seller_username)) === String(idx) ? 'selected' : '' %>><%= h || ('ستون ' + idx) %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-actions" style="grid-column: 1 / -1;">
+        <button type="submit" class="btn-primary">تایید و ورود</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="balance-card">
+    <h3 class="mt-0">پیش‌نمایش داده نگاشت‌شده (۱۰ ردیف اول)</h3>
+    <% if (previewData.previewRows && previewData.previewRows.length) { %>
+      <table class="balance-table">
+        <thead>
+          <tr>
+            <th>کد مشتری</th>
+            <th>مبلغ</th>
+            <th>تاریخ سررسید</th>
+            <th>شماره فاکتور</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% previewData.previewRows.slice(0,10).forEach(function(r){ %>
+            <tr>
+              <td><%= readCell(r, valueOrEmpty(mappingVal.customer_code)) %></td>
+              <td><%= readCell(r, valueOrEmpty(mappingVal.amount)) %></td>
+              <td><%= readCell(r, valueOrEmpty(mappingVal.due_date)) %></td>
+              <td><%= readCell(r, valueOrEmpty(mappingVal.invoice_number)) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p class="muted m-0">داده‌ای برای نمایش نیست.</p>
+    <% } %>
+  </div>
+</div>

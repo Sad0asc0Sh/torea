@@ -1,0 +1,62 @@
+<%
+const activeKey = 'def_customer_industries';
+  const pageTitle = 'صنف مشتری';
+  const extraCss = ['/css/admin/definitions/customer-industries.css'];
+  const pageClass = 'page--customer-industries';
+%>
+<%
+  const __industries = (typeof industries !== 'undefined' && Array.isArray(industries)) ? industries : [];
+%>      <div class="stack">
+        <section class="card">
+          <div class="top">
+            <div>
+              <h2 class="title">صنف مشتری</h2>
+              <p class="sub">برای گزارشگیری و دستهبندی</p>
+            </div>
+            <div class="btn-row">
+              <a class="btn btn-primary" href="/admin/definitions/customer-industries/new">افزودن صنف</a>
+              <a class="btn btn-secondary" href="/admin/definitions">بازگشت</a>
+            </div>
+          </div>
+
+          <div class="table-shell table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>عنوان</th>
+                  <th>وضعیت</th>
+                  <th>ترتیب</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (!__industries.length) { %>
+                  <tr>
+                    <td colspan="4" style="text-align:center;">صنفی ثبت نشده است.</td>
+                  </tr>
+                <% } else { %>
+                  <% __industries.forEach(function(ind){ %>
+                    <tr>
+                      <td><%= ind.title %></td>
+                      <td>
+                        <% if (ind.is_active) { %>
+                          <span class="pill pill-ok">فعال</span>
+                        <% } else { %>
+                          <span class="pill pill-bad">غیرفعال</span>
+                        <% } %>
+                      </td>
+                      <td class="mono"><%= typeof ind.sort_order === 'number' ? ind.sort_order : (ind.sort_order || 0) %></td>
+                      <td class="actions">
+                        <a class="btn btn-secondary btn-sm" href="/admin/definitions/customer-industries/<%= ind.id %>/edit">ویرایش</a>
+                        <form method="post" action="/admin/definitions/customer-industries/<%= ind.id %>/toggle" style="display:inline;">
+                          <button type="submit" class="btn btn-ghost btn-sm"><%= ind.is_active ? 'غیرفعال' : 'فعال' %> کردن</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>

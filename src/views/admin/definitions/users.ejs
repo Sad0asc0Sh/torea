@@ -1,0 +1,71 @@
+<%
+const activeKey = 'def_users';
+  const pageTitle = 'تعاریف - کاربران';
+  const extraCss = [];
+  const pageClass = '';
+%>
+
+      <%
+      const __users = Array.isArray(users) ? users : [];
+      %>
+      
+      <div class="card">
+        <h1 class="card-title">کاربران (تعاریف)</h1>
+        <p class="card-subtitle">لیست کاربران با اتصال به چارت سازمانی</p>
+      
+        <% if (error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        <% if (message) { %>
+          <div class="alert alert-success"><%= message %></div>
+        <% } %>
+      
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>نام کاربری</th>
+                <th>نام</th>
+                <th>نام خانوادگی</th>
+                <th>نقش</th>
+                <th>وضعیت</th>
+                <th>فعال</th>
+                <th>سمت سازمانی</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (__users.length === 0) { %>
+                <tr>
+                  <td colspan="8" class="text-center">کاربری ثبت نشده است.</td>
+                </tr>
+              <% } else { %>
+                <% __users.forEach(function(u){ %>
+                  <tr>
+                    <td><%= u.username || '-' %></td>
+                    <td><%= u.first_name || '' %></td>
+                    <td><%= u.last_name || '' %></td>
+                    <td><%= u.role || '-' %></td>
+                    <td><%= u.status || '-' %></td>
+                    <td>
+                      <% if (u.active) { %>
+                        <span class="badge badge-success">فعال</span>
+                      <% } else { %>
+                        <span class="badge badge-danger">غیرفعال</span>
+                      <% } %>
+                    </td>
+                    <td><%= u.org_node_title || '-' %></td>
+                    <td>
+                      <a class="btn btn-secondary btn-sm" href="/admin/definitions/users/<%= u.id %>/edit">ویرایش</a>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      
+        <div class="card-footer card-footer-actions">
+          <a class="btn btn-secondary" href="/admin/definitions">بازگشت به تعاریف</a>
+        </div>
+      </div>

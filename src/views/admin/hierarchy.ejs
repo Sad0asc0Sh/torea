@@ -1,0 +1,105 @@
+<%
+const activeKey = 'hierarchy';
+  const pageTitle = 'سمت‌های سازمانی';
+  const extraCss = [];
+  const pageClass = '';
+%>
+
+<%
+var nodes = (typeof nodes !== 'undefined' && Array.isArray(nodes)) ? nodes : [];
+var error = (typeof error !== 'undefined') ? error : null;
+var message = (typeof message !== 'undefined') ? message : null;
+%>
+      
+      <div class="btn-row" style="margin-bottom:12px;">
+        <a class="btn btn-secondary" href="/admin/definitions">بازگشت به مرکز تعاریف</a>
+      </div>
+
+      <%
+      /* ==== BRIA_HIDE_SYSTEM_HIERARCHY_EJS_V2 ====
+         هدف: شاخه/نود SYSTEM (مثل 'شاخه سیستم (ادمین اصلی)') در هیچ بخشی از صفحه نمایش داده نشود
+      */
+      function __briaNotSystemNode(n){
+        try{
+          const br = String((n && n.branch) ? n.branch : '').toUpperCase();
+          const t  = String((n && (n.title||n.name||n.label)) ? (n.title||n.name||n.label) : '');
+          return (br !== 'SYSTEM') && (t.indexOf('شاخه سیستم') === -1);
+        }catch(e){ return true; }
+      }
+      function __briaFilter(v){
+        return Array.isArray(v) ? v.filter(__briaNotSystemNode) : v;
+      }
+      if (typeof nodes !== 'undefined') nodes = __briaFilter(nodes);
+      if (typeof orgNodes !== 'undefined') orgNodes = __briaFilter(orgNodes);
+      if (typeof org_nodes !== 'undefined') org_nodes = __briaFilter(org_nodes);
+      if (typeof rows !== 'undefined') rows = __briaFilter(rows);
+      if (typeof options !== 'undefined') options = __briaFilter(options);
+      if (typeof items !== 'undefined') items = __briaFilter(items);
+      if (typeof list !== 'undefined') list = __briaFilter(list);
+      %>
+      
+      <% const isEditing = typeof editNode !== 'undefined' && editNode && editNode.id; %>
+      
+      <div class="stack">
+        <section class="card">
+          <p class="muted" style="margin:0 0 10px 0;line-height:1.9;">
+            در این صفحه فقط عناوین سمت‌ها را تعریف کنید.
+            برای تنظیم سلسله‌مراتب (بالادستی/زیرمجموعه) از صفحه «چیدمان» استفاده کنید.
+          </p>
+      
+          <form class="form" method="post" action="<%= isEditing ? '/admin/definitions/hierarchy/update' : '/admin/definitions/hierarchy' %>">
+            <% if (isEditing) { %>
+              <input type="hidden" name="id" value="<%= editNode.id %>">
+            <% } %>
+      
+            <div class="field">
+              <label for="title">عنوان سمت/لایه</label>
+              <input id="title" name="title" type="text" placeholder="مثلاً مدیر فروش ارشد" value="<%= isEditing ? (editNode.title || '') : '' %>" required>
+            </div>
+      
+            <div class="btn-row">
+              <button type="submit" class="btn btn-primary"><%= isEditing ? 'ذخیره ویرایش' : 'ثبت' %></button>
+              <a href="/admin/definitions/hierarchy" class="btn btn-secondary">انصراف</a>
+              <a href="/admin/definitions/hierarchy/arrange" class="btn btn-secondary">رفتن به چیدمان</a>
+            </div>
+          </form>
+        </section>
+      
+        <section class="card">
+          <h2 style="margin:0 0 8px 0;font-size:15px;font-weight:900;">لیست سمت‌های سازمانی</h2>
+          <p class="muted" style="margin:0 0 12px 0;line-height:1.9;">
+            در این لیست فقط عنوان سمت‌ها نمایش داده می‌شود.
+          </p>
+      
+          <% if (nodes && nodes.length) { %>
+            <div class="table-shell table-wrap is-compact">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>عنوان</th>
+                    <th style="width:220px;">عملیات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% nodes.forEach(function(n){ %>
+                    <tr>
+                      <td><%= n.title || '' %></td>
+                      <td>
+                        <div class="actions-row">
+                          <a class="btn btn-secondary" href="/admin/definitions/hierarchy?edit_id=<%= n.id %>">ویرایش</a>
+                          <form method="post" action="/admin/definitions/hierarchy/delete" onsubmit="return confirm('این سمت حذف شود؟ در صورت داشتن زیرمجموعه یا استفاده در سیستم، حذف انجام نمی‌شود.');">
+                          <input type="hidden" name="id" value="<%= n.id %>">
+                          <button type="submit" class="btn btn-danger">حذف</button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <p class="muted" style="margin:0;">هنوز هیچ سمتی ثبت نشده است.</p>
+          <% } %>
+        </section>
+      </div>

@@ -1,0 +1,88 @@
+<%
+  pageTitle = 'درخواست فروش اعتباری';
+  extraCss = [];
+  const base = (typeof basePath === 'string') ? basePath : '';
+  backHref = (base || '') + '/tools/credit-sale/my-open';
+  headerTitle = pageTitle;
+%>
+
+<div class="container container-sm">
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">درخواست جدید</h2>
+    </div>
+    <div class="card-body">
+      <form method="post" action="<%= base %>/tools/credit-sale" class="form-stack">
+        <div class="form-group">
+          <label class="form-label" for="customer_code">کد مشتری</label>
+          <input 
+            type="text" 
+            id="customer_code"
+            name="customer_code" 
+            class="form-input" 
+            value="<%= form.customer_code || '' %>"
+            placeholder="کد مشتری" 
+            required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="customer_name">نام مشتری</label>
+          <input 
+            type="text" 
+            id="customer_name"
+            name="customer_name" 
+            class="form-input" 
+            value="<%= form.customer_name || '' %>"
+            placeholder="نام مشتری" 
+            required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="invoice_amount">مبلغ فاکتور (تومان)</label>
+          <input 
+            type="number" 
+            id="invoice_amount"
+            name="invoice_amount" 
+            class="form-input" 
+            min="0" 
+            step="1000"
+            value="<%= form.invoice_amount || '' %>"
+            placeholder="مبلغ به تومان" 
+            required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="due_days">مهلت (روز)</label>
+          <input 
+            type="number" 
+            id="due_days"
+            name="due_days" 
+            class="form-input" 
+            min="0"
+            value="<%= form.due_days || 30 %>"
+            placeholder="تعداد روز" 
+            required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="seller_user_id">
+            فروشنده (اختیاری - پیش‌فرض خودتان)
+          </label>
+          <input 
+            type="text" 
+            id="seller_user_id"
+            name="seller_user_id" 
+            class="form-input" 
+            value="<%= form.seller_user_id || '' %>"
+            placeholder="ID فروشنده" />
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">ثبت درخواست</button>
+          <a href="<%= base %>/tools/credit-sale/my-open" class="btn btn-secondary">انصراف</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

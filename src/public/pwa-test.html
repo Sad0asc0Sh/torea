@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="admin">
+<head>
+  <meta charset="utf-8">
+  <title>PWA Mobile App Test | ToInfinity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/app.css">
+  <style>
+    .test-container {
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .test-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: var(--color-surface);
+      border-radius: 16px;
+      box-shadow: var(--elevation-1);
+    }
+    .test-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--color-primary);
+    }
+    .feature-item {
+      padding: 10px;
+      margin: 8px 0;
+      background: var(--color-bg);
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body data-skin="admin" class="theme-admin admin-ui">
+  <div class="mobile-app">
+    <!-- App Bar -->
+    <header class="app-bar">
+      <div class="app-bar-left">
+        <button id="test-menu" class="hamburger-btn" aria-label="منو">
+          <span>☰</span>
+        </button>
+      </div>
+      <div class="app-bar-center">
+        <span class="app-bar-title">PWA Test Page</span>
+      </div>
+      <div class="app-bar-right"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-content admin-main">
+      <div class="test-container">
+        <h1>🎉 PWA Mobile App Features Test</h1>
+        
+        <div class="test-section">
+          <div class="test-title">✅ Phase 1: Material Design 3 Elevations</div>
+          <div class="card card--elevated">
+            <div class="card-body">
+              <p>This card uses elevation-3 shadow for depth</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="test-section">
+          <div class="test-title">✅ Phase 2: Touch-Optimized Buttons</div>
+          <button class="btn btn-primary" onclick="testHaptic()">
+            🎯 Touch Me (with haptic feedback)
+          </button>
+          <button class="btn btn-success" onclick="testSnackbar()">
+            💬 Show Snackbar
+          </button>
+        </div>
+
+        <div class="test-section">
+          <div class="test-title">✅ Phase 3: Interactive Cards</div>
+          <div class="card card--interactive" onclick="window.MobileInteractions && window.MobileInteractions.showSnackbar('Card clicked! 🎉')">
+            <div class="card-body">
+              <p>Click this card to see touch ripple effect and snackbar</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="test-section">
+          <div class="test-title">✅ Phase 4: Loading States</div>
+          <div class="spinner"></div>
+          <div style="margin-top: 15px;">
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text" style="width: 60%;"></div>
+          </div>
+        </div>
+
+        <div class="test-section">
+          <div class="test-title">✅ Phase 5: Empty States</div>
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <div class="empty-state-title">No items found</div>
+            <div class="empty-state-description">Try adding some items to see them here</div>
+          </div>
+        </div>
+
+        <div class="test-section">
+          <div class="test-title">📱 PWA Features Implemented</div>
+          <div class="feature-item">✅ Material Design 3 elevations</div>
+          <div class="feature-item">✅ Touch-optimized minimum targets (44px)</div>
+          <div class="feature-item">✅ Native-like animations & transitions</div>
+          <div class="feature-item">✅ Bottom navigation (visible on mobile)</div>
+          <div class="feature-item">✅ Service Worker for offline support</div>
+          <div class="feature-item">✅ PWA installable prompt</div>
+          <div class="feature-item">✅ Touch ripple effects</div>
+          <div class="feature-item">✅ Haptic feedback (on supported devices)</div>
+          <div class="feature-item">✅ Snackbar notifications</div>
+          <div class="feature-item">✅ Safe area insets for notched screens</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav">
+      <a href="#settings" class="bottom-nav-item">
+        <span class="bottom-nav-icon">⚙️</span>
+        <span class="bottom-nav-label">تنظیمات</span>
+      </a>
+      <a href="#reports" class="bottom-nav-item">
+        <span class="bottom-nav-icon">📊</span>
+        <span class="bottom-nav-label">گزارشات</span>
+      </a>
+      <a href="#tools" class="bottom-nav-item">
+        <span class="bottom-nav-icon">🛠</span>
+        <span class="bottom-nav-label">ابزارها</span>
+      </a>
+      <a href="#definitions" class="bottom-nav-item">
+        <span class="bottom-nav-icon">📋</span>
+        <span class="bottom-nav-label">تعاریف</span>
+      </a>
+      <a href="#home" class="bottom-nav-item bottom-nav-item--active">
+        <span class="bottom-nav-icon">🏠</span>
+        <span class="bottom-nav-label">داشبورد</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="/js/mobile-interactions.js"></script>
+  <script src="/js/pwa-install.js"></script>
+  <script>
+    // Register Service Worker after page load for better performance
+    window.addEventListener('load', function() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(function(registration) {
+          console.log('✅ Service Worker registered:', registration.scope);
+        }).catch(function(error) {
+          console.log('❌ Service Worker registration failed:', error);
+        });
+      }
+    });
+
+    function testHaptic() {
+      if (window.MobileInteractions) {
+        window.MobileInteractions.haptic('medium');
+        window.MobileInteractions.showSnackbar('Haptic feedback triggered! 📳');
+      }
+    }
+
+    function testSnackbar() {
+      if (window.MobileInteractions) {
+        window.MobileInteractions.showSnackbar('🎉 This is a snackbar notification!', 3000);
+      }
+    }
+  </script>
+</body>
+</html>

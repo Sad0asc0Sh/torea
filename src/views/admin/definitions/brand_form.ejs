@@ -1,0 +1,68 @@
+<%
+const activeKey = 'def_brands';
+  const pageTitle = mode === 'edit' ? 'ویرایش برند' : 'ایجاد برند';
+  const extraCss = [];
+  const pageClass = '';
+%>      <%
+      const __brand = brand || {};
+      const __showAdvanced = (__brand.code && __brand.code !== '') || __brand.is_active === false;
+      const __managers = Array.isArray(managers) ? managers : [];
+      const __selectedManagerId = (__brand.manager_user_id ?? '').toString();
+      const actionUrl = (mode === 'edit' && __brand.id)
+        ? `/admin/definitions/brands/${__brand.id}`
+        : '/admin/definitions/brands';
+      %>
+      
+      <div class="card stack stack-sm">
+        <div>
+          <h1 class="card-title" style="margin-bottom:0.25rem;"><%= mode === 'edit' ? 'ویرایش برند' : 'ایجاد برند جدید' %></h1>
+          <p class="muted" style="margin:0;font-size:0.9rem;">تنها فیلدهای اصلی در دسترس هستند؛ کد برند اختیاری و یکتا است.</p>
+        </div>
+      
+        <% if (error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+      
+        <form method="post" action="<%= actionUrl %>" class="form form-compact">
+          <div class="form-group">
+            <label for="name">نام برند <span style="color:var(--danger)">*</span></label>
+            <input id="name" name="name" type="text" required value="<%= __brand.name || '' %>" />
+          </div>
+      
+          <div class="form-group">
+            <label for="manager_user_id">مدیر برند</label>
+            <select id="manager_user_id" name="manager_user_id">
+              <option value="">-- انتخاب کنید --</option>
+              <% __managers.forEach(function(m){ %>
+                <option value="<%= m.id %>" <%= (__selectedManagerId === String(m.id)) ? 'selected' : '' %>>
+                  <%= m.display_name || m.username || m.id %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+      
+          <details class="form-group" style="margin:0;" <%= __showAdvanced ? 'open' : '' %>>
+            <summary style="cursor:pointer;font-weight:700;">گزینه‌های پیشرفته</summary>
+            <div class="stack" style="margin-top:8px;gap:10px;">
+              <label for="code" class="form-group" style="margin:0;">
+                <span>کد برند (اختیاری، یکتا)</span>
+                <input id="code" name="code" type="text" value="<%= __brand.code || '' %>" />
+                <details class="help-text" style="margin:0;">
+                  <summary style="cursor:pointer;">راهنما</summary>
+                  <p style="margin:6px 0 0 0;">در صورت خالی بودن، مقدار NULL ذخیره می‌شود و تکراری بودن فقط برای کدهای غیرخالی بررسی می‌شود.</p>
+                </details>
+              </label>
+      
+              <label class="form-group" style="display:flex;align-items:center;gap:8px;margin:0;">
+                <input type="checkbox" name="is_active" <%= (__brand.is_active !== false) ? 'checked' : '' %> />
+                فعال باشد
+              </label>
+            </div>
+          </details>
+      
+          <div class="btn-row">
+            <button class="btn btn-primary" type="submit">ذخیره</button>
+            <a class="btn btn-secondary" href="/admin/definitions/brands">انصراف</a>
+          </div>
+        </form>
+      </div>

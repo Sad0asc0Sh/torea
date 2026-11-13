@@ -1,0 +1,194 @@
+<%
+  hideOrgFields = (typeof hideOrgFields !== "undefined") ? hideOrgFields : false;
+  pageTitle = editMode ? 'ویرایش اطلاعات' : 'ثبت‌نام';
+  extraCss = ['/css/shared/login-admin.css'];
+  headerTitle = pageTitle;
+  showAppBar = false;
+%>
+
+<%
+  const __editMode = (typeof editMode !== 'undefined' && editMode);
+  const __form = (typeof form !== 'undefined' && form) ? form : {};
+  const __hideOrgFields = (typeof hideOrgFields !== 'undefined') ? hideOrgFields : false;
+  const __orgNodes = (typeof orgNodes !== 'undefined' && orgNodes) ? orgNodes : [];
+  const __allUsers = (typeof allUsers !== 'undefined' && allUsers) ? allUsers : [];
+%>
+<div class="card">
+  <% if (__hideOrgFields) { %>
+  <div class="alert alert-info">SUPERADMIN_LOCK_NOTE: سمت و مدیر بالاسری سوپرادمین قابل نمایش/تغییر نیست و به‌صورت سیستمی تنظیم می‌شود.</div>
+  <% } %>
+
+  <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:1.1rem;">
+    <img src="/icons/logo.png" alt="ToInfinity" style="height:34px;max-width:140px;display:block;">
+    <span style="font-size:.95rem;font-weight:600;letter-spacing:.03em;">ToInfinity</span>
+  </div>
+
+  <div class="badge">
+    <span class="badge-dot"></span>
+    پنل داخلی BRIA
+  </div>
+
+  <h1 class="card-title"><%= __editMode ? 'ویرایش اطلاعات کاربر' : 'ثبت‌نام کاربر جدید' %></h1>
+  <p class="card-subtitle">
+    <% if (!__editMode) { %>
+    لطفاً اطلاعات خود را با دقت وارد کنید
+    <% } else { %>
+    اطلاعات خود را اصلاح کنید. سپس برای احراز تلگرام ادامه می‌دهید.
+    <% } %>
+  </p>
+
+  <form method="post" action="<%= __editMode ? '/register/edit' : '/register' %>" class="form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>نام <span class="req">*</span></label>
+        <input name="first_name" type="text" value="<%= (__form.first_name || '') %>" placeholder="مثلاً علی" required>
+      </div>
+
+      <div class="form-group">
+        <label>نام خانوادگی <span class="req">*</span></label>
+        <input name="last_name" type="text" value="<%= (__form.last_name || '') %>" placeholder="مثلاً حسینی" required>
+      </div>
+
+      <div class="form-group">
+        <label>شماره همراه <span class="req">*</span></label>
+        <input name="phone" type="tel" value="<%= (__form.phone || '') %>" placeholder="مثلاً 0915..." required>
+      </div>
+
+      <div class="form-group">
+        <label>آیدی تلگرام (اختیاری)</label>
+        <input name="telegram_id" type="text" value="<%= (__form.telegram_id || '') %>" placeholder="@username" pattern="^@?[A-Za-z0-9_]{5,32}$" maxlength="33" autocomplete="off">
+        <div class="help-text">در صورت داشتن آیدی تلگرام، وارد کنید تا سریع‌تر احراز شود.</div>
+      </div>
+
+      <div class="form-group">
+        <label>کد حسابداری (اختیاری)</label>
+        <input name="accounting_code" type="text" value="<%= (__form.accounting_code || '') %>" placeholder="کد مالی منحصر به فرد">
+        <div class="help-text">در صورت پر کردن، باید یکتا باشد.</div>
+      </div>
+
+      <div class="form-group">
+        <label>نام کاربری سیستم <span class="req">*</span></label>
+        <input name="username" type="text" value="<%= (__form.username || '') %>" placeholder="به انگلیسی وارد شود" required>
+      </div>
+
+      <% if (!__hideOrgFields) { %>
+      <div class="form-group">
+        <label>سمت سازمانی <span class="req">*</span></label>
+        <select name="org_node_id" id="org_node_id" required>
+          <option value="">یک سمت را انتخاب کنید...</option>
+          <% __orgNodes.forEach(function(n){ 
+             if (n.title === 'شرکت' || n.title === 'ادمین شرکت') { return; }
+          %>
+            <option value="<%= n.id %>" <%= (String(__form.org_node_id || '') === String(n.id)) ? 'selected' : '' %>><%= n.title %></option>
+          <% }) %>
+        </select>
+        <div class="help-text">سطح سازمانی خود را انتخاب کنید</div>
+      </div>
+
+      <div class="form-group">
+        <label>مدیر مستقیم / مدیر تیم</label>
+        <select name="manager_id" id="manager_id" disabled>
+          <option value="">ابتدا سمت خود را انتخاب کنید...</option>
+        </select>
+        <div class="help-text">پس از انتخاب سمت، فهرست مدیران نمایش داده می‌شود</div>
+      </div>
+      <% } else { %>
+      <input type="hidden" name="org_node_id" value="<%= __form.org_node_id || '' %>">
+      <input type="hidden" name="manager_id" value="<%= __form.manager_id || '' %>">
+      <% } %>
+
+      <!-- system-controlled defaults kept hidden to align with backend expectations -->
+      <input type="hidden" name="role" value="<%= __form.role || 'USER' %>">
+      <input type="hidden" name="status" value="<%= __form.status || 'pending_telegram' %>">
+      <input type="hidden" name="active" value="<%= (__form.active !== undefined ? __form.active : false) %>">
+
+      <div class="form-group full-width">
+        <label>
+          رمز عبور
+          <% if (!__editMode) { %><span class="req">*</span><% } %>
+        </label>
+        <input name="password" type="password" placeholder="حداقل ۸ کاراکتر" <%= __editMode ? '' : 'required' %>>
+        <div class="help-text">
+          از ترکیب حروف، عدد و علامت استفاده کنید.
+          <% if (__editMode) { %>
+            (در صورت خالی گذاشتن، رمز بدون تغییر باقی می‌ماند)
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-group mt-3">
+      <button type="submit" class="btn btn-primary btn-block">
+        <%= __editMode ? 'ذخیره و ادامه احراز تلگرام' : 'ثبت‌نام و ارسال کد تلگرام' %>
+      </button>
+      <a href="/login" class="btn btn-secondary btn-block">بازگشت به صفحه ورود</a>
+    </div>
+  </form>
+</div>
+
+<% if (!__hideOrgFields) { %>
+<script>
+  (function(){
+    var orgNodeSelect = document.getElementById('org_node_id');
+    var managerSelect = document.getElementById('manager_id');
+    if (!orgNodeSelect || !managerSelect) return;
+
+    var ORG_NODES = <%- JSON.stringify(__orgNodes || []) %>;
+    var ALL_USERS = <%- JSON.stringify(__allUsers || []) %>;
+    var CURRENT_MANAGER = "<%= __form.manager_id ? String(__form.manager_id) : '' %>";
+    var CURRENT_ORG = "<%= __form.org_node_id ? String(__form.org_node_id) : '' %>";
+
+    var parentMap = {};
+    ORG_NODES.forEach(function(n){
+      if (!n) return;
+      parentMap[String(n.id)] = n.parent_id != null ? String(n.parent_id) : null;
+    });
+
+    function rebuildManagerOptions(){
+      var orgId = orgNodeSelect.value || "";
+      var parentId = orgId && parentMap[orgId] ? parentMap[orgId] : null;
+
+      managerSelect.innerHTML = "";
+      var placeholder = document.createElement('option');
+      placeholder.value = "";
+
+      if (!parentId){
+        placeholder.textContent = 'برای این سمت نیازی به تعیین مدیر بالادست نیست.';
+        managerSelect.appendChild(placeholder);
+        managerSelect.disabled = true;
+        managerSelect.value = "";
+        return;
+      }
+
+      placeholder.textContent = 'مدیر بالاسری خود را انتخاب کنید...';
+      managerSelect.appendChild(placeholder);
+
+      ALL_USERS.forEach(function(u){
+        if (!u || !u.id) return;
+        if (String(u.org_node_id || '') !== String(parentId)) return;
+        var opt = document.createElement('option');
+        opt.value = String(u.id);
+        opt.textContent = u.display_name || u.username || ('کاربر ' + u.id);
+        managerSelect.appendChild(opt);
+      });
+
+      managerSelect.disabled = false;
+
+      if (CURRENT_MANAGER){
+        managerSelect.value = CURRENT_MANAGER;
+      }
+    }
+
+    orgNodeSelect.addEventListener('change', function(){
+      CURRENT_MANAGER = "";
+      rebuildManagerOptions();
+    });
+
+    if (CURRENT_ORG){
+      orgNodeSelect.value = CURRENT_ORG;
+    }
+
+    rebuildManagerOptions();
+  })();
+</script>
+<% } %>

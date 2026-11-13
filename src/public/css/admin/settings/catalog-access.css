@@ -1,0 +1,107 @@
+@import url('/css/app.css');
+
+.tree-list--catalog {
+  padding: 0;
+  list-style: none;
+  margin: 0;
+}
+
+.tree-list--catalog .tree-item {
+  margin: 6px 0;
+}
+
+.tree-list--catalog .tree-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tree-list--catalog .tree-row-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tree-list--catalog .tree-children {
+  margin-right: 20px;
+  padding-right: 12px;
+  border-right: 1px dashed #e2e8f0;
+}
+
+.tree-toggle {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.tree-toggle--spacer {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+}
+
+.tree-row.is-muted {
+  opacity: 0.65;
+}
+
+.tree-list--catalog input[type='checkbox']:indeterminate {
+  accent-color: #6366f1;
+}
+
+.tree-check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.tree-children[hidden] {
+  display: none !important;
+}
+
+.badge-inherited,
+.badge-ghost {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.4;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+.badge-inherited {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: #4338ca;
+}
+
+.tree-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tree-action-btn {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.tree-action-btn--danger {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #b91c1c;
+}

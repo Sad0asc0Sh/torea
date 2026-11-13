@@ -1,0 +1,41 @@
+/**
+ * ============================================================================
+ * Tiles - Action grids and tiles
+ * ============================================================================
+ * کاشی‌های عملیاتی برای صفحه‌های داشبورد/تعاریف
+ */
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+  align-items: stretch;
+}
+
+.action-tile,
+.action-tile:visited {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+.action-tile strong,
+.action-tile span {
+  color: inherit;
+}
+
+.action-tile:hover,
+.action-tile:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  outline: none;
+}

@@ -1,0 +1,75 @@
+<%
+const activeKey = 'balance_settlement_requests';
+  const pageTitle = 'درخواست‌های تسویه';
+  const extraCss = ['/css/admin/balance/balance.css'];
+  const pageClass = '';
+%>
+
+      <div class="btn-row" style="margin-bottom:12px;">
+        <a class="btn btn-secondary" href="/admin/balance">بازگشت به مانده فروشنده</a>
+      </div>
+
+      <div class="balance-container">
+        <div class="balance-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;flex-wrap:wrap;">
+            <div>
+              <h1 style="margin:0 0 6px;font-size:18px;font-weight:800;">درخواست‌های تسویه</h1>
+              <p class="muted" style="margin:0;">لیست تسویه‌های ثبت شده</p>
+            </div>
+            <a class="balance-link" style="max-width:220px;" href="/admin/balance/settlement-requests/new">
+              <div class="title">ثبت تسویه جدید</div>
+              <div class="desc">انتخاب بدهی تایید شده</div>
+            </a>
+          </div>
+
+          <form method="GET" action="/admin/balance/settlement-requests" class="form-grid" style="margin-top:10px;">
+            <div>
+              <label>وضعیت</label>
+              <select name="status">
+                <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>در انتظار</option>
+                <option value="approved" <%= status === 'approved' ? 'selected' : '' %>>تایید شده</option>
+                <option value="rejected" <%= status === 'rejected' ? 'selected' : '' %>>رد شده</option>
+                <option value="all" <%= status === 'all' ? 'selected' : '' %>>همه</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">اعمال فیلتر</button>
+              <a class="btn-secondary" href="/admin/balance/settlement-requests">پاکسازی</a>
+            </div>
+          </form>
+        </div>
+
+        <div class="balance-card">
+          <% if (items && items.length) { %>
+            <table class="balance-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>مشتری</th>
+                  <th>مبلغ</th>
+                  <th>نوع تسویه</th>
+                  <th>وضعیت</th>
+                  <th>توضیح</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% items.forEach(function(r){ %>
+                  <tr>
+                    <td><%= r.id %></td>
+                    <td>
+                      <div><%= r.customer_name || '-' %></div>
+                      <div class="muted" style="font-size:12px;"><%= r.customer_code || '' %></div>
+                    </td>
+                    <td><%= formatMoney(r.invoice_amount) %></td>
+                    <td><%= r.settlement_type || '-' %></td>
+                    <td><span class="chip"><%= r.status %></span></td>
+                    <td><%= r.requester_note || r.notes || '-' %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <p class="muted" style="margin:0;">موردی یافت نشد.</p>
+          <% } %>
+        </div>
+      </div>

@@ -1,0 +1,11 @@
+/**
+ * Admin Landing Page Styles
+ * Theme-aware styles for admin sections
+ */
+
+/* Admin Section Layout */
+.admin-section-home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg, 24px);
+}
